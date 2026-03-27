@@ -32,8 +32,6 @@ O portal utiliza uma arquitetura moderna de monorepo, facilitando a contribuiç�
 | [`@xispedocs/core`](./packages/core)         | Lógica principal de processamento e componentes base.             |
 | [`@xispedocs/mdx`](./packages/mdx)           | Processador de conteúdo Markdown para roteiros e artigos.         |
 | [`@xispedocs/ui`](./packages/ui)             | Biblioteca de componentes visuais do curso de ADS.                |
-| [`@xispedocs/openapi`](./packages/openapi)   | Integração com especificações técnicas e documentação de APIs.    |
-| [`@xispedocs/twoslash`](./packages/twoslash) | Snippets de código inteligentes para tutoriais técnicos.          |
 
 ## Desenvolvimento Local
 
@@ -48,7 +46,7 @@ Para rodar o projeto em sua máquina:
 2. **Inicie o ambiente de desenvolvimento**:
 
    ```bash
-   pnpm dev --filter=docs
+   npx turbo run dev --filter=docs
    ```
 
    *Dica: Se o servidor não iniciar ou a porta 3000 estiver ocupada, use:*
