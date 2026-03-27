@@ -1,0 +1,73 @@
+{
+  "name": "@xispedocs/mdx-remote",
+  "version": "3.0.0",
+  "description": "The remote MDX files adapter for XispeDocs",
+  "keywords": [
+    "NextJs",
+    "Docs",
+    "XispeDocs",
+    "next-mdx-remote"
+  ],
+  "homepage": "https://ramonxp.dev",
+  "repository": "https://github.com/RamonSantos9/XispeDocs.git",
+  "license": "MIT",
+  "author": "XispeDocs",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./client": {
+      "import": "./dist/client/index.js",
+      "types": "./dist/client/index.d.ts"
+    }
+  },
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rimraf dist",
+    "dev": "tsup --watch",
+    "lint": "eslint .",
+    "types:check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mdx-js/mdx": "^3.1.1",
+    "gray-matter": "^4.0.3",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@types/mdx": "^2.0.13",
+    "@types/node": "24.6.2",
+    "@types/react": "^19.2.0",
+    "eslint-config-custom": "workspace:*",
+    "@xispedocs/core": "workspace:*",
+    "react": "^19.2.0",
+    "tinyglobby": "^0.2.15",
+    "tsconfig": "workspace:*",
+    "unified": "^11.0.5",
+    "vfile": "^6.0.3"
+  },
+  "peerDependencies": {
+    "@types/mdx": "*",
+    "@types/react": "*",
+    "@xispedocs/core": "workspace:*",
+    "next": "16.x.x",
+    "react": "18.x.x || 19.x.x"
+  },
+  "peerDependenciesMeta": {
+    "@types/mdx": {
+      "optional": true
+    },
+    "@types/react": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

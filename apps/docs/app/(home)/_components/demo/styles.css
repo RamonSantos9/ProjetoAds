@@ -1,0 +1,44 @@
+.bg-cream {
+  background-color: #f5f3f1;
+}
+
+.type-base {
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.type-xs {
+  font-size: 0.75rem;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.px-full-bleed {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.-mx-full-bleed {
+  margin-left: -1rem;
+  margin-right: -1rem;
+}
+
+@media (min-width: 768px) {
+  .px-full-bleed {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .-mx-full-bleed {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

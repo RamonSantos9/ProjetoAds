@@ -1,0 +1,33 @@
+import { defineConfig } from 'tsup';
+
+export default defineConfig({
+  entry: [
+    'src/components/**/*.tsx',
+    'src/components/**/*.ts',
+    'src/components/layout/index.ts',
+    'src/layouts/**/*.tsx',
+    'src/layouts/**/*.ts',
+    'src/contexts/**/*.tsx',
+    'src/contexts/**/*.ts',
+    'src/theme/**/*.tsx',
+    'src/theme/**/*.ts',
+    'src/utils/**/*.tsx',
+    'src/utils/**/*.ts',
+    'src/provider/**/*.tsx',
+    'src/provider/**/*.ts',
+    'src/i18n.tsx',
+    'src/icons.tsx',
+    'src/mdx.tsx',
+    'src/mdx.server.tsx',
+    'src/og.tsx',
+    'src/page.tsx',
+  ],
+  format: ['esm'],
+  dts: true,
+  bundle: false,
+  minify: false,
+  clean: true,
+  external: ['react', 'next', 'tailwindcss', 'next-themes'],
+  outDir: 'dist',
+  silent: false,
+});

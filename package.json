@@ -1,0 +1,54 @@
+{
+  "name": "root",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "clean": "turbo run clean",
+    "dev": "turbo run dev --concurrency=100",
+    "dev:all": "turbo run dev --filter=!./examples/* --concurrency=100",
+    "dev:examples": "turbo run dev --filter=./examples/* --concurrency=100",
+    "lint": "turbo run lint",
+    "lint:prettier": "prettier --cache --check --ignore-path .gitignore --ignore-path .prettierignore .",
+    "prettier": "prettier --cache --write --list-different --ignore-path .gitignore --ignore-path .prettierignore .",
+    "release": "turbo run build --filter=./packages/* && changeset publish && pnpm -r run postpublish",
+    "test": "vitest",
+    "types:check": "turbo run types:check",
+    "version": "changeset version && pnpm install --lockfile-only",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.7",
+    "@eslint/js": "^9.37.0",
+    "bun": "^1.2.23",
+    "concurrently": "^9.2.1",
+    "cli-color": "^2.0.4",
+    "eslint": "^9.37.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "6.1.1",
+    "eslint-plugin-tailwindcss": "^3.18.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.3.2",
+    "prettier": "^3.6.2",
+    "prettier-plugin-astro": "^0.14.1",
+    "rimraf": "^6.0.1",
+    "tsup": "8.5.0",
+    "tsx": "^4.19.3",
+    "turbo": "2.5.8",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.45.0",
+    "vitest": "^3.2.4"
+  },
+  "packageManager": "pnpm@9.15.9",
+  "pnpm": {
+    "overrides": {
+      "react": "^19.0.0",
+      "react-dom": "^19.0.0",
+      "@types/react": "^19.2.0",
+      "@types/react-dom": "^19.2.0"
+    }
+  },
+  "engines": {
+    "node": ">= 18.17.0"
+  }
+}

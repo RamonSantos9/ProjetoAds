@@ -1,0 +1,139 @@
+{
+  "name": "@xispedocs/mdx",
+  "version": "3.0.0",
+  "description": "The built-in source for XispeDocs",
+  "keywords": [
+    "NextJs",
+    "Docs",
+    "XispeDocs"
+  ],
+  "homepage": "https://ramonxp.dev",
+  "repository": "https://github.com/RamonSantos9/XispeDocs.git",
+  "license": "MIT",
+  "author": "XispeDocs",
+  "type": "module",
+  "exports": {
+    "./loader-mdx": "./loader-mdx.cjs",
+    "./config": {
+      "types": "./dist/config/index.d.ts",
+      "import": "./dist/config/index.js",
+      "require": "./dist/config/index.cjs"
+    },
+    "./next": {
+      "types": "./dist/next/index.d.ts",
+      "import": "./dist/next/index.js",
+      "require": "./dist/next/index.cjs"
+    },
+    "./vite": {
+      "types": "./dist/vite/index.d.ts",
+      "import": "./dist/vite/index.js",
+      "require": "./dist/vite/index.cjs"
+    },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./runtime/next": {
+      "import": "./dist/runtime/next/index.js",
+      "types": "./dist/runtime/next/index.d.ts"
+    },
+    "./runtime/async": {
+      "import": "./dist/runtime/next/async.js",
+      "types": "./dist/runtime/next/async.d.ts"
+    },
+    "./runtime/vite": {
+      "browser": "./dist/runtime/vite/browser.js",
+      "import": "./dist/runtime/vite/server.js",
+      "types": "./dist/runtime/vite/server.d.ts"
+    },
+    "./node/loader": {
+      "import": "./dist/node/loader.js",
+      "types": "./dist/node/loader.d.ts"
+    },
+    "./bun": {
+      "import": "./dist/bun/index.js",
+      "types": "./dist/bun/index.d.ts"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "xispe-mdx": "./dist/bin.js"
+  },
+  "files": [
+    "dist/*",
+    "loader-mdx.cjs"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rimraf dist",
+    "dev": "tsup --watch",
+    "lint": "eslint .",
+    "types:check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mdx-js/mdx": "^3.1.1",
+    "@standard-schema/spec": "^1.0.0",
+    "chokidar": "^4.0.3",
+    "esbuild": "^0.25.10",
+    "estree-util-value-to-estree": "^3.4.0",
+    "js-yaml": "^4.1.0",
+    "lru-cache": "^11.2.2",
+    "mdast-util-to-markdown": "^2.1.2",
+    "remark-mdx": "^3.1.1",
+    "remark-parse": "^11.0.0",
+    "tinyglobby": "^0.2.15",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.0.0",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@xispedocs/core": "workspace:*",
+    "@xispedocs/mdx-remote": "workspace:*",
+    "@types/bun": "^1.2.23",
+    "@types/js-yaml": "^4.0.9",
+    "@types/mdast": "^4.0.4",
+    "@types/mdx": "^2.0.13",
+    "@types/node": "^24.6.2",
+    "@types/react": "^19.2.0",
+    "eslint-config-custom": "workspace:*",
+    "mdast-util-directive": "^3.1.0",
+    "mdast-util-mdx-jsx": "^3.2.0",
+    "next": "^16.1.6",
+    "react": "^19.2.0",
+    "remark": "^15.0.1",
+    "remark-directive": "^4.0.0",
+    "remark-stringify": "^11.0.0",
+    "rollup": "^4.52.4",
+    "tsconfig": "workspace:*",
+    "vfile": "^6.0.3",
+    "vite": "^7.1.9",
+    "webpack": "^5.102.0",
+    "tinyexec": "^1.0.1",
+    "picocolors": "^1.1.1"
+  },
+  "peerDependencies": {
+    "@xispedocs/core": "workspace:*",
+    "@xispedocs/mdx-remote": "workspace:*",
+    "next": "^15.3.0 || ^16.0.0",
+    "react": "18.x.x || 19.x.x",
+    "vite": "6.x.x || 7.x.x"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "next": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    },
+    "@xispedocs/mdx-remote": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

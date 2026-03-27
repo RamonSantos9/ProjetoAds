@@ -1,0 +1,11 @@
+
+> @xispedocs/ui@2.2.0 types:check D:\Arquivos Programa├º├úo\XispeDocs\packages\ui
+> tsc --noEmit
+
+error TS6059: File 'D:/Arquivos Programa├º├úo/XispeDocs/packages/ui/postcss.config.js' is not under 'rootDir' 'D:/Arquivos Programa├º├úo/XispeDocs/packages/ui/src'. 'rootDir' is expected to contain all source files.
+  The file is in the program because:
+    Matched by default include pattern '**/*'
+error TS6059: File 'D:/Arquivos Programa├º├úo/XispeDocs/packages/ui/tsup.config.ts' is not under 'rootDir' 'D:/Arquivos Programa├º├úo/XispeDocs/packages/ui/src'. 'rootDir' is expected to contain all source files.
+  The file is in the program because:
+    Matched by default include pattern '**/*'
+ÔÇëELIFECYCLEÔÇë Command failed with exit code 2.

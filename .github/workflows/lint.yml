@@ -1,0 +1,32 @@
+name: Verificação de Código
+
+on:
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Instalar Dependências
+        run: pnpm i --frozen-lockfile
+
+      - name: Verificar Formatação
+        run: pnpm lint:prettier
+
+      - name: Verificar Tipos
+        run: pnpm build --filter=./packages/* && pnpm i --frozen-lockfile && pnpm types:check
+
+      - name: Executar ESLint
+        run: pnpm lint

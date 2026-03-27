@@ -1,0 +1,32 @@
+
+> @xispedocs/shared@2.2.0 build D:\Arquivos Programa├º├úo\XispeDocs\packages\shared
+> tsup
+
+[34mCLI[39m Building entry: src/cn.ts, src/index.ts
+[34mCLI[39m Using tsconfig: ..\..\tsconfig.json
+[34mCLI[39m tsup v8.5.0
+[34mCLI[39m Using tsup config: D:\Arquivos Programa├º├úo\XispeDocs\packages\shared\tsup.config.ts
+[34mCLI[39m Target: node16
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+[34mCJS[39m Build start
+[32mESM[39m [1mdist\cn.js             [22m[32m52.00 B[39m
+[32mESM[39m [1mdist\index.js          [22m[32m139.00 B[39m
+[32mESM[39m [1mdist\chunk-TWL5OVCQ.js [22m[32m117.00 B[39m
+[32mESM[39m ÔÜí´©Å Build success in 209ms
+[32mCJS[39m [1mdist\cn.cjs    [22m[32m585.00 B[39m
+[32mCJS[39m [1mdist\index.cjs [22m[32m677.00 B[39m
+[32mCJS[39m ÔÜí´©Å Build success in 209ms
+[34mDTS[39m Build start
+src/cn.ts(1,39): error TS2792: Cannot find module 'clsx'. Did you mean to set the 'moduleResolution' option to 'nodenext', or to add aliases to the 'paths' option?
+src/cn.ts(2,25): error TS2792: Cannot find module 'tailwind-merge'. Did you mean to set the 'moduleResolution' option to 'nodenext', or to add aliases to the 'paths' option?
+
+Error: error occurred in dts build
+    at Worker.<anonymous> (D:\Arquivos Programa├º├úo\XispeDocs\node_modules\.pnpm\tsup@8.5.0_@swc+core@1.13.5_@swc+helpers@0.5.19__jiti@2.6.1_postcss@8.5.8_tsx@4.21.0_typescript@5.9.3_yaml@2.8.2\node_modules\tsup\dist\index.js:1545:26)
+    at Worker.emit (node:events:518:28)
+    at MessagePort.<anonymous> (node:internal/worker:268:53)
+    at [nodejs.internal.kHybridDispatch] (node:internal/event_target:827:20)
+    at MessagePort.<anonymous> (node:internal/per_context/messageport:23:28)
+DTS Build error
+ÔÇëELIFECYCLEÔÇë Command failed with exit code 1.
+ÔÇëWARNÔÇë  Local package.json exists, but node_modules missing, did you mean to install?

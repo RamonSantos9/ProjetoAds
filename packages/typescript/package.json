@@ -1,0 +1,80 @@
+{
+  "name": "@xispedocs/typescript",
+  "version": "3.0.0",
+  "description": "Typescript Integration for XispeDocs",
+  "keywords": [
+    "NextJs",
+    "XispeDocs",
+    "Docs"
+  ],
+  "homepage": "https://ramonxp.dev",
+  "repository": "https://github.com/RamonSantos9/XispeDocs.git",
+  "license": "MIT",
+  "author": "XispeDocs",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./ui": {
+      "import": "./dist/ui/index.js",
+      "types": "./dist/ui/index.d.ts"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rimraf dist",
+    "dev": "tsup --watch",
+    "lint": "eslint .",
+    "types:check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "estree-util-value-to-estree": "^3.4.0",
+    "hast-util-to-estree": "^3.1.3",
+    "hast-util-to-jsx-runtime": "^2.3.6",
+    "remark": "^15.0.1",
+    "remark-rehype": "^11.1.2",
+    "tinyglobby": "^0.2.15",
+    "ts-morph": "^27.0.0",
+    "unist-util-visit": "^5.0.0"
+  },
+  "devDependencies": {
+    "@mdx-js/mdx": "^3.1.1",
+    "@types/estree": "^1.0.8",
+    "@types/hast": "^3.0.4",
+    "@types/mdast": "^4.0.4",
+    "@types/node": "24.6.2",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "eslint-config-custom": "workspace:*",
+    "@xispedocs/core": "workspace:*",
+    "@xispedocs/ui": "workspace:*",
+    "tsconfig": "workspace:*",
+    "typescript": "^5.9.3",
+    "unified": "^11.0.5"
+  },
+  "peerDependencies": {
+    "@types/react": "*",
+    "@xispedocs/core": "workspace:*",
+    "@xispedocs/ui": "workspace:*",
+    "next": "16.x.x",
+    "typescript": "*"
+  },
+  "peerDependenciesMeta": {
+    "@xispedocs/ui": {
+      "optional": true
+    },
+    "@types/react": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

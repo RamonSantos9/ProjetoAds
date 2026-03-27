@@ -1,0 +1,15 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@2.3.0/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "fixed": [
+    ["@xispedocs/core", "@xispedocs/ui", "@xispedocs/create-app", "@xispedocs/story", "@xispedocs/base-ui", "@xispedocs/shared", "@xispedocs/epub"]
+  ],
+  "linked": [],
+  "access": "restricted",
+  "baseBranch": "dev",
+  "updateInternalDependencies": "patch",
+  "privatePackages": { "version": false },
+  "bumpVersionsWithWorkspaceProtocolOnly": true,
+  "ignore": ["docs", "example-*"]
+}

@@ -1,0 +1,49 @@
+{
+  "name": "@xispedocs/shared",
+  "version": "2.3.0",
+  "description": "Shared utilities for XispeDocs",
+  "keywords": [
+    "XispeDocs",
+    "Shared"
+  ],
+  "license": "MIT",
+  "author": "XispeDocs",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./cn": {
+      "import": "./dist/cn.js",
+      "types": "./dist/cn.d.ts",
+      "require": "./dist/cn.cjs",
+      "default": "./dist/cn.js"
+    }
+  },
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rimraf dist",
+    "dev": "tsup --watch",
+    "lint": "eslint .",
+    "types:check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.0.1"
+  },
+  "devDependencies": {
+    "eslint-config-custom": "workspace:*",
+    "tsconfig": "workspace:*",
+    "typescript": "^5.9.3",
+    "tsup": "8.5.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "extends": "../../packages/tsconfig/react-library.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "paths": {
+      "@/*": ["./src/*"],
+      "lucide-react": ["./src/icons"]
+    }
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "eslint.config.mjs", "tsup.config.ts", "postcss.config.js"]
+}
