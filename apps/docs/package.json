@@ -3,10 +3,10 @@
   "version": "0.1.3",
   "private": true,
   "scripts": {
-    "build": "xispe-mdx && next build",
+    "build": "node ../../packages/mdx/dist/bin.js && next build",
     "clean": "rimraf .next",
-    "dev": "xispe-mdx && next dev",
-    "lint": "xispe-mdx && eslint .",
+    "dev": "node ../../packages/mdx/dist/bin.js && next dev",
+    "lint": "node ../../packages/mdx/dist/bin.js && eslint .",
     "start": "next start"
   },
   "dependencies": {
