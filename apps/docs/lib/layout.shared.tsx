@@ -1,9 +1,35 @@
+import { type LinkItemType } from '@xispedocs/ui/layouts/docs';
+import { AlbumIcon } from 'lucide-react';
+import Image from 'next/image';
 import type { BaseLayoutProps } from '@xispedocs/ui/layouts/shared';
+import { XispeDocsIcon } from '@/app/layout.client';
+import Logo from '@/public/logo.png';
+
+export const linkItems: LinkItemType[] = [
+  {
+    icon: <AlbumIcon />,
+    text: 'Blog',
+    url: '/blog',
+    active: 'nested-url',
+  },
+];
+
+export const logo = (
+  <XispeDocsIcon className="size-8 md:size-10" />
+);
 
 export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
-      title: 'Podcast ADS Docs',
+      title: (
+        <>
+          {logo}
+          <span className="font-medium [.uwu_&]:hidden [header_&]:text-[15px]">
+            PodcastADS
+          </span>
+        </>
+      ),
+      transparentMode: 'top',
     },
   };
 }

@@ -1,43 +1,63 @@
-# XispeDocs
+# PodcastADS - Faculdade Serra Dourada
 
-![XispeDocs](./apps/docs/public/hero.png)
+![PodcastADS](./apps/docs/public/hero.png)
 
-Este é um ecossistema poderoso, flexível e tipado, projetado para construir sites de documentação impressionantes com facilidade.
+> **Onde o código encontra a conversa.** O portal oficial de tecnologia dos alunos de Análise e Desenvolvimento de Sistemas (ADS) da Faculdade Serra Dourada.
 
-## Visão Geral
+## Sobre o Projeto
 
-O XispeDocs fornece as ferramentas necessárias para criar uma experiência de desenvolvedor premium em frameworks React como **Next.js**, **Waku**, **Tanstack Start** ou **React Router**.
+O **PodcastADS** é uma iniciativa estudantil dedicada a conectar alunos, professores e profissionais do mercado. Nossa missão é fortalecer o ecossistema acadêmico através da disseminação de conhecimento, tendências de mercado e soft skills essenciais para o futuro desenvolvedor através de áudio, blog e workshops presenciais.
 
-### Principais Recursos
+## Objetivos do Projeto (Eixo Tecnológico)
 
-- **Core Agnóstico de Framework**: Funciona em vários frameworks React.
-- **Suporte de Primeira Classe para MDX**: Processamento de conteúdo poderoso com `@xispedocs/mdx`.
-- **Integração com OpenAPI**: Gere automaticamente documentações bonitas a partir de especificações de API.
-- **Typescript Twoslash**: Snippets de código interativos e seguros.
-- **Componentes de UI Premium**: Componentes pré-construídos e customizáveis para um visual moderno.
+Para atender aos requisitos acadêmicos e do mercado, o PodcastADS está focado em três pilares fundamentais:
+
+1. **Gerenciamento de Conteúdo (CMS):** Sistema responsivo para o cadastro, edição e publicação de episódios, permitindo a gestão completa do ciclo de vida do podcast.
+2. **Automação de Estatísticas:** Implementação de rotas e scripts para a coleta automatizada de dados de audiência e engajamento das plataformas de streaming.
+3. **Painel de BI (Business Intelligence):** Interface analítica para visualização de dados, facilitando a tomada de decisão baseada em métricas reais de audiência.
+
+## Diferenciais
+
+- **Portal Comunicativo**: Além de uma ferramenta técnica, o site funciona como um hub de informações sobre a Faculdade Serra Dourada e o curso de ADS.
+- **Pautas Colaborativas**: Alunos sugerem os temas dos próximos episódios e participam ativamente da curadoria.
+- **Dashboard ElevenLabs-Style**: Área administrativa de alta fidelidade para gestão de episódios e análise de dados.
 
 ## Estrutura do Monorepo
 
-| Pacote                                       | Descrição                                                                        |
-| :------------------------------------------- | :------------------------------------------------------------------------------- |
-| [`@xispedocs/cli`](./packages/cli)           | A ferramenta CLI essencial para gerenciar projetos XispeDocs.                    |
-| [`@xispedocs/core`](./packages/core)         | Lógica principal e componentes headless para documentação.                       |
-| [`@xispedocs/mdx`](./packages/mdx)           | O processador MDX integrado e fonte de conteúdo.                                 |
-| [`@xispedocs/ui`](./packages/ui)             | Componentes React e layouts prontos para usar com Next.js.                       |
-| [`@xispedocs/openapi`](./packages/openapi)   | Gerador de referências de API a partir de especificações OpenAPI para MDX.       |
-| [`@xispedocs/twoslash`](./packages/twoslash) | Blocos de código TypeScript inteligentes com informações de hover em tempo real. |
-| [`@xispedocs/docgen`](./packages/doc-gen)    | Utilitários Remark/Rehype para geração de conteúdo avançada.                     |
+O portal utiliza uma arquitetura moderna de monorepo, facilitando a contribuição em diferentes camadas do sistema.
 
-## Desenvolvimento
+| Pacote                                       | Descrição no Contexto do PodcastADS                               |
+| :------------------------------------------- | :---------------------------------------------------------------- |
+| [`@xispedocs/cli`](./packages/cli)           | CLI para automação de tarefas e criação de novos episódios/posts. |
+| [`@xispedocs/core`](./packages/core)         | Lógica principal de processamento e componentes base.             |
+| [`@xispedocs/mdx`](./packages/mdx)           | Processador de conteúdo Markdown para roteiros e artigos.         |
+| [`@xispedocs/ui`](./packages/ui)             | Biblioteca de componentes visuais do curso de ADS.                |
+| [`@xispedocs/openapi`](./packages/openapi)   | Integração com especificações técnicas e documentação de APIs.    |
+| [`@xispedocs/twoslash`](./packages/twoslash) | Snippets de código inteligentes para tutoriais técnicos.          |
 
-Para rodar o projeto localmente:
+## Desenvolvimento Local
 
-1. Instale as dependências: `pnpm install`
-2. Inicie o ambiente de desenvolvimento: `pnpm dev`
-3. Acesse `http://localhost:3000`
+Para rodar o projeto em sua máquina:
+
+1. **Instale as dependências**:
+
+   ```bash
+   pnpm install
+   ```
+
+2. **Inicie o ambiente de desenvolvimento**:
+
+   ```bash
+   pnpm dev --filter=docs
+   ```
+
+   *Dica: Se o servidor não iniciar ou a porta 3000 estiver ocupada, use:*
+
+   ```bash
+   pnpm dev:clean
+   ```
+
+3. **Acesse no navegador**: `http://localhost:3000`
 
 ---
-
-<div align="center">
-  <sub>XispeDocs</sub>
-</div>
+Construído com 💚 pelos alunos de ADS da **Faculdade Serra Dourada**.

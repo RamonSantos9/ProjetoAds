@@ -141,7 +141,7 @@ function Wordmark({ collapsed }: { collapsed?: boolean }) {
 const platforms = [
   {
     id: 'creative',
-    label: 'Podcast ADS',
+    label: 'PodcastADS',
     description: 'Painel principal do projeto academico',
     img: '/platforms/ElevenCreative.png',
   },
@@ -159,7 +159,7 @@ const platforms = [
   },
 ];
 
-export function ElevenLabsSidebar() {
+export function PodcastSidebar() {
   const pathname = usePathname();
   const { collapsed, open, setOpen } = useSidebar();
   const [activePlatform, setActivePlatform] = useState(platforms[0]);

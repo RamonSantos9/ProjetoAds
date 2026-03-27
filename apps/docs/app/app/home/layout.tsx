@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 export const metadata: Metadata = {
   title: 'Home',
-  description: 'XispeLabs — Text to Speech, Voice Cloning, Dubbing e muito mais.',
+  description: 'PodcastADS',
 };
 
 export default function HomeLayout({ children }: { children: ReactNode }) {

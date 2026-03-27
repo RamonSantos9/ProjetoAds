@@ -1,8 +1,9 @@
 'use client';
+import '../global.old.css';
 import type { CSSProperties, ReactNode } from 'react';
 import { SidebarProvider, useSidebar } from '@xispedocs/ui/contexts/sidebar';
-import { ElevenLabsSidebar } from '@/app/(home)/_components/dashboard/Sidebar';
-import { ElevenLabsHeader } from '@/app/(home)/_components/dashboard/Header';
+import { PodcastSidebar } from '@/app/(home)/_components/podcast-dashboard/PodcastSidebar';
+import { PodcastHeader } from '@/app/(home)/_components/podcast-dashboard/PodcastHeader';
 
 function GridLayout({ children }: { children: ReactNode }) {
   const { collapsed } = useSidebar();
@@ -16,8 +17,8 @@ function GridLayout({ children }: { children: ReactNode }) {
         gridTemplate: '"sidebar main" 1fr / var(--fd-sidebar-col, 0px) minmax(0, 1fr)',
       } as CSSProperties}
     >
-      <ElevenLabsSidebar />
-      <ElevenLabsHeader />
+      <PodcastSidebar />
+      <PodcastHeader />
       <main className="[grid-area:main] relative z-10 flex min-h-screen min-w-0 flex-col bg-[#FFFFFF] dark:bg-fd-background pt-[var(--eleven-header-height)] max-[1023px]:pt-[calc(var(--eleven-header-height)+var(--eleven-banner-height)+var(--eleven-mobile-tabs-height))]">
         {children}
       </main>

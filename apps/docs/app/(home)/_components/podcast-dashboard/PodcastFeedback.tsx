@@ -4,7 +4,7 @@ import * as React from 'react';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { cn } from '@xispedocs/ui/utils/cn';
 
-export function FeedbackPopover({ children }: { children: React.ReactNode }) {
+export function PodcastFeedback({ children }: { children: React.ReactNode }) {
   return (
     <PopoverPrimitive.Root>
       <PopoverPrimitive.Trigger asChild>

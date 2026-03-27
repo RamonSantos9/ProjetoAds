@@ -1,17 +1,12 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": [
-    "NEXT_PUBLIC_ORAMA_ENDPOINT",
-    "NEXT_PUBLIC_ORAMA_API_KEY",
-    "GITHUB_APP_PRIVATE_KEY",
-    "GITHUB_APP_ID",
-    "GITHUB_TOKEN",
-    "INKEEP_API_KEY"
+    
   ],
   "ui": "stream",
   "tasks": {
     "build": {
-      "env": ["ALGOLIA_API_KEY", "ORAMA_INDEX_ID", "ORAMA_PRIVATE_API_KEY"],
+      "env": [],
       "dependsOn": ["^build"],
       "outputs": [
         ".output",

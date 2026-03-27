@@ -6,7 +6,7 @@ import { useSidebar } from '@xispedocs/ui/contexts/sidebar';
 import { cn } from '@/lib/cn';
 import { ChevronDown, Rewind, FastForward, Play, Pause, Download } from 'lucide-react';
 
-export function AudioPlayer() {
+export function PodcastAudioPlayer() {
   const { 
     currentVoice, isPlaying, currentTime, duration, 
     pauseTrack, resumeTrack, seek, rewind, fastForward,

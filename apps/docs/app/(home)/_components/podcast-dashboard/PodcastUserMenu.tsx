@@ -68,7 +68,7 @@ function ThemeMenuItem() {
   );
 }
 
-export function UserMenu({ 
+export function PodcastUserMenu({ 
   children,
   open,
   onOpenChange

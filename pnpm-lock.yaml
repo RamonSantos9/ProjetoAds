@@ -89,12 +89,6 @@ importers:
       '@mixedbread/sdk':
         specifier: ^0.32.0
         version: 0.32.0
-      '@orama/core':
-        specifier: ^1.2.19
-        version: 1.2.19
-      '@orama/orama':
-        specifier: ^3.1.14
-        version: 3.1.18
       '@oramacloud/client':
         specifier: ^2.1.4
         version: 2.1.4
@@ -125,24 +119,9 @@ importers:
       '@xispedocs/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@xispedocs/docgen':
-        specifier: workspace:^
-        version: link:../../packages/doc-gen
       '@xispedocs/mdx':
         specifier: workspace:*
         version: link:../../packages/mdx
-      '@xispedocs/mdx-remote':
-        specifier: workspace:*
-        version: link:../../packages/mdx-remote
-      '@xispedocs/openapi':
-        specifier: workspace:^
-        version: link:../../packages/openapi
-      '@xispedocs/twoslash':
-        specifier: workspace:^
-        version: link:../../packages/twoslash
-      '@xispedocs/typescript':
-        specifier: workspace:^
-        version: link:../../packages/typescript
       '@xispedocs/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -273,9 +252,6 @@ importers:
       '@xispedocs/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      algoliasearch:
-        specifier: 5.39.0
-        version: 5.39.0
       browserslist-config-baseline:
         specifier: ^0.5.0
         version: 0.5.0

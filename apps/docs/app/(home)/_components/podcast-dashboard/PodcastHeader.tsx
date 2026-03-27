@@ -2,12 +2,12 @@
 
 import * as React from 'react';
 import { useSidebar } from '@xispedocs/ui/contexts/sidebar';
-import { FeedbackPopover } from './FeedbackPopover';
-import { NotificationsPopover } from './NotificationsPopover';
-import { UserMenu } from './UserMenu';
+import { PodcastFeedback } from './PodcastFeedback';
+import { PodcastNotifications } from './PodcastNotifications';
+import { PodcastUserMenu } from './PodcastUserMenu';
 import { cn } from '@xispedocs/ui/utils/cn';
 
-export function ElevenLabsHeader() {
+export function PodcastHeader() {
   const { collapsed, setCollapsed, setOpen } = useSidebar();
   const [isDesktopMenuOpen, setIsDesktopMenuOpen] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
@@ -104,11 +104,11 @@ export function ElevenLabsHeader() {
           <div className="hstack items-center max-h-full w-fit gap-2 empty:hidden">
             <div className="contents">
               <div className="hidden lg:contents">
-                <FeedbackPopover>
+                <PodcastFeedback>
                   <button className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 active:bg-gray-alpha-100 hover:border-gray-alpha-300 text-foreground shadow-none h-8 px-2.5 text-sm rounded-[0.6rem]">
                     Feedback
                   </button>
-                </FeedbackPopover>
+                </PodcastFeedback>
 
                 <a href="https://elevenlabs.io/docs/introduction" target="_blank" className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 active:bg-gray-alpha-100 hover:border-gray-alpha-300 text-foreground shadow-none h-8 px-2.5 text-sm rounded-[0.6rem]">
                   Documentação
@@ -131,7 +131,7 @@ export function ElevenLabsHeader() {
               </svg>
             </button>
 
-            <NotificationsPopover>
+            <PodcastNotifications>
               <button aria-label="Notificações" className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 active:bg-gray-alpha-100 hover:border-gray-alpha-300 text-foreground shadow-none center p-0 h-8 w-8 shrink-0 rounded-[0.6rem] [&>div]:w-4 [&>div]:h-4">
                 <div className="shrink-0 w-4 h-4 relative w-5 h-5">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor">
@@ -140,13 +140,13 @@ export function ElevenLabsHeader() {
                   </svg>
                 </div>
               </button>
-            </NotificationsPopover>
+            </PodcastNotifications>
 
-            <UserMenu open={isDesktopMenuOpen} onOpenChange={setIsDesktopMenuOpen}>
+            <PodcastUserMenu open={isDesktopMenuOpen} onOpenChange={setIsDesktopMenuOpen}>
               <button data-testid="user-menu-button" aria-label="Seu perfil" className="group w-full relative group items-center gap-0.5 h-10 w-10 justify-between flex rounded-lg text-sm leading-6 font-semibold outline-foreground transition-all duration-150">
                 {userButtonContent}
               </button>
-            </UserMenu>
+            </PodcastUserMenu>
           </div>
         </div>
       </header>
@@ -173,7 +173,7 @@ export function ElevenLabsHeader() {
           <div className="flex-1"></div>
           
           <div className="shrink-0 hstack items-center gap-1">
-            <NotificationsPopover>
+            <PodcastNotifications>
               <button aria-label="Notificações" className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 active:bg-gray-alpha-100 hover:border-gray-alpha-300 text-foreground shadow-none center p-0 h-8 w-8 shrink-0 rounded-[0.6rem] [&>div]:w-4 [&>div]:h-4">
                 <div className="shrink-0 w-4 h-4 relative w-5 h-5">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor">
@@ -182,13 +182,13 @@ export function ElevenLabsHeader() {
                   </svg>
                 </div>
               </button>
-            </NotificationsPopover>
+            </PodcastNotifications>
             
-            <UserMenu open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <PodcastUserMenu open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <button aria-label="Seu perfil" className="relative shrink-0 rounded-full focus-ring transition-all duration-150">
                 {userButtonContent}
               </button>
-            </UserMenu>
+            </PodcastUserMenu>
           </div>
         </div>
       </header>

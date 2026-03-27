@@ -55,19 +55,6 @@ export function LandingLogo(
 }
 
 export const landingLinks: LinkItemType[] = [
-  {
-    type: 'menu',
-    text: 'Projeto',
-    on: 'all',
-    items: [
-      { text: 'Hero', url: '/#hero' },
-      { text: 'Sobre', url: '/#sobre' },
-      { text: 'Eixos', url: '/#eixos' },
-      { text: 'Episodios', url: '/#episodios' },
-      { text: 'Equipe', url: '/#equipe' },
-      { text: 'Cronograma', url: '/#cronograma' },
-    ],
-  },
   { text: 'Dashboard', url: '/app/home', on: 'all' },
   {
     text: 'Faculdade',
@@ -184,7 +171,7 @@ export function LandingFooter() {
       <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-8 px-4 py-10 sm:px-6 md:flex-row md:items-end md:justify-between">
         <div className="max-w-xl">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-fd-muted-foreground">
-            Podcast ADS
+            PodcastADS
           </p>
           <p className="mt-3 text-sm leading-6 text-fd-muted-foreground">
             Portal do projeto academico desenvolvido para a Faculdade Serra
@@ -194,12 +181,6 @@ export function LandingFooter() {
         </div>
 
         <div className="flex flex-wrap gap-4 text-sm text-fd-muted-foreground">
-          <Link href="/" className="hover:text-fd-foreground">
-            Inicio
-          </Link>
-          <Link href="/#sobre" className="hover:text-fd-foreground">
-            Sobre
-          </Link>
           <Link href="/app/home" className="hover:text-fd-foreground">
             Dashboard
           </Link>

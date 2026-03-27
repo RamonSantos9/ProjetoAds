@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import type { ReactNode } from 'react';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { AudioProvider } from '@/lib/audio-context';
-import { AudioPlayer } from '@/app/(home)/_components/dashboard/AudioPlayer';
+import { PodcastAudioPlayer } from '@/app/(home)/_components/podcast-dashboard/PodcastAudioPlayer';
 
 const SearchDialog = dynamic(() => import('@/components/search'), {
   ssr: false,
@@ -44,7 +44,7 @@ export function Provider({ children }: { children: ReactNode }) {
             dangerouslySetInnerHTML={{ __html: inject }}
           />
           {children}
-          <AudioPlayer />
+          <PodcastAudioPlayer />
         </AudioProvider>
       </TooltipProvider>
     </RootProvider>

@@ -18,45 +18,45 @@ import {
 
 const entries = [
   {
-    id: 'landing',
-    title: 'Landing Page',
-    description: 'Pagina principal do clone ElevenLabs.',
+    id: 'inicio',
+    title: 'Início',
+    description: 'Página principal do Portal PodcastADS.',
     url: '/',
   },
   {
-    id: 'hero',
-    title: 'Hero',
-    description: 'Secao inicial da landing page.',
-    url: '/#hero',
+    id: 'quem-somos',
+    title: 'Quem Somos',
+    description: 'Conheça o projeto e a equipe da Faculdade Serra Dourada.',
+    url: '/#feedback',
   },
   {
-    id: 'demo',
-    title: 'Demo',
-    description: 'Secao de teste de voz e texto para audio.',
-    url: '/#demo',
+    id: 'guia',
+    title: 'Guia do Ouvinte',
+    description: 'Informações de como acompanhar e interagir.',
+    url: '/#features',
   },
   {
-    id: 'models',
-    title: 'Modelos',
-    description: 'Secao final com CTA e modelos.',
-    url: '/#models',
+    id: 'pautas',
+    title: 'Temas das Pautas',
+    description: 'Assuntos e episódios discutidos no podcast.',
+    url: '/#highlights',
   },
   {
     id: 'dashboard',
     title: 'Dashboard',
-    description: 'Area interna local em /app/home.',
+    description: 'Área administrativa para gestão de episódios.',
     url: '/app/home',
   },
   {
-    id: 'docs',
-    title: 'Documentacao oficial',
-    description: 'Guias oficiais da ElevenLabs.',
-    url: 'https://elevenlabs.io/docs',
+    id: 'faculdade',
+    title: 'Faculdade Serra Dourada',
+    description: 'Site institucional oficial da nossa faculdade.',
+    url: 'https://serradouradalorena.com.br',
     external: true,
   },
 ];
 
-export default function ElevenLabsSearchDialog(props: SharedProps) {
+export default function PodcastSearchDialog(props: SharedProps) {
   const router = useRouter();
   const [search, setSearch] = useState('');
 

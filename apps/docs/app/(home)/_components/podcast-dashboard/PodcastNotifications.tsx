@@ -52,7 +52,7 @@ const NOTIFICATIONS = [
   },
 ];
 
-export function NotificationsPopover({
+export function PodcastNotifications({
   children,
 }: {
   children: React.ReactNode;

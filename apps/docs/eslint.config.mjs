@@ -16,7 +16,7 @@ export default [
   {
     rules: {
       'no-console': 'off',
-      // for XispeDocs CLI
+      // for PodcastADS CLI
       'import/no-relative-packages': 'off',
     },
   },

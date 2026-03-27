@@ -31,7 +31,7 @@ export function DemoTabs({ selectedCategory, onCategorySelect }: DemoTabsProps) 
                   className="absolute inset-0 h-full w-full object-cover"
                 />
               </div>
-              <div className="type-base hidden sm:block">Podcast ADS</div>
+              <div className="type-base hidden sm:block">PodcastADS</div>
               <div className="type-base block sm:hidden">Criativo</div>
             </div>
             <div className="absolute inset-0 -z-10 rounded-full bg-fd-card shadow-[0_0_1px_rgb(0_0_0_/_0.28),0_4px_4px_rgb(0_0_0_/_0.06)] dark:shadow-[0_0_1px_rgb(255_255_255_/_0.12),0_10px_30px_rgb(0_0_0_/_0.25)]" />

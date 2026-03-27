@@ -6,6 +6,14 @@ import { cn } from '@/lib/cn';
 import { useAudioPlayer } from '@/lib/audio-context';
 import { Pause } from 'lucide-react';
 
+/**
+ * Componente principal do Dashboard Administrativo do PodcastADS.
+ * 
+ * Interface inspirada no ElevenLabs para gestão de episódios (CMS).
+ * Permite o cadastro, edição, publicação e análise de dados (BI).
+ * 
+ * @returns {JSX.Element} Painel de controle do projeto.
+ */
 export default function AppHomePage() {
   const { playTrack, currentVoice, isPlaying } = useAudioPlayer();
   const hour = new Date().getHours();
