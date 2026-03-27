@@ -3,7 +3,7 @@
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "fixed": [
-    ["@xispedocs/core", "@xispedocs/ui", "@xispedocs/create-app", "@xispedocs/story", "@xispedocs/base-ui", "@xispedocs/shared", "@xispedocs/epub"]
+    ["@xispedocs/core", "@xispedocs/ui", "@xispedocs/mdx", "@xispedocs/cli"]
   ],
   "linked": [],
   "access": "restricted",
@@ -11,5 +11,5 @@
   "updateInternalDependencies": "patch",
   "privatePackages": { "version": false },
   "bumpVersionsWithWorkspaceProtocolOnly": true,
-  "ignore": ["docs", "example-*"]
+  "ignore": ["docs"]
 }
