@@ -10,7 +10,7 @@ import {
 import Link from '@xispedocs/core/link';
 import Image from 'next/image';
 import Preview from '@/public/banner.png';
-import { Book, ComponentIcon, Pencil, PlusIcon, Server } from 'lucide-react';
+import { Book, ComponentIcon, LayoutDashboard, Pencil, PlusIcon, Server } from 'lucide-react';
 
 export default function Layout({ children }: LayoutProps<'/'>) {
   return (
@@ -29,13 +29,18 @@ export default function Layout({ children }: LayoutProps<'/'>) {
           items: [
             {
               text: 'Guia do Ouvinte',
-              url: '/docs/guia',
+              url: '/projeto',
               icon: <Book />,
             },
             {
-              text: 'Episódios',
-              url: 'https://open.spotify.com',
+              text: 'Podcasts',
+              url: '/episodios',
               icon: <ComponentIcon />,
+            },
+            {
+              text: 'Dashboard',
+              url: '/app/home',
+              icon: <LayoutDashboard />,
             },
           ],
         },
@@ -45,14 +50,14 @@ export default function Layout({ children }: LayoutProps<'/'>) {
           children: (
             <NavbarMenu>
               <NavbarMenuTrigger>
-                <Link href="/docs/guia">Explorar</Link>
+                <Link href="/projeto">Explorar</Link>
               </NavbarMenuTrigger>
               <NavbarMenuContent className="text-[15px]">
-                <NavbarMenuLink href="/docs/guia" className="md:row-span-2">
+                <NavbarMenuLink href="/projeto" className="md:row-span-2">
                   <div className="-mx-3 -mt-3">
                     <Image
                       src={Preview}
-                      alt="Perview"
+                      alt="Preview"
                       className="rounded-t-lg object-cover"
                       style={{
                         maskImage:
@@ -66,14 +71,9 @@ export default function Layout({ children }: LayoutProps<'/'>) {
                   </p>
                 </NavbarMenuLink>
 
-                <NavbarMenuLink
-                  href="https://open.spotify.com"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="lg:col-start-2"
-                >
+                <NavbarMenuLink href="/episodios" className="lg:col-start-2">
                   <ComponentIcon className="bg-fd-primary text-fd-primary-foreground p-1 mb-2 rounded-md" />
-                  <p className="font-medium">Episódios</p>
+                  <p className="font-medium">Podcasts</p>
                   <p className="text-fd-muted-foreground text-sm">
                     Acesse nossa biblioteca completa de episódios gravados.
                   </p>
@@ -93,26 +93,24 @@ export default function Layout({ children }: LayoutProps<'/'>) {
                 </NavbarMenuLink>
 
                 <NavbarMenuLink
-                  href="https://open.spotify.com"
-                  target="_blank"
-                  rel="noreferrer noopener"
+                  href="/projeto"
                   className="lg:col-start-3 lg:row-start-1"
-                >
-                  <Pencil className="bg-fd-primary text-fd-primary-foreground p-1 mb-2 rounded-md" />
-                  <p className="font-medium">Sugira Temas</p>
-                  <p className="text-fd-muted-foreground text-sm">
-                    Envie suas ideias de pauta para os próximos episódios.
-                  </p>
-                </NavbarMenuLink>
-
-                <NavbarMenuLink
-                  href="/docs/sobre"
-                  className="lg:col-start-3 lg:row-start-2"
                 >
                   <PlusIcon className="bg-fd-primary text-fd-primary-foreground p-1 mb-2 rounded-md" />
                   <p className="font-medium">Sobre o Projeto</p>
                   <p className="text-fd-muted-foreground text-sm">
                     Descubra quem somos e qual a nossa missão tecnológica.
+                  </p>
+                </NavbarMenuLink>
+
+                <NavbarMenuLink
+                  href="/app/home"
+                  className="lg:col-start-3 lg:row-start-2"
+                >
+                  <LayoutDashboard className="bg-fd-primary text-fd-primary-foreground p-1 mb-2 rounded-md" />
+                  <p className="font-medium">Dashboard Admin</p>
+                  <p className="text-fd-muted-foreground text-sm">
+                    Painel de configurações e operação exclusivo da equipe.
                   </p>
                 </NavbarMenuLink>
               </NavbarMenuContent>
@@ -136,7 +134,7 @@ function Footer() {
         <div>
           <p className="mb-1 text-sm font-semibold">PodcastADS - Serra Dourada</p>
           <p className="text-xs">
-            Construído com 💚 pelos alunos de ADS da{' '}
+            Construído com carinho pelos alunos de ADS da{' '}
             <a
               href="https://serradouradalorena.com.br"
               rel="noreferrer noopener"

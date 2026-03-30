@@ -110,8 +110,8 @@ export function PodcastHeader() {
                   </button>
                 </PodcastFeedback>
 
-                <a href="https://elevenlabs.io/docs/introduction" target="_blank" className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 active:bg-gray-alpha-100 hover:border-gray-alpha-300 text-foreground shadow-none h-8 px-2.5 text-sm rounded-[0.6rem]">
-                  Documentação
+                <a href="/projeto" className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 active:bg-gray-alpha-100 hover:border-gray-alpha-300 text-foreground shadow-none h-8 px-2.5 text-sm rounded-[0.6rem]">
+                  Sobre o Projeto
                 </a>
 
                 <button className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 active:bg-gray-alpha-100 hover:border-gray-alpha-300 text-foreground shadow-none h-8 px-2.5 text-sm flex-shrink-0 hidden lg:inline-flex rounded-[0.6rem]">

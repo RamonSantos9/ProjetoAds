@@ -9,6 +9,7 @@ import {
   Code2,
   Plus,
   Zap,
+  ChevronDown,
 } from 'lucide-react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { SidebarFooter } from '@xispedocs/ui/components/layout/sidebar';
@@ -26,32 +27,32 @@ const NAV: Array<{ title?: string; items: NavItem[] }> = [
   {
     items: [
       { label: 'Inicio', href: '/app/home', icon: <HomeIcon /> },
-      { label: 'Episodios', href: '/app/voice-library', icon: <VoicesIcon /> },
-      { label: 'Arquivos do projeto', href: '/app/files', icon: <FilesIcon /> },
+      { label: 'Podcasts', href: '/app/episodios', icon: <VoicesIcon /> },
+      { label: 'Arquivos do projeto', href: '/projeto', icon: <FilesIcon /> },
     ],
   },
   {
-    title: 'Producao',
+    title: 'Produção',
     items: [
-      { label: 'Novo episodio', href: '/app/speech-synthesis/text-to-speech', icon: <TextToSpeechIcon /> },
-      { label: 'Editar episodio', href: '/app/speech-synthesis/speech-to-speech', icon: <VoiceChangerIcon /> },
-      { label: 'Roteiros', href: '/app/voice-isolator', icon: <VoiceIsolatorIcon /> },
-      { label: 'Vinhetas e trilhas', href: '/app/sound-effects', icon: <SoundEffectsIcon /> },
-      { label: 'Publicacao', href: '/app/music', icon: <MusicIcon /> },
-      { label: 'Midias visuais', href: '/app/image-video', icon: <ImageVideoIcon /> },
-      { label: 'Modelos de post', href: '/app/templates', icon: <TemplatesIcon /> },
+      { label: 'Novo episódio', href: '/app/episodios', icon: <TextToSpeechIcon /> },
+      { label: 'Editar episódio', href: '/app/episodios/editar', icon: <VoiceChangerIcon /> },
+      { label: 'Roteiros', href: '/app/home', icon: <VoiceIsolatorIcon /> },
+      { label: 'Vinhetas e trilhas', href: '/app/home', icon: <SoundEffectsIcon /> },
+      { label: 'Publicação', href: '/app/home', icon: <MusicIcon /> },
+      { label: 'Mídias visuais', href: '/app/home', icon: <ImageVideoIcon /> },
+      { label: 'Modelos de post', href: '/app/home', icon: <TemplatesIcon /> },
     ],
   },
   {
-    title: 'Gestao',
+    title: 'Gestão',
     items: [
-      { label: 'Estudio do podcast', href: '/app/studio', icon: <StudioIcon /> },
-      { label: 'Convidados', href: '/app/audiobooks', icon: <AudiobooksIcon />, badge: 'Novo' },
-      { label: 'Cronograma', href: '/app/flows', icon: <FlowsIcon />, badge: 'Novo' },
-      { label: 'Entrevistas', href: '/app/dubbing', icon: <DubbingIcon /> },
-      { label: 'Transcricoes', href: '/app/speech-to-text', icon: <SpeechToTextIcon /> },
-      { label: 'Estatisticas', href: '/app/audio-native', icon: <AudioNativeIcon /> },
-      { label: 'Relatorios', href: '/app/productions', icon: <ProductionsIcon /> },
+      { label: 'Estúdio do podcast', href: '/app/home', icon: <StudioIcon /> },
+      { label: 'Cronograma', href: '/app/home', icon: <FlowsIcon />, badge: 'Breve' },
+      { label: 'Convidados', href: '/app/home', icon: <AudiobooksIcon /> },
+      { label: 'Entrevistas', href: '/app/home', icon: <DubbingIcon /> },
+      { label: 'Transcrições', href: '/app/home', icon: <SpeechToTextIcon /> },
+      { label: 'Estatísticas', href: '/app/home', icon: <AudioNativeIcon /> },
+      { label: 'Relatórios', href: '/app/relatorios', icon: <ProductionsIcon /> },
     ],
   },
 ];
@@ -161,8 +162,48 @@ const platforms = [
 
 export function PodcastSidebar() {
   const pathname = usePathname();
-  const { collapsed, open, setOpen } = useSidebar();
+  const { setOpen, collapsed, open } = useSidebar();
   const [activePlatform, setActivePlatform] = useState(platforms[0]);
+
+  const renderNavItem = (item: NavItem) => {
+    const active =
+      pathname === item.href &&
+      (item.href !== '/app/home' || item.label === 'Inicio') &&
+      (item.href !== '/app/episodios' || item.label === 'Podcasts');
+
+    return (
+      <Link
+        key={item.label}
+        href={item.href}
+        onClick={() => setOpen(false)}
+        className={cn(
+          'group/item relative flex w-full h-8 items-center gap-2 overflow-hidden rounded-lg transition-colors px-2',
+          active
+            ? 'bg-[#EFEFF0] text-foreground dark:bg-white/10'
+            : 'text-[#5b5b64] dark:text-gray-400 group-hover/item:bg-[#EFEFF0] dark:group-hover/item:bg-white/5 group-hover/item:text-fd-foreground',
+        )}
+      >
+        <span className={cn('flex shrink-0 items-center justify-center', active ? 'text-foreground' : 'text-[#5b5b64] dark:text-gray-400')}>
+          {item.icon}
+        </span>
+        <div
+          className={cn(
+            'flex h-full flex-1 items-center justify-between transition-all duration-150',
+            collapsed ? 'w-0 translate-x-1 opacity-0' : 'w-auto translate-x-0 opacity-100',
+          )}
+        >
+          <span className={cn('max-w-[168px] truncate whitespace-nowrap text-sm font-medium', active ? 'text-foreground' : 'text-[#5b5b64] dark:text-gray-400')}>
+            {item.label}
+          </span>
+          {item.badge ? (
+            <span className="inline-flex h-5 items-center rounded-full bg-black/5 dark:bg-white/10 px-2 text-[11px] font-medium text-foreground">
+              {item.badge}
+            </span>
+          ) : null}
+        </div>
+      </Link>
+    );
+  };
 
   return (
     <>
@@ -269,57 +310,7 @@ export function PodcastSidebar() {
                   {collapsed && si > 0 ? <div className="h-px w-6 mx-auto bg-fd-border/40 mb-3 mt-1" /> : null}
 
                   <div className="flex flex-col gap-[1px]">
-                    {section.items.map((item, ii) => {
-                      const active =
-                        pathname === item.href ||
-                        (item.href !== '/app/home' && !!pathname?.startsWith(item.href));
-
-                      return (
-                        <div key={`nav-item-${si}-${ii}-${item.href}`} className="group/item relative w-full">
-                          <div className="relative rounded-lg">
-                            <Link
-                              href={item.href}
-                              onClick={() => setOpen(false)}
-                              className={cn(
-                                'relative flex w-full h-8 items-center gap-2 overflow-hidden rounded-lg transition-colors px-2',
-                                active
-                                  ? 'bg-[#EFEFF0] text-foreground dark:bg-white/10'
-                                  : 'text-[#5b5b64] dark:text-gray-400 group-hover/item:bg-[#EFEFF0] dark:group-hover/item:bg-white/5 group-hover/item:text-fd-foreground',
-                              )}
-                            >
-                              <span className={cn('flex shrink-0 items-center justify-center', active ? 'text-foreground' : 'text-[#5b5b64] dark:text-gray-400')}>
-                                {item.icon}
-                              </span>
-                              <div
-                                className={cn(
-                                  'flex h-full flex-1 items-center justify-between overflow-hidden transition-all duration-150',
-                                  collapsed ? 'w-0 translate-x-1 opacity-0' : 'w-auto translate-x-0 opacity-100',
-                                )}
-                              >
-                                <span className={cn('max-w-[168px] truncate whitespace-nowrap text-sm font-medium', active ? 'text-foreground' : 'text-[#5b5b64] dark:text-gray-400')}>
-                                  {item.label}
-                                </span>
-                                {item.badge ? (
-                                  <span className="inline-flex h-5 items-center rounded-full bg-black/5 dark:bg-white/10 px-2 text-[11px] font-medium text-foreground">
-                                    {item.badge}
-                                  </span>
-                                ) : null}
-                              </div>
-                            </Link>
-
-                            {item.label === 'Episodios' && !collapsed ? (
-                              <button
-                                type="button"
-                                aria-label="Criar um episodio"
-                                className="absolute right-[0.125rem] top-1/2 z-10 flex h-[1.375rem] w-[1.375rem] -translate-y-1/2 items-center justify-center rounded-[6px] border border-black/10 dark:border-white/10 bg-[#FFFFFF] dark:bg-fd-background text-foreground opacity-100 transition-all duration-0 hover:border-black/20 dark:hover:border-white/20 hover:bg-[#F4F4F5] dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100"
-                              >
-                                <Plus className="h-3 w-3 opacity-50 transition-opacity duration-150" />
-                              </button>
-                            ) : null}
-                          </div>
-                        </div>
-                      );
-                    })}
+                    {section.items.map((item) => renderNavItem(item))}
                   </div>
                 </div>
               ))}

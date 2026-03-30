@@ -94,7 +94,7 @@ export default function AppHomePage() {
               {/* Quick action grid */}
               <div className="grid grid-cols-2 2xs:grid-cols-3 gap-y-6 gap-x-3 md:gap-3 md:grid-cols-6 mb-8 md:mb-12">
                 {/* New episode */}
-                <a data-agent-id="link-_r_8f_" aria-label="Novo episódio" className="group stack items-center outline-none" data-testid="home-card-text-to-speech" href="/app/speech-synthesis/text-to-speech">
+                <a data-agent-id="link-_r_8f_" aria-label="Novo episódio" className="group stack items-center outline-none" data-testid="home-card-text-to-speech" href="/app/episodios">
                   <div className="stack gap-2 w-full max-w-[180px]">
                     <div className="relative overflow-hidden flex-1 rounded-[20px] flex items-center justify-center bg-black/5 dark:bg-white/5 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors duration-200 w-full outline-none group-focus-visible:outline-none group-focus-visible:ring-[1.5px] group-focus-visible:ring-ring">
                       <div className="relative w-full pb-[100%]"></div>
@@ -128,7 +128,7 @@ export default function AppHomePage() {
                 </a>
 
                 {/* Edit episode */}
-                <a data-agent-id="link-_r_8g_" aria-label="Editar episódio" className="group stack items-center outline-none" data-testid="home-card-audiobook" href="/app/audiobooks">
+                <a data-agent-id="link-_r_8g_" aria-label="Editar episódio" className="group stack items-center outline-none" data-testid="home-card-audiobook" href="/app/episodios">
                   <div className="stack gap-2 w-full max-w-[180px]">
                     <div className="relative overflow-hidden flex-1 rounded-[20px] flex items-center justify-center bg-black/5 dark:bg-white/5 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors duration-200 w-full outline-none group-focus-visible:outline-none group-focus-visible:ring-[1.5px] group-focus-visible:ring-ring">
                       <div className="relative w-full pb-[100%]"></div>
@@ -159,7 +159,7 @@ export default function AppHomePage() {
                 </a>
 
                 {/* Publish episode */}
-                <a data-agent-id="link-_r_8h_" aria-label="Publicar episódio" className="group stack items-center outline-none" data-testid="home-card-image-video" href="/app/image-video">
+                <a data-agent-id="link-_r_8h_" aria-label="Publicar episódio" className="group stack items-center outline-none" data-testid="home-card-image-video" href="/app/home">
                   <div className="stack gap-2 w-full max-w-[180px]">
                     <div className="relative overflow-hidden flex-1 rounded-[20px] flex items-center justify-center bg-black/5 dark:bg-white/5 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors duration-200 w-full outline-none group-focus-visible:outline-none group-focus-visible:ring-[1.5px] group-focus-visible:ring-ring">
                       <div className="relative w-full pb-[100%]"></div>
@@ -196,7 +196,7 @@ export default function AppHomePage() {
                 </a>
 
                 {/* Guests */}
-                <a data-agent-id="link-_r_8i_" aria-label="Convidados" className="group stack items-center outline-none" data-testid="home-card-ai-agent" href="/app/agents/agents">
+                <a data-agent-id="link-_r_8i_" aria-label="Convidados" className="group stack items-center outline-none" data-testid="home-card-ai-agent" href="/app/home">
                   <div className="stack gap-2 w-full max-w-[180px]">
                     <div className="relative overflow-hidden flex-1 rounded-[20px] flex items-center justify-center bg-black/5 dark:bg-white/5 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors duration-200 w-full outline-none group-focus-visible:outline-none group-focus-visible:ring-[1.5px] group-focus-visible:ring-ring">
                       <div className="relative w-full pb-[100%]"></div>
@@ -241,7 +241,7 @@ export default function AppHomePage() {
                 </a>
 
                 {/* Music */}
-                <a data-agent-id="link-_r_8j_" aria-label="Música" className="group stack items-center outline-none" data-testid="home-card-music" href="/app/music">
+                <a data-agent-id="link-_r_8j_" aria-label="Música" className="group stack items-center outline-none" data-testid="home-card-music" href="/app/home">
                   <div className="stack gap-2 w-full max-w-[180px]">
                     <div className="relative overflow-hidden flex-1 rounded-[20px] flex items-center justify-center bg-black/5 dark:bg-white/5 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors duration-200 w-full outline-none group-focus-visible:outline-none group-focus-visible:ring-[1.5px] group-focus-visible:ring-ring">
                       <div className="relative w-full pb-[100%]"></div>
@@ -342,7 +342,7 @@ export default function AppHomePage() {
                 </a>
 
                 {/* Dubbed video */}
-                <a data-agent-id="link-_r_8k_" aria-label="Vídeo dublado" className="group stack items-center outline-none" data-testid="home-card-dubbing-studio" href="/app/dubbing">
+                <a data-agent-id="link-_r_8k_" aria-label="Vídeo dublado" className="group stack items-center outline-none" data-testid="home-card-dubbing-studio" href="/app/home">
                   <div className="stack gap-2 w-full max-w-[180px]">
                     <div className="relative overflow-hidden flex-1 rounded-[20px] flex items-center justify-center bg-black/5 dark:bg-white/5 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors duration-200 w-full outline-none group-focus-visible:outline-none group-focus-visible:ring-[1.5px] group-focus-visible:ring-ring">
                       <div className="relative w-full pb-[100%]"></div>
@@ -489,7 +489,7 @@ export default function AppHomePage() {
                       );
                     })}
                   </ul>
-                  <a href="/app/voice-library">
+                  <a href="/app/episodios">
                     <button className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 bg-[#FFFFFF] dark:bg-fd-background border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 text-fd-foreground h-8 px-2.5 rounded-lg text-xs">Ver acervo do podcast</button>
                   </a>
                 </div>
@@ -517,7 +517,7 @@ export default function AppHomePage() {
                           <p className="text-sm font-medium text-fd-foreground">Criar novo episódio</p>
                           <p className="text-sm font-normal mt-0.5 text-fd-muted-foreground">Cadastre título, descrição, categoria, capa e arquivo de áudio</p>
                         </div>
-                        <a data-agent-id="link-_r_8d_" aria-label="Voice Design" className="absolute top-0 right-0 bottom-0 left-0 outline-none rounded-[24px] focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-ring" data-testid="home-voice-design-card" href="/app/voice-lab?action=create&amp;creationType=voiceDesign"></a>
+                        <a data-agent-id="link-_r_8d_" aria-label="Voice Design" className="absolute top-0 right-0 bottom-0 left-0 outline-none rounded-[24px] focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-ring" data-testid="home-voice-design-card" href="/app/episodios"></a>
                       </div>
                     </div>
                     
@@ -554,7 +554,7 @@ export default function AppHomePage() {
                           <p className="text-sm font-medium text-gray-950 dark:text-gray-100">Editar episódio</p>
                           <p className="text-sm font-normal mt-0.5 text-gray-500 dark:text-gray-400">Atualize informações, convidados, capa e status de publicação</p>
                       </div>
-                      <a className="absolute top-0 right-0 bottom-0 left-0 outline-none rounded-[24px]" href="/app/voice-lab?action=create"></a>
+                      <a className="absolute top-0 right-0 bottom-0 left-0 outline-none rounded-[24px]" href="/app/episodios"></a>
                     </div>
 
                     <div className="h-full @container group">
@@ -594,7 +594,7 @@ export default function AppHomePage() {
                           <p className="text-sm font-medium text-fd-foreground">Excluir episódio</p>
                           <p className="text-sm font-normal mt-0.5 text-fd-muted-foreground">Remova episódios de teste, duplicados ou conteúdos que não serão publicados</p>
                         </div>
-                        <a data-agent-id="link-_r_8f_" aria-label="Voice Collections" className="absolute top-0 right-0 bottom-0 left-0 outline-none rounded-[24px] focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-ring" data-testid="home-instant-voice-cloning-card" href="/app/voice-library/collections"></a>
+                        <a data-agent-id="link-_r_8f_" aria-label="Voice Collections" className="absolute top-0 right-0 bottom-0 left-0 outline-none rounded-[24px] focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-ring" data-testid="home-instant-voice-cloning-card" href="/app/episodios"></a>
                       </div>
                     </div>
                   </div>

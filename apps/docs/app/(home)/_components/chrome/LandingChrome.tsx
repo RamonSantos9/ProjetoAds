@@ -55,13 +55,21 @@ export function LandingLogo(
 }
 
 export const landingLinks: LinkItemType[] = [
-  { text: 'Dashboard', url: '/app/home', on: 'all' },
   {
-    text: 'Faculdade',
-    url: 'https://serradouradalorena.com.br',
-    external: true,
-    on: 'menu',
+    type: 'menu',
+    text: 'Projeto',
+    on: 'all',
+    items: [
+      { text: 'Sobre', url: '/projeto' },
+      { text: 'Podcasts', url: '/episodios' },
+      {
+        text: 'Faculdade',
+        url: 'https://serradouradalorena.com.br',
+        external: true,
+      },
+    ],
   },
+  { text: 'Dashboard', url: '/app/home', on: 'all' },
 ];
 
 export function LandingHeader() {
@@ -94,7 +102,7 @@ export function LandingHeader() {
                 >
                   <p className="text-sm font-medium text-fd-foreground">{item.text}</p>
                   <p className="text-sm text-fd-muted-foreground">
-                    {navbarDescriptions[String(item.text)] ?? 'Abrir esta secao do projeto.'}
+                    {navbarDescriptions[String(item.text)] ?? 'Abrir esta seção do projeto.'}
                   </p>
                 </NavbarMenuLink>
               ))}
@@ -156,11 +164,11 @@ function hasUrlMenuItem(
 }
 
 const navbarDescriptions: Record<string, string> = {
-  Hero: 'Bloco principal de apresentacao.',
+  Hero: 'Bloco principal de apresentação.',
   Sobre: 'Entenda o objetivo e a estrutura do portal.',
-  Eixos: 'Veja os tres pilares tecnologicos do trabalho.',
-  Episodios: 'Confira os conteudos e formatos planejados.',
-  Equipe: 'Organizacao do grupo e frentes do projeto.',
+  Eixos: 'Veja os três pilares tecnológicos do trabalho.',
+  Episódios: 'Confira os conteúdos e formatos planejados.',
+  Equipe: 'Organização do grupo e frentes do projeto.',
   Cronograma: 'Resumo das etapas para a entrega final.',
   Faculdade: 'Site institucional da Serra Dourada Lorena.',
 };
@@ -174,9 +182,9 @@ export function LandingFooter() {
             PodcastADS
           </p>
           <p className="mt-3 text-sm leading-6 text-fd-muted-foreground">
-            Portal do projeto academico desenvolvido para a Faculdade Serra
-            Dourada Lorena, com area publica de apresentacao e painel interno
-            para operacao.
+            Portal do projeto acadêmico desenvolvido para a Faculdade Serra
+            Dourada Lorena, com área pública de apresentação e painel interno
+            para operação.
           </p>
         </div>
 

@@ -116,3 +116,28 @@ body {
     transform: translateX(212px);
   }
 }
+
+/* Studio Editor Specific Utilities */
+@media (min-width: 1024px) {
+  .lg-studio-transition {
+    transition-property: padding;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  
+  .lg-studio-pb {
+    padding-bottom: var(--eleven-player-height, 0);
+  }
+}
+
+.pt-studio-calc {
+  padding-top: calc(var(--eleven-header-height, 0rem) + var(--eleven-banner-height, 0rem));
+}
+
+.min-h-100advh {
+  min-height: calc(100 * var(--advh, 1vh));
+}
+
+.box-border {
+  box-sizing: border-box;
+}
