@@ -8,44 +8,44 @@ const NOTIFICATIONS = [
   {
     title: 'Planejamento editorial atualizado',
     description:
-      'Defina os temas dos primeiros episodios, convidados sugeridos e a ordem de publicacao do semestre.',
-    time: 'ha 1 dia',
+      'Defina os temas dos primeiros episódios, convidados sugeridos e a ordem de publicação do semestre.',
+    time: 'há 1 dia',
     image:
       'https://eleven-public-cdn.elevenlabs.io/payloadcms/tnu6dl0pv1o-MM not square.webp',
     href: '/app/home',
   },
   {
-    title: 'Novo episodio em rascunho',
+    title: 'Novo episódio em rascunho',
     description:
-      'Cadastre titulo, descricao, capa, categoria e participantes para iniciar a producao do proximo episodio.',
-    time: 'ha 2 dias',
+      'Cadastre título, descrição, capa, categoria e participantes para iniciar a produção do próximo episódio.',
+    time: 'há 2 dias',
     image:
       'https://eleven-public-cdn.elevenlabs.io/payloadcms/7x0g9s46uy4-Introducing Flows Square.webp',
     href: '/app/home',
   },
   {
-    title: 'Convidados pendentes de confirmacao',
+    title: 'Convidados pendentes de confirmação',
     description:
-      'Revise os contatos dos convidados e marque quais entrevistas ja foram confirmadas para gravacao.',
-    time: 'ha 4 dias',
+      'Revise os contatos dos convidados e marque quais entrevistas já foram confirmadas para gravação.',
+    time: 'há 4 dias',
     image:
       'https://eleven-public-cdn.elevenlabs.io/payloadcms/39xowen1ted-In-app_Notification_320x240 (2).webp',
     href: '/app/home',
   },
   {
-    title: 'Publicacao e distribuicao',
+    title: 'Publicação e distribuição',
     description:
-      'Prepare os links do Spotify, YouTube e Instagram para centralizar a divulgacao dos episodios publicados.',
-    time: 'ha 1 semana',
+      'Prepare os links do Spotify, YouTube e Instagram para centralizar a divulgação dos episódios publicados.',
+    time: 'há 1 semana',
     image:
       'https://eleven-public-cdn.elevenlabs.io/payloadcms/g0gh9s46uy4-Introducing Flows Square.webp',
     href: '/app/home',
   },
   {
-    title: 'Metricas e relatorio parcial',
+    title: 'Métricas e relatório parcial',
     description:
-      'Acompanhe episodios publicados, engajamento, feedback coletado e dados para a apresentacao final.',
-    time: 'ha 2 semanas',
+      'Acompanhe episódios publicados, engajamento, feedback coletado e dados para a apresentação final.',
+    time: 'há 2 semanas',
     image:
       'https://eleven-public-cdn.elevenlabs.io/payloadcms/ln6hzdtchgl-Image and video cover (1).webp',
     href: '/app/home',

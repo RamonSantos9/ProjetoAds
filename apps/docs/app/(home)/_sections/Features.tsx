@@ -54,7 +54,7 @@ export function Features() {
                 <span className="font-medium"># PodcastADS</span>
                 <span>O canal de tecnologia da Serra Dourada.</span>
                 <span>{` `}</span>
-                <span className="font-medium">{`<Spotlight episodio="01" />`}</span>
+                <span className="font-medium">{`<Spotlight episódio="01" />`}</span>
               </code>
             </pre>
           </div>

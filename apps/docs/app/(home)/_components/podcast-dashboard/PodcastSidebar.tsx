@@ -26,7 +26,7 @@ type NavItem = {
 const NAV: Array<{ title?: string; items: NavItem[] }> = [
   {
     items: [
-      { label: 'Inicio', href: '/app/home', icon: <HomeIcon /> },
+      { label: 'Início', href: '/app/home', icon: <HomeIcon /> },
       { label: 'Podcasts', href: '/app/episodios', icon: <VoicesIcon /> },
       { label: 'Arquivos do projeto', href: '/projeto', icon: <FilesIcon /> },
     ],
@@ -143,19 +143,19 @@ const platforms = [
   {
     id: 'creative',
     label: 'PodcastADS',
-    description: 'Painel principal do projeto academico',
+    description: 'Painel principal do projeto acadêmico',
     img: '/platforms/ElevenCreative.png',
   },
   {
     id: 'agents',
-    label: 'Conteudo',
-    description: 'Roteiros, gravacoes e convidados',
+    label: 'Conteúdo',
+    description: 'Roteiros, gravações e convidados',
     img: '/platforms/ElevenAgents.png',
   },
   {
     id: 'api',
-    label: 'Analise',
-    description: 'Metricas, relatorios e acompanhamento',
+    label: 'Análise',
+    description: 'Métricas, relatórios e acompanhamento',
     img: '/platforms/ElevenApi.png',
   },
 ];
@@ -331,7 +331,7 @@ export function PodcastSidebar() {
                 </div>
                 <div className={cn('flex flex-1 items-center transition-all duration-150', collapsed ? 'w-0 opacity-0 overflow-hidden ml-0' : 'w-auto opacity-100 ml-2.5')}>
                   <span className="font-medium whitespace-nowrap">
-                    Documentacao
+                    Documentação
                   </span>
                 </div>
               </Link>
