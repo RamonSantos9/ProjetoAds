@@ -1,0 +1,60 @@
+﻿node.exe : ÔÇëWARNÔÇë Issue while reading 
+"D:\Arquivos 
+Programa├º├úo\Xispe\ElevenLabs\.npmrc". 
+Failed to replace env in config: 
+${NPM_TOKEN}
+No C:\Users\ramon\AppData\Roaming\npm\pnpm
+.ps1:24 caractere:5
++     & "node$exe"  
+"$basedir/node_modules/pnpm/bin/pnpm.cjs" 
+$args
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecifie 
+   d: (ÔÇëWARNÔÇë Issu...g: ${NPM_TOKEN}  
+  :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeComma 
+   ndError
+ 
+
+> docs@0.1.3 build D:\Arquivos Programa├º├úo\Xispe\ElevenLabs\apps\docs
+> node ../../packages/mdx/dist/bin.js && next build
+
+[MDX] types generated
+[MDX] updated map file in 11.25929999999994ms
+Ôû▓ Next.js 16.1.6 (Turbopack)
+- Experiments (use with caution):
+  ┬À cpus: 4
+
+  Creating an optimized production build ...
+Ô£ô Compiled successfully in 2.8s
+  Running TypeScript ...
+Failed to compile.
+
+./app/app/episodios/page.tsx:119:17
+Type error: This comparison appears to be 
+unintentional because the types 
+'"Publicado" | "Em gravacao" | "Em 
+pauta"' and '"Released"' have no overlap.
+
+[0m [90m 117 |[39m         
+id[33m:[39m [33mMath[39m[33m.[39mran
+dom()[33m.[39mtoString([35m36[39m)[33
+m.[39msubstring([35m7[39m)[33m,[39m
+ [90m 118 |[39m         
+[33m...[39mep[33m,[39m
+[31m[1m>[22m[39m[90m 119 |[39m      
+   status[33m:[39m ep[33m.[39mstatus 
+[33m===[39m [32m'Released'[39m 
+[33m?[39m [32m'Publicado'[39m 
+[33m:[39m [32m'Em Produ├º├úo'[39m
+ [90m     |[39m                 
+[31m[1m^[22m[39m
+ [90m 120 |[39m       })))[33m;[39m
+ [90m 121 |[39m       
+setLoading([36mfalse[39m)[33m;[39m
+ [90m 122 |[39m     }[33m,[39m 
+[35m400[39m)[33m;[39m[0m
+Next.js build worker exited with code: 1 
+and signal: null
+ÔÇëELIFECYCLEÔÇë Command failed with exit code 1.

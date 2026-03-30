@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Link from 'next/link';
-// import { toast } from 'sonner'; // sonner not installed
+
+// Simple toast fallback (sonner not installed)
+const toast = { success: (msg: string) => console.log('[toast]', msg) };
 import { 
   Users, 
   CheckCircle2, 
@@ -182,7 +183,7 @@ export default function RelatoriosPage() {
         platforms: ep.platforms || [],
         guests: ep.guests || [],
         guest: ep.guests?.[0] || 'Convidado Externo',
-        status: ep.status === 'Released' ? 'Publicado' : (i % 3 === 0 ? 'Agendado' : 'Em Produção'),
+        status: (ep.status as string) === 'Publicado' ? 'Publicado' : (i % 3 === 0 ? 'Agendado' : 'Em Produção'),
         creator: i % 2 === 0 ? 'Ramon Santos' : 'Ana Carolina',
         createdAt: new Date(Date.now() - i * 86400000).toISOString(),
         origin: i % 4 === 0 ? 'Importado' : (i % 4 === 1 ? 'Agendado' : 'Manual')
