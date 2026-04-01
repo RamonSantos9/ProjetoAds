@@ -26,6 +26,7 @@ import { EditEpisodeModal, Episode } from '@/components/dashboard/EditEpisodeMod
 import { Skeleton } from '@/components/ui/Skeleton';
 import { featuredEpisodes as initialEpisodes } from '../../(home)/_data/episodes';
 import { cn } from '@/lib/cn';
+import { usePathname } from 'next/navigation';
 
 // --- Types ---
 
@@ -143,6 +144,10 @@ const BadgeRefined = ({ variant, children }: { variant: 'success' | 'warning' | 
 };
 
 export default function RelatoriosPage() {
+  const pathname = usePathname();
+  const isAdmin = pathname.startsWith('/admin');
+  const basePath = isAdmin ? '/admin' : '/dashboard';
+
   const [reports, setReports] = useState<ReportRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -246,7 +251,7 @@ export default function RelatoriosPage() {
         <PageHeaderRefined 
           breadcrumbs={[
             { label: 'Portal', href: '/', icon: <User className="size-4" /> },
-            { label: 'Dashboard', href: '/app/home' },
+            { label: 'Dashboard', href: `${basePath}/home` },
             { label: 'Relatórios', isCurrent: true }
           ]} 
         />
@@ -355,10 +360,12 @@ export default function RelatoriosPage() {
                     )}
                   </div>
 
-                  <ActionButtonRefined 
-                    label="Novo Episódio" 
-                    onClick={() => setIsCreateModalOpen(true)}
-                  />
+                  {isAdmin && (
+                    <ActionButtonRefined 
+                      label="Novo Episódio" 
+                      onClick={() => setIsCreateModalOpen(true)}
+                    />
+                  )}
                 </div>
               </section>
 
@@ -373,7 +380,9 @@ export default function RelatoriosPage() {
                       <th className="font-semibold bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Origem</th>
                       <th className="font-semibold bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Criação</th>
                       <th className="font-semibold bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">ID</th>
-                      <th className="font-semibold bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-right whitespace-nowrap">Ações</th>
+                      {isAdmin && (
+                        <th className="font-semibold bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-right whitespace-nowrap">Ações</th>
+                      )}
                     </tr>
                   </thead>
                   <tbody>
@@ -387,12 +396,14 @@ export default function RelatoriosPage() {
                           <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-16 h-4" /></td>
                           <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-24 h-4" /></td>
                           <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-16 h-4" /></td>
-                          <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5 text-right"><Skeleton className="w-10 h-10 ml-auto" /></td>
+                          {isAdmin && (
+                            <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5 text-right"><Skeleton className="w-10 h-10 ml-auto" /></td>
+                          )}
                         </tr>
                       ))
                     ) : filtered.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-20 text-fd-muted-foreground font-semibold">Nenhum registro encontrado.</td>
+                        <td colSpan={isAdmin ? 7 : 6} className="text-center py-20 text-fd-muted-foreground font-semibold">Nenhum registro encontrado.</td>
                       </tr>
                     ) : (
                       filtered.map(item => (
@@ -426,16 +437,18 @@ export default function RelatoriosPage() {
                                </TooltipRefined>
                                <ExternalLink className="size-3.5 text-fd-primary cursor-pointer hover:scale-110 transition-transform" />
                             </div>
-                          </td>
-                          <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5 text-right">
-                             <button 
-                               onClick={() => { setSelectedRecord(item); setIsEditModalOpen(true); }}
-                               className="p-2 rounded-lg bg-[#F6F8FA] dark:bg-fd-muted hover:bg-[#E2E7F1] dark:hover:bg-fd-accent transition-colors active:scale-95"
-                             >
-                               <MoreVertical className="size-4 text-[#8A8AA3]" />
-                             </button>
-                          </td>
-                        </tr>
+                           </td>
+                           {isAdmin && (
+                            <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5 text-right">
+                               <button 
+                                 onClick={() => { setSelectedRecord(item); setIsEditModalOpen(true); }}
+                                 className="p-2 rounded-lg bg-[#F6F8FA] dark:bg-fd-muted hover:bg-[#E2E7F1] dark:hover:bg-fd-accent transition-colors active:scale-95"
+                               >
+                                 <MoreVertical className="size-4 text-[#8A8AA3]" />
+                               </button>
+                            </td>
+                           )}
+                         </tr>
                       ))
                     )}
                   </tbody>

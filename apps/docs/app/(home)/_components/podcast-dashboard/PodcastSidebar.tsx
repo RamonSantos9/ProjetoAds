@@ -18,41 +18,43 @@ import { cn } from '@/lib/cn';
 
 type NavItem = {
   label: string;
-  href: string;
+  path?: string;
+  href?: string;
   icon: ReactNode;
   badge?: string;
+  adminOnly?: boolean;
 };
 
-const NAV: Array<{ title?: string; items: NavItem[] }> = [
+const NAV_ITEMS: Array<{ title?: string; items: NavItem[] }> = [
   {
     items: [
-      { label: 'Início', href: '/app/home', icon: <HomeIcon /> },
-      { label: 'Podcasts', href: '/app/episodios', icon: <VoicesIcon /> },
+      { label: 'Início', path: '/home', icon: <HomeIcon /> },
+      { label: 'Podcasts', path: '/episodios', icon: <VoicesIcon /> },
       { label: 'Arquivos do projeto', href: '/projeto', icon: <FilesIcon /> },
     ],
   },
   {
     title: 'Produção',
     items: [
-      { label: 'Novo episódio', href: '/app/episodios', icon: <TextToSpeechIcon /> },
-      { label: 'Editar episódio', href: '/app/episodios/editar', icon: <VoiceChangerIcon /> },
-      { label: 'Roteiros', href: '/app/home', icon: <VoiceIsolatorIcon /> },
-      { label: 'Vinhetas e trilhas', href: '/app/home', icon: <SoundEffectsIcon /> },
-      { label: 'Publicação', href: '/app/home', icon: <MusicIcon /> },
-      { label: 'Mídias visuais', href: '/app/home', icon: <ImageVideoIcon /> },
-      { label: 'Modelos de post', href: '/app/home', icon: <TemplatesIcon /> },
+      { label: 'Novo episódio', path: '/episodios', icon: <TextToSpeechIcon /> },
+      { label: 'Editar episódio', path: '/episodios/editar', icon: <VoiceChangerIcon />, adminOnly: true },
+      { label: 'Roteiros', path: '/home', icon: <VoiceIsolatorIcon /> },
+      { label: 'Vinhetas e trilhas', path: '/home', icon: <SoundEffectsIcon /> },
+      { label: 'Publicação', path: '/home', icon: <MusicIcon />, adminOnly: true },
+      { label: 'Mídias visuais', path: '/home', icon: <ImageVideoIcon /> },
+      { label: 'Modelos de post', path: '/home', icon: <TemplatesIcon /> },
     ],
   },
   {
     title: 'Gestão',
     items: [
-      { label: 'Estúdio do podcast', href: '/app/home', icon: <StudioIcon /> },
-      { label: 'Cronograma', href: '/app/home', icon: <FlowsIcon />, badge: 'Breve' },
-      { label: 'Convidados', href: '/app/home', icon: <AudiobooksIcon /> },
-      { label: 'Entrevistas', href: '/app/home', icon: <DubbingIcon /> },
-      { label: 'Transcrições', href: '/app/home', icon: <SpeechToTextIcon /> },
-      { label: 'Estatísticas', href: '/app/home', icon: <AudioNativeIcon /> },
-      { label: 'Relatórios', href: '/app/relatorios', icon: <ProductionsIcon /> },
+      { label: 'Estúdio do podcast', path: '/home', icon: <StudioIcon />, adminOnly: true },
+      { label: 'Cronograma', path: '/home', icon: <FlowsIcon />, badge: 'Breve' },
+      { label: 'Convidados', path: '/home', icon: <AudiobooksIcon /> },
+      { label: 'Entrevistas', path: '/home', icon: <DubbingIcon /> },
+      { label: 'Transcrições', path: '/home', icon: <SpeechToTextIcon /> },
+      { label: 'Estatísticas', path: '/home', icon: <AudioNativeIcon /> },
+      { label: 'Relatórios', path: '/relatorios', icon: <ProductionsIcon /> },
     ],
   },
 ];
@@ -165,16 +167,22 @@ export function PodcastSidebar() {
   const { setOpen, collapsed, open } = useSidebar();
   const [activePlatform, setActivePlatform] = useState(platforms[0]);
 
-  const renderNavItem = (item: NavItem) => {
+  const basePath = pathname.startsWith('/admin') ? '/admin' : '/dashboard';
+
+  const renderNavItem = (item: any) => {
+    if (item.adminOnly && basePath !== '/admin') return null;
+
+    const href = item.path ? `${basePath}${item.path}` : item.href;
+
     const active =
-      pathname === item.href &&
-      (item.href !== '/app/home' || item.label === 'Inicio') &&
-      (item.href !== '/app/episodios' || item.label === 'Podcasts');
+      pathname === href &&
+      (href !== `${basePath}/home` || item.label === 'Início') &&
+      (href !== `${basePath}/episodios` || item.label === 'Podcasts');
 
     return (
       <Link
         key={item.label}
-        href={item.href}
+        href={href}
         onClick={() => setOpen(false)}
         className={cn(
           'group/item relative flex w-full h-8 items-center gap-2 overflow-hidden rounded-lg transition-colors px-2',
@@ -300,7 +308,7 @@ export function PodcastSidebar() {
               className="flex-1 overflow-y-auto overflow-x-hidden px-3.5 py-2 no-scrollbar"
               style={{ maskImage: 'linear-gradient(rgba(255, 255, 255, 0), rgb(255, 255, 255) 8px, rgb(255, 255, 255) 100%)' }}
             >
-              {NAV.map((section, si) => (
+              {NAV_ITEMS.map((section, si) => (
                 <div key={`nav-section-${si}`} className={si > 0 ? 'mt-8' : ''}>
                   {section.title && !collapsed ? (
                     <p className="mb-0.5 ml-1.5 px-0.5 text-xs font-medium uppercase tracking-wider text-[#5b5b64] dark:text-gray-400">
@@ -337,7 +345,7 @@ export function PodcastSidebar() {
               </Link>
 
               <Link
-                href="/app/subscription"
+                href={`${basePath}/subscription`}
                 className={cn(
                   'group/upgrade relative mt-0.5 flex h-8 items-center overflow-hidden rounded-lg text-[13.5px] font-medium w-full px-2',
                 )}

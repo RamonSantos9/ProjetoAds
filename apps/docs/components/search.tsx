@@ -32,8 +32,8 @@ const entries = [
   {
     id: 'guia',
     title: 'Guia do Ouvinte',
-    description: 'Informações de como acompanhar e interagir.',
-    url: '/#features',
+    description: 'Aprenda como utilizar a documentação e ouvir o Podcast.',
+    url: '/docs',
   },
   {
     id: 'pautas',

@@ -1,61 +1,142 @@
-# PodcastADS - Faculdade Serra Dourada
+# PodcastADS
+**Onde o código encontra a conversa.** 
 
-![PodcastADS](./apps/docs/public/hero.png)
+<img src="./apps/docs/public/hero.png" alt="PodcastADS Hero" width="100%" />
 
-> **Onde o código encontra a conversa.** O portal oficial de tecnologia dos alunos de Análise e Desenvolvimento de Sistemas (ADS) da Faculdade Serra Dourada.
+<p>O portal oficial de tecnologia dos alunos de Análise e Desenvolvimento de Sistemas (ADS) da <b>Faculdade Serra Dourada</b>.</p>
+
+<br />
 
 ## Sobre o Projeto
 
 O **PodcastADS** é uma iniciativa estudantil dedicada a conectar alunos, professores e profissionais do mercado. Nossa missão é fortalecer o ecossistema acadêmico através da disseminação de conhecimento, tendências de mercado e soft skills essenciais para o futuro desenvolvedor através de áudio, blog e workshops presenciais.
 
-## Objetivos do Projeto (Eixo Tecnológico)
+Mais do que apenas um site institucional, criamos uma plataforma robusta desenvolvida totalmente sob a arquitetura de **Monorepo** com *Next.js*, contendo ferramentas administrativas completas, CMS de episódios e painel de Relatórios.
 
-Para atender aos requisitos acadêmicos e do mercado, o PodcastADS está focado em três pilares fundamentais:
+---
 
-1. **Gerenciamento de Conteúdo (CMS):** Sistema responsivo para o cadastro, edição e publicação de episódios, permitindo a gestão completa do ciclo de vida do podcast.
-2. **Automação de Estatísticas:** Implementação de rotas e scripts para a coleta automatizada de dados de audiência e engajamento das plataformas de streaming.
-3. **Painel de BI (Business Intelligence):** Interface analítica para visualização de dados, facilitando a tomada de decisão baseada em métricas reais de audiência.
+## Telas da Plataforma (Portal Público)
 
-## Diferenciais
+A interface pública visa atrair alunos e a comunidade acadêmica. O foco é exibir design premium e performance ultra-rápida.
 
-- **Portal Comunicativo**: Além de uma ferramenta técnica, o site funciona como um hub de informações sobre a Faculdade Serra Dourada e o curso de ADS.
-- **Pautas Colaborativas**: Alunos sugerem os temas dos próximos episódios e participam ativamente da curadoria.
-- **Dashboard ElevenLabs-Style**: Área administrativa de alta fidelidade para gestão de episódios e análise de dados.
+### Home Page
+A página oficial de onde tudo começa. Apresenta nossos diferenciais e episódios em destaque.
+<img src="./apps/docs/public/docs-screenshots/home.png" width="100%" style="border-radius: 8px; border: 1px solid #444;" />
+
+<br/>
+
+### Episódios
+Listagem pública com curadoria de conteúdos de tecnologia, engajamento e aprofundamento.
+<img src="./apps/docs/public/docs-screenshots/episodios.png" width="100%" style="border-radius: 8px; border: 1px solid #444;" />
+
+<br/>
+
+### Sobre o Projeto
+Página interativa com detalhes dos membros e arquitetura e a história por trás do PodcastADS.
+<img src="./apps/docs/public/docs-screenshots/projeto.png" width="100%" style="border-radius: 8px; border: 1px solid #444;" />
+
+<br/>
+
+---
+
+## Áreas Administrativas (Dashboard)
+
+Uma das nossas grandes inovações: um painel administrativo com design de padrão industrial (Dark Mode) voltado à gestão fácil do dia a dia do nosso Podcast.
+
+### Dashboard Home
+Onde os administradores visualizam as métricas mais importantes num relance e acessam as ferramentas de controle.
+<img src="./apps/docs/public/docs-screenshots/app-home.png" width="100%" style="border-radius: 8px; border: 1px solid #444;" />
+
+<br/>
+
+### Gestão de Episódios (CMS)
+Interface para cadastro, edição e administração do ciclo de vida dos conteúdos.
+<img src="./apps/docs/public/docs-screenshots/app-episodios.png" width="100%" style="border-radius: 8px; border: 1px solid #444;" />
+
+<br/>
+
+### Relatórios Inteligentes
+Visualização ágil de Business Intelligence (BI) para acompanhar a evolução do engajamento.
+<img src="./apps/docs/public/docs-screenshots/app-relatorios.png" width="100%" style="border-radius: 8px; border: 1px solid #444;" />
+
+<br/>
+
+---
+
+## Objetivos Tecnológicos
+
+Para atender aos requisitos técnicos exigidos pela universidade e testar nossos limites criativos, o PodcastADS atinge três pilares:
+
+1. **Gerenciamento de Conteúdo (CMS):** Sistema responsivo para o cadastro, edição e publicação de episódios de ponta a ponta.
+2. **Painel de BI:** Interface analítica para ajudar decisões sobre os rumos futuros do conteúdo dos alunos.
+3. **Automação de Estatísticas:** Coleção de dados automatizadas com escalabilidade no backend (Turbopack + NextJS).
+
+---
+
+## Mapa de Páginas e Rotas da Aplicação
+
+O sistema (Next.js App Router) está organizado em três áreas principais com níveis de permissões diferentes:
+
+### 🧩 1. Área Pública (Acesso Livre)
+São as páginas principais voltadas para qualquer visitante acessar, sem nenhuma estrutura de painel de controle.
+*   **`/`** (Página Inicial/Landing Page) - *Arquivo:* `app/(home)/page.tsx`
+*   **`/docs`** (Guia do Ouvinte / Documentação Oficial) - *Arquivo:* `app/docs/[[...slug]]/page.tsx`
+*   **`/episodios`** (Listagem Pública de Podcasts) - *Arquivo:* `app/(home)/episodios/page.tsx`
+
+### 📊 2. Área "Dashboard" (Participantes e Ouvintes)
+É o painel do sistema para usuários comuns. Ele reaproveita o layout em modo de leitura, restringindo ações avançadas e modificações.
+*   **`/dashboard/home`** (Home do dashboard) - *Arquivo:* `app/dashboard/home/page.tsx`
+*   **`/dashboard/episodios`** (Visualização de episódios no painel) - *Arquivo:* `app/dashboard/episodios/page.tsx`
+*   **`/dashboard/episodios/editar`** (Roteiro/Edição restrita) - *Arquivo:* `app/dashboard/episodios/editar/page.tsx`
+*   **`/dashboard/relatorios`** (Visualização de dados/estatísticas ocultando modais de ações) - *Arquivo:* `app/dashboard/relatorios/page.tsx`
+
+### ⚙️ 3. Área "Admin" (Gestores e Equipe do Projeto)
+São as rotas onde a equipe de produção possui privilégios totais de CRUD (Criar, Ler, Atualizar, Deletar).
+*   **`/admin/home`** (Home completa com criação e gestão gerencial) - *Arquivo:* `app/admin/home/page.tsx`
+*   **`/admin/episodios`** (Lista de episódios com modais de edição e botões de ação permitidos) - *Arquivo:* `app/admin/episodios/page.tsx`
+*   **`/admin/episodios/editar`** (Acesso completo ao estúdio/editor) - *Arquivo:* `app/admin/episodios/editar/page.tsx`
+*   **`/admin/relatorios`** (Relatórios com tabelas contendo opções para exportar, criar novos, etc) - *Arquivo:* `app/admin/relatorios/page.tsx`
+
+---
 
 ## Estrutura do Monorepo
 
-O portal utiliza uma arquitetura moderna de monorepo, facilitando a contribuição em diferentes camadas do sistema.
+Utilizamos `Turborepo` em conjunto com `pnpm workspaces` construindo módulos eficientes.
 
-| Pacote                                       | Descrição no Contexto do PodcastADS                               |
+| Pacote                                       | Propósito no Ecossistema PodcastADS                               |
 | :------------------------------------------- | :---------------------------------------------------------------- |
-| [`@xispedocs/cli`](./packages/cli)           | CLI para automação de tarefas e criação de novos episódios/posts. |
-| [`@xispedocs/core`](./packages/core)         | Lógica principal de processamento e componentes base.             |
-| [`@xispedocs/mdx`](./packages/mdx)           | Processador de conteúdo Markdown para roteiros e artigos.         |
-| [`@xispedocs/ui`](./packages/ui)             | Biblioteca de componentes visuais do curso de ADS.                |
+| 🛠️ [`@xispedocs/cli`](./packages/cli)         | Automação local, scripts de setup e CI para episódios/posts.      |
+| 🧠 [`@xispedocs/core`](./packages/core)       | Lógica main, utilitários base que todas as aplicações compartilham. |
+| 📝 [`@xispedocs/mdx`](./packages/mdx)         | Motor de renderização de artigos escritos em Markdown.            |
+| 🎨 [`@xispedocs/ui`](./packages/ui)           | Biblioteca centralizada de Visual Components de ADS.              |
 
-## Desenvolvimento Local
+---
 
-Para rodar o projeto em sua máquina:
+## Como Executar Localmente
 
-1. **Instale as dependências**:
+Siga estas instruções para hospedar o repositório na sua máquina de desenvolvimento.
 
+### Pré-requisitos
+Certifique-se de possuir o **Node.js 18+** e o **pnpm 9+** instalados.
+
+### Passos de Instalação e Inicialização
+
+1. Instale todas as dependências na raiz do monorepo:
    ```bash
    pnpm install
    ```
 
-2. **Inicie o ambiente de desenvolvimento**:
-
+2. Inicialize o serviço principal de documentação e a plataforma em modo desenvolvimento local (Turbopack habilitado):
    ```bash
-   npx turbo run dev --filter=docs
+   pnpm dev:docs
    ```
+   > 💡 *Dica:* Se houver problemas com serviços pendurados na porta 3000 em ambiente *Windows*, rode o comando seguro de inicialização à prova de falhas:
+   > ```bash
+   > pnpm dev:clean
+   > ```
 
-   *Dica: Se o servidor não iniciar ou a porta 3000 estiver ocupada, use:*
-
-   ```bash
-   pnpm dev:clean
-   ```
-
-3. **Acesse no navegador**: `http://localhost:3000`
+3. Acesse a aplicação completa direto no seu navegador rodando em: `http://localhost:3000`
 
 ---
-Construído com 💚 pelos alunos de ADS da **Faculdade Serra Dourada**.
+
+<sub>Construído com 💚 pelos alunos de ADS da <b>Faculdade Serra Dourada</b>.</sub>

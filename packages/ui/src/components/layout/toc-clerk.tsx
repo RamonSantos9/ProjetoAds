@@ -6,6 +6,43 @@ import { TocThumb } from '../../components/layout/toc-thumb';
 import { useTOCItems } from '../../components/layout/toc';
 import { mergeRefs } from '../../utils/merge-refs';
 import { useI18n } from '../../contexts/i18n';
+import { motion } from 'motion/react';
+import { useMemo } from 'react';
+
+export type TOCThumbInfo = [top: number, height: number, left: number];
+
+function calc(container: HTMLElement, active: string[]): TOCThumbInfo {
+  if (active.length === 0 || container.clientHeight === 0) {
+    return [0, 0, 0];
+  }
+
+  let upper = Number.MAX_VALUE,
+    lower = 0,
+    left = 0;
+
+  for (const item of active) {
+    const element = container.querySelector<HTMLElement>(`a[href="#${item}"]`);
+    if (!element) continue;
+
+    const styles = getComputedStyle(element);
+    const top = element.offsetTop + parseFloat(styles.paddingTop) - 6;
+    
+    if (top < upper) {
+      upper = top;
+      const depth = parseInt(element.getAttribute('data-depth') ?? '2');
+      left = (depth - 1) * 10 + 1;
+    }
+
+    lower = Math.max(
+      lower,
+      element.offsetTop +
+        element.clientHeight -
+        parseFloat(styles.paddingBottom) - 6,
+    );
+  }
+
+  return [upper, lower - upper, left];
+}
 
 export default function ClerkTOCItems({
   ref,
@@ -14,6 +51,7 @@ export default function ClerkTOCItems({
 }: ComponentProps<'div'>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const items = useTOCItems();
+  const activeAnchors = Primitive.useActiveAnchors();
   const { text } = useI18n();
 
   const [svg, setSvg] = useState<{
@@ -21,6 +59,13 @@ export default function ClerkTOCItems({
     width: number;
     height: number;
   }>();
+
+  const [thumb, setThumb] = useState<TOCThumbInfo>([0, 0, 0]);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    setThumb(calc(containerRef.current, activeAnchors));
+  }, [activeAnchors]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -39,17 +84,33 @@ export default function ClerkTOCItems({
 
         const styles = getComputedStyle(element);
         const offset = getLineOffset(items[i].depth) + 1,
-          top = element.offsetTop + parseFloat(styles.paddingTop),
+          top = element.offsetTop + parseFloat(styles.paddingTop) - 6,
           bottom =
             element.offsetTop +
             element.clientHeight -
-            parseFloat(styles.paddingBottom);
+            parseFloat(styles.paddingBottom) - 6;
 
         w = Math.max(offset, w);
         h = Math.max(h, bottom);
 
-        d.push(`${i === 0 ? 'M' : 'L'}${offset} ${top}`);
-        d.push(`L${offset} ${bottom}`);
+        const offsetX = offset;
+        const offsetY = top;
+        
+        if (i === 0) {
+          d.push(`M ${offsetX} ${offsetY} L ${offsetX} ${bottom}`);
+        } else {
+          const upperOffsetX = getLineOffset(items[i - 1].depth) + 1;
+          const prevElement = container.querySelector(`a[href="#${items[i - 1].url.slice(1)}"]`) as HTMLElement;
+          let upperOffsetY;
+          if (prevElement) {
+              const prevStyles = getComputedStyle(prevElement);
+              upperOffsetY = prevElement.offsetTop + prevElement.clientHeight - parseFloat(prevStyles.paddingBottom);
+          } else {
+              upperOffsetY = offsetY - 4;
+          }
+          
+          d.push(`C ${upperOffsetX} ${offsetY - 4} ${offsetX} ${upperOffsetY + 4} ${offsetX} ${offsetY} L ${offsetX} ${bottom}`);
+        }
       }
 
       setSvg({
@@ -83,18 +144,36 @@ export default function ClerkTOCItems({
           style={{
             width: svg.width,
             height: svg.height,
-            maskImage: `url("data:image/svg+xml,${
-              // Inline SVG
-              encodeURIComponent(
-                `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svg.width} ${svg.height}"><path d="${svg.path}" stroke="black" stroke-width="1" fill="none" /></svg>`,
-              )
-            }")`,
           }}
         >
-          <TocThumb
-            containerRef={containerRef}
-            className="mt-(--fd-top) h-(--fd-height) bg-fd-primary transition-all"
-          />
+          <svg
+            viewBox={`0 0 ${svg.width} ${svg.height}`}
+            className="size-full overflow-visible"
+          >
+            <path
+              d={svg.path}
+              stroke="currentColor"
+              strokeWidth="1"
+              fill="none"
+              className="text-fd-foreground/10"
+            />
+            <motion.path
+              d={svg.path}
+              stroke="currentColor"
+              strokeWidth="1"
+              fill="none"
+              className="text-fd-primary"
+              initial={false}
+              animate={{
+                clipPath: `inset(${thumb[0]}px 0 calc(100% - ${thumb[0]}px - ${thumb[1]}px) 0)`,
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 260,
+                damping: 30,
+              }}
+            />
+          </svg>
         </div>
       ) : null}
       <div
@@ -102,12 +181,10 @@ export default function ClerkTOCItems({
         className={cn('flex flex-col', className)}
         {...props}
       >
-        {items.map((item, i) => (
+        {items.map((item) => (
           <TOCItem
             key={item.url}
             item={item}
-            upper={items[i - 1]?.depth}
-            lower={items[i + 1]?.depth}
           />
         ))}
       </div>
@@ -116,62 +193,27 @@ export default function ClerkTOCItems({
 }
 
 function getItemOffset(depth: number): number {
-  if (depth <= 2) return 14;
-  if (depth === 3) return 26;
-  return 36;
+  return (depth - 1) * 12 + 16;
 }
 
 function getLineOffset(depth: number): number {
-  return depth >= 3 ? 10 : 0;
+  return (depth - 1) * 10;
 }
 
 function TOCItem({
   item,
-  upper = item.depth,
-  lower = item.depth,
 }: {
   item: Primitive.TOCItemType;
-  upper?: number;
-  lower?: number;
 }) {
-  const offset = getLineOffset(item.depth),
-    upperOffset = getLineOffset(upper),
-    lowerOffset = getLineOffset(lower);
-
   return (
     <Primitive.TOCItem
       href={item.url}
+      data-depth={item.depth}
       style={{
         paddingInlineStart: getItemOffset(item.depth),
       }}
       className="prose relative py-1.5 text-sm text-fd-muted-foreground hover:text-fd-accent-foreground transition-colors [overflow-wrap:anywhere] first:pt-0 last:pb-0 data-[active=true]:text-fd-primary"
     >
-      {offset !== upperOffset ? (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 16 16"
-          className="absolute -top-1.5 start-0 size-4 rtl:-scale-x-100"
-        >
-          <line
-            x1={upperOffset}
-            y1="0"
-            x2={offset}
-            y2="12"
-            className="stroke-fd-foreground/10"
-            strokeWidth="1"
-          />
-        </svg>
-      ) : null}
-      <div
-        className={cn(
-          'absolute inset-y-0 w-px bg-fd-foreground/10',
-          offset !== upperOffset && 'top-1.5',
-          offset !== lowerOffset && 'bottom-1.5',
-        )}
-        style={{
-          insetInlineStart: offset,
-        }}
-      />
       {item.title}
     </Primitive.TOCItem>
   );

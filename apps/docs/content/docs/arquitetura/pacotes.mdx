@@ -1,0 +1,17 @@
+---
+title: Entendendo os Pacotes Customizados
+description: Um olhar profundo de como organizamos as pastas "@xispedocs".
+---
+
+O repositório do PodcastADS consome suas próprias ferramentas empacotadas. Todo nosso fluxo está armazenado na pasta `/packages` visando o total reuso do código limpo caso novos clientes ou projetos nasçam da Faculdade Serra Dourada.
+
+### `1.` Pacote *@xispedocs/ui*
+O coração visual da interface que é exposto tanto na nossa Home quanto no próprio Guia do Ouvinte.
+Ele armazena bibliotecas como `Lucide-React`, `Radix-UI` e `TailwindCSS v4` usando o `preset.css` padrão verde desenvolvido sob-medida.
+Nenhum botão de Admin quebra a harmonia do frontend público porque todos consomem da mesma folha de estilo gerenciada pelo pacote UI.
+
+### `2.` Pacote *@xispedocs/mdx*
+Como traduzir essa própria página documentada na tela? Este pacote serve para fazer a conversão dos arquivos `.mdx` localizados (`content/docs/*`) e transformá-los de volta em AST / HTML estilizado. Usa plugins de terceiros como `Unified` e `Remark`.
+
+### `3.` Pacote *@xispedocs/core*
+Toda a mecânica abstrata e lógicas duras essenciais de Next.js (como as customizações de *basePath*, wrappers de *Server Action* e Link alternativo) ficam aqui, livrando a UI de sujar a pasta raíz da aplicação.

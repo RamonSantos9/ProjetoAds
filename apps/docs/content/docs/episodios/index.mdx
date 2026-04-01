@@ -1,0 +1,18 @@
+---
+title: Consumo e Listagem Pública
+description: Entenda como a vitrine do Podcast se comporta e organiza os episódios disponíveis.
+---
+
+Todos os episódios aprovados pelo Gestor (ou Admininstrador do Estúdio) caem nas rotas estáticas públicas da nossa plataforma para consumo da Comunidade Acadêmica da *Serra Dourada*.
+
+## Página de Episódios Públicos (`/episodios`)
+
+Aqui residem as informações visuais sobre o formato do podcast ou as entrevistas.
+
+### Visualização de Componentes
+- **Cards Interativos**: Todos os programas ganham arte (Capa) baseada nas *Thumbnails* configuradas na gestão base.
+- **Micro-interações de estado**: Quando não há links públicos, ou algo aguarda upload, a listagem reflete estado visual dinâmico com dicas ("Pendente", "Publicado", "Removido").
+
+### Dashboard do Visualizador (`/dashboard/episodios`) 
+
+Assim como no frontend total público, quando alunos logados via [Acesso Defensivo](/docs/seguranca) visualizam a Listagem, ela atua apenas de modo analítico e estético. Embaixo do capô, os mesmos componentes **ocultam dinamicamente botões complexos** de alteração (CRUD - Editar, Deletar), já que o Frontend rastreia permissões da URl.

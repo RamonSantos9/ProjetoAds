@@ -11,8 +11,9 @@ import { CreateEpisodeModal, EpisodeFormData } from '@/components/dashboard/Crea
 import { EditEpisodeModal, Episode } from '@/components/dashboard/EditEpisodeModal';
 import { featuredEpisodes as initialEpisodes } from '../../(home)/_data/episodes';
 import { cn } from '@/lib/cn';
+import { usePathname } from 'next/navigation';
 
-function EpisodeCard({ episode, onEdit }: { episode: Episode; onEdit: () => void }) {
+function EpisodeCard({ episode, onEdit, isAdmin }: { episode: Episode; onEdit: () => void; isAdmin: boolean }) {
   return (
     <article className="group flex flex-col w-full rounded-2xl border border-fd-border bg-fd-background p-3 gap-3 overflow-hidden transition-all hover:bg-fd-muted hover:border-fd-primary/30">
       {/* Image / Placeholder */}
@@ -47,23 +48,25 @@ function EpisodeCard({ episode, onEdit }: { episode: Episode; onEdit: () => void
         )}>
           {episode.status}
         </span>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onEdit();
-          }}
-          className="p-1.5 rounded-md text-fd-muted-foreground hover:bg-fd-background hover:text-fd-primary transition-colors cursor-pointer border border-transparent hover:border-fd-border"
-          aria-label={`Editar episódio ${episode.title}`}
-        >
-          <Edit2 className="size-4" />
-        </button>
+        {isAdmin && (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onEdit();
+            }}
+            className="p-1.5 rounded-md text-fd-muted-foreground hover:bg-fd-background hover:text-fd-primary transition-colors cursor-pointer border border-transparent hover:border-fd-border"
+            aria-label={`Editar episódio ${episode.title}`}
+          >
+            <Edit2 className="size-4" />
+          </button>
+        )}
       </footer>
     </article>
   );
 }
 
-function EpisodeListItem({ episode, onEdit }: { episode: Episode; onEdit: () => void }) {
+function EpisodeListItem({ episode, onEdit, isAdmin }: { episode: Episode; onEdit: () => void; isAdmin: boolean }) {
   return (
     <article className="group flex items-center w-full rounded-xl border border-fd-border bg-fd-background p-3 gap-4 transition-all hover:bg-fd-muted hover:border-fd-primary/30">
       <div className="w-14 h-14 rounded-lg bg-black/5 dark:bg-white/5 flex items-center justify-center shrink-0 overflow-hidden relative">
@@ -87,18 +90,23 @@ function EpisodeListItem({ episode, onEdit }: { episode: Episode; onEdit: () => 
       )}>
         {episode.status}
       </span>
-      <button
-        onClick={onEdit}
-        className="p-2 shrink-0 rounded-md text-fd-muted-foreground hover:bg-fd-background hover:text-fd-primary transition-colors cursor-pointer border border-transparent hover:border-fd-border ml-2"
-        aria-label={`Editar episódio ${episode.title}`}
-      >
-        <Edit2 className="size-4" />
-      </button>
+      {isAdmin && (
+        <button
+          onClick={onEdit}
+          className="p-2 shrink-0 rounded-md text-fd-muted-foreground hover:bg-fd-background hover:text-fd-primary transition-colors cursor-pointer border border-transparent hover:border-fd-border ml-2"
+          aria-label={`Editar episódio ${episode.title}`}
+        >
+          <Edit2 className="size-4" />
+        </button>
+      )}
     </article>
   );
 }
 
 export default function EpisodesDashboardPage() {
+  const pathname = usePathname();
+  const isAdmin = pathname.startsWith('/admin');
+
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -145,7 +153,7 @@ export default function EpisodesDashboardPage() {
     <div className="rebrand-body flex min-h-[calc(100vh-64px)] flex-col bg-[#FFFFFF] dark:bg-fd-background px-4 sm:px-8 py-8 text-fd-foreground">
       <main className="relative flex-[1_1_0] mx-auto w-full max-w-6xl pb-8 flex flex-col min-h-0">
         <div className="flex gap-4 mb-4 md:mb-8 justify-between max-w-full shrink-0">
-           <HomeBadge text="Dashboard / Episódios" href="/app/episodios" />
+           <HomeBadge text="Dashboard / Episódios" href={`${isAdmin ? '/admin' : '/dashboard'}/episodios`} />
            <ThemeToggle mode="light-dark" />
         </div>
 
@@ -173,7 +181,9 @@ export default function EpisodesDashboardPage() {
                 {/* Actions */}
                 <nav className="flex items-center gap-2 sm:gap-3 shrink-0 self-end sm:self-auto">
                   <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} className="hidden sm:flex" />
-                  <ActionButton label="Novo Episódio" onClick={() => setIsCreateModalOpen(true)} className="rounded-xl px-4" />
+                  {isAdmin && (
+                    <ActionButton label="Novo Episódio" onClick={() => setIsCreateModalOpen(true)} className="rounded-xl px-4" />
+                  )}
                 </nav>
               </header>
 
@@ -221,6 +231,7 @@ export default function EpisodesDashboardPage() {
                       <li key={ep.id}>
                         <EpisodeCard
                           episode={ep}
+                          isAdmin={isAdmin}
                           onEdit={() => {
                             setSelectedEpisode(ep);
                             setIsEditModalOpen(true);
@@ -235,6 +246,7 @@ export default function EpisodesDashboardPage() {
                       <li key={ep.id}>
                         <EpisodeListItem
                           episode={ep}
+                          isAdmin={isAdmin}
                           onEdit={() => {
                             setSelectedEpisode(ep);
                             setIsEditModalOpen(true);

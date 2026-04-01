@@ -4,6 +4,7 @@ import * as React from 'react';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { cn } from '@xispedocs/ui/utils/cn';
 import { ChevronRight, ArrowLeftRight, LogOut, Check } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 function ThemeMenuItem() {
   const [open, setOpen] = React.useState(false);
@@ -18,7 +19,7 @@ function ThemeMenuItem() {
         >
           <button className="relative w-full flex cursor-pointer select-none items-center rounded-lg px-3 py-1.5 text-sm outline-none transition-colors hover:bg-gray-alpha-100 hover:text-foreground group justify-between">
             <span className="block truncate">
-              <span>Theme</span>
+              <span>Tema</span>
             </span>
             <div className="flex h-4 w-4 items-center justify-center opacity-50 rotate-0 transition-transform duration-100 group-hover:opacity-100 group-hover:translate-x-0.5">
               <ChevronRight className="h-4 w-4 min-w-fit" />
@@ -45,18 +46,18 @@ function ThemeMenuItem() {
               <ul className="last:border-b-0 last:pb-0 last:mb-0 border-gray-alpha-200 border-b pb-1 mb-1">
                 <li className="relative px-1">
                   <button className="relative w-full flex cursor-pointer select-none items-center rounded-lg px-3 py-1.5 text-sm outline-none transition-colors hover:bg-gray-alpha-100 hover:text-foreground group justify-between">
-                    <span className="block truncate"><span>Light</span></span>
+                    <span className="block truncate"><span>Claro</span></span>
                     <Check className="shrink-0 w-4 h-4 text-foreground opacity-50" />
                   </button>
                 </li>
                 <li className="relative px-1">
                   <button className="relative w-full flex cursor-pointer select-none items-center rounded-lg px-3 py-1.5 text-sm outline-none transition-colors hover:bg-gray-alpha-100 hover:text-foreground group justify-between">
-                    <span className="block truncate"><span>Dark</span></span>
+                    <span className="block truncate"><span>Escuro</span></span>
                   </button>
                 </li>
                 <li className="relative px-1">
                   <button className="relative w-full flex cursor-pointer select-none items-center rounded-lg px-3 py-1.5 text-sm outline-none transition-colors hover:bg-gray-alpha-100 hover:text-foreground group justify-between">
-                    <span className="block truncate"><span>System</span></span>
+                    <span className="block truncate"><span>Sistema</span></span>
                   </button>
                 </li>
               </ul>
@@ -119,11 +120,11 @@ export function PodcastUserMenu({
                         </div>
                       </div>
                     </div>
-                    <div className="text-foreground font-medium ml-1.5">Balance</div>
+                    <div className="text-foreground font-medium ml-1.5">Saldo</div>
                   </div>
                   <div>
                     <button className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-foreground text-background shadow-none hover:bg-gray-800 px-1.5 rounded-md h-6 text-xs">
-                      Upgrade
+                      Fazer Upgrade
                     </button>
                   </div>
                 </div>
@@ -131,11 +132,11 @@ export function PodcastUserMenu({
                   <div className="stack gap-0.5 flex-grow">
                     <div className="hstack justify-between">
                       <div className="text-subtle">Total</div>
-                      <div className="tabular-nums font-medium">10,000 credits</div>
+                      <div className="tabular-nums font-medium">10.000 créditos</div>
                     </div>
                     <div className="hstack justify-between">
-                      <div className="text-subtle">Remaining</div>
-                      <div className="tabular-nums font-medium">8,634</div>
+                      <div className="text-subtle">Restante</div>
+                      <div className="tabular-nums font-medium">8.634</div>
                     </div>
                   </div>
                 </div>
@@ -146,18 +147,18 @@ export function PodcastUserMenu({
             <div className="p-1 border-b bg-gray-alpha-50 dark:bg-transparent" style={{ opacity: 1 }}>
               <div className="bg-background dark:bg-gray-alpha-100 p-2 px-1 pb-1 w-full text-sm stack shadow-natural-xs rounded-lg">
                 <div style={{ opacity: 1 }}>
-                  <p aria-hidden="true" className="text-xs font-normal truncate overflow-ellipsis inter text-gray-alpha-500 px-2 mb-0.5">Current workspace</p>
+                  <p aria-hidden="true" className="text-xs font-normal truncate overflow-ellipsis inter text-gray-alpha-500 px-2 mb-0.5">Espaço de trabalho atual</p>
                 </div>
                 <div style={{ height: '48px' }}>
                   <div>
                     <div className="relative text-left w-full stack rounded-lg px-2 py-1.5 text-sm outline-none group" style={{ opacity: 1 }}>
                       <div className="hstack justify-between items-center">
                         <div className="stack max-w-[calc(100%-2rem)]">
-                          <p className="text-sm text-foreground font-medium block truncate">My Workspace</p>
-                          <p className="text-xs text-subtle font-normal block truncate">Free plan</p>
+                          <p className="text-sm text-foreground font-medium block truncate">Meu Espaço</p>
+                          <p className="text-xs text-subtle font-normal block truncate">Plano gratuito</p>
                         </div>
                         <div>
-                          <button aria-label="Switch workspace" className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 active:bg-gray-alpha-100 hover:border-gray-alpha-300 text-foreground shadow-none active:border-gray-alpha-300 disabled:bg-background disabled:text-gray-300 disabled:border-gray-alpha-200 rounded-md text-xs center p-0 h-6 w-6">
+                          <button aria-label="Alternar espaço" className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 active:bg-gray-alpha-100 hover:border-gray-alpha-300 text-foreground shadow-none active:border-gray-alpha-300 disabled:bg-background disabled:text-gray-300 disabled:border-gray-alpha-200 rounded-md text-xs center p-0 h-6 w-6">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left-right shrink-0 w-3 h-3">
                               <path d="M8 3 4 7l4 4"></path>
                               <path d="M4 7h16"></path>
@@ -176,25 +177,25 @@ export function PodcastUserMenu({
             {/* Navigation Groups */}
             <div className="py-1">
               <ul className="last:border-b-0 last:pb-0 last:mb-0 border-gray-alpha-200 border-b pb-1 mb-1">
-                <MenuItem href="/app/settings">Settings</MenuItem>
-                <MenuItem href="/app/workspace">Workspace settings</MenuItem>
-                <MenuItem href="/app/subscription">Subscription</MenuItem>
-                <MenuItem>Pronunciation dictionaries</MenuItem>
+                <MenuItem href="/settings">Configurações</MenuItem>
+                <MenuItem href="/workspace">Configurações do espaço</MenuItem>
+                <MenuItem href="/subscription">Assinatura</MenuItem>
+                <MenuItem>Dicionários de pronúncia</MenuItem>
                 <ThemeMenuItem />
               </ul>
 
               <ul className="last:border-b-0 last:pb-0 last:mb-0 border-gray-alpha-200 border-b pb-1 mb-1">
-                <MenuItem href="/app/payouts">Payouts</MenuItem>
-                <MenuItem>Become an affiliate</MenuItem>
-                <MenuItem>Apply for Impact Program</MenuItem>
-                <MenuItem href="/app/developers/usage">Usage analytics</MenuItem>
+                <MenuItem href="/payouts">Pagamentos</MenuItem>
+                <MenuItem>Torne-se um afiliado</MenuItem>
+                <MenuItem>Candidatar-se ao Programa de Impacto</MenuItem>
+                <MenuItem href="/developers/usage">Análise de uso</MenuItem>
               </ul>
 
               <ul className="last:border-b-0 last:pb-0 last:mb-0 border-gray-alpha-200 border-b pb-1 mb-1">
-                <MenuItem href="/app/voiceover-studio">Voiceover Studio</MenuItem>
-                <MenuItem href="/app/ai-classifier">AI Speech Classifier</MenuItem>
-                <MenuItem hasSubmenu>Docs and resources</MenuItem>
-                <MenuItem hasSubmenu>Terms and privacy</MenuItem>
+                <MenuItem href="/voiceover-studio">Estúdio de Voiceover</MenuItem>
+                <MenuItem href="/ai-classifier">Classificador de Voz IA</MenuItem>
+                <MenuItem hasSubmenu>Docs e recursos</MenuItem>
+                <MenuItem hasSubmenu>Termos e privacidade</MenuItem>
               </ul>
 
               <ul className="last:border-b-0 last:pb-0 last:mb-0 border-gray-alpha-200 border-b pb-1 mb-1">
@@ -206,7 +207,7 @@ export function PodcastUserMenu({
                           <path stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M10.6667 11.3333L14 8m0 0L10.6667 4.66667M14 8H6m0-6H5.2c-1.1201 0-1.68016 0-2.10798.21799C2.7157 2.40973 2.40973 2.71569 2.21799 3.09202C2 3.51984 2 4.07989 2 5.2v5.6c0 1.1201 0 1.6802.21799 2.108C2.40973 13.2843 2.71569 13.5903 3.09202 13.782C3.51984 14 4.0799 14 5.2 14H6"></path>
                         </svg>
                       </span>
-                      <span>Sign out</span>
+                      <span>Sair</span>
                     </span>
                   </button>
                 </li>
@@ -237,11 +238,13 @@ function MenuItem({
   );
 
   const className = "relative w-full flex cursor-pointer select-none items-center rounded-lg px-3 py-1.5 text-sm outline-none transition-colors hover:bg-gray-alpha-100 hover:text-foreground group justify-between";
+  const pathname = usePathname();
+  const basePath = pathname?.startsWith('/admin') ? '/admin' : '/dashboard';
 
   if (href) {
     return (
       <li className="relative px-1">
-        <a href={href} className={className}>
+        <a href={`${basePath}${href}`} className={className}>
           {content}
           {hasSubmenu && <ChevronRight className="h-4 w-4 opacity-50 transition-transform duration-100 group-hover:opacity-100 group-hover:translate-x-0.5" />}
         </a>

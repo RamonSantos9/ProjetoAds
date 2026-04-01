@@ -57,24 +57,19 @@ export function LandingLogo(
 export const landingLinks: LinkItemType[] = [
   {
     type: 'menu',
-    text: 'Projeto',
+    text: 'Conteúdo',
     on: 'all',
     items: [
-      { text: 'Sobre', url: '/projeto' },
-      { text: 'Podcasts', url: '/episodios' },
-      {
-        text: 'Faculdade',
-        url: 'https://serradouradalorena.com.br',
-        external: true,
-      },
+      { text: 'Episódios', url: '/episodios' },
+      { text: 'Guia do Ouvinte', url: '/docs' },
     ],
   },
-  { text: 'Dashboard', url: '/app/home', on: 'all' },
+  { text: 'Dashboard', url: '/dashboard/home', on: 'all' },
 ];
 
 export function LandingHeader() {
   const projectMenu = landingLinks.find(
-    (item) => item.type === 'menu' && item.text === 'Projeto',
+    (item) => item.type === 'menu' && item.text === 'Conteúdo',
   );
   const dashboardItem = landingLinks.find(
     (item) => item.type !== 'menu' && 'url' in item && item.text === 'Dashboard',
@@ -165,7 +160,7 @@ function hasUrlMenuItem(
 
 const navbarDescriptions: Record<string, string> = {
   Hero: 'Bloco principal de apresentação.',
-  Sobre: 'Entenda o objetivo e a estrutura do portal.',
+  'Guia do Ouvinte': 'Como participar e ouvir nosso conteúdo.',
   Eixos: 'Veja os três pilares tecnológicos do trabalho.',
   Episódios: 'Confira os conteúdos e formatos planejados.',
   Equipe: 'Organização do grupo e frentes do projeto.',
@@ -189,7 +184,7 @@ export function LandingFooter() {
         </div>
 
         <div className="flex flex-wrap gap-4 text-sm text-fd-muted-foreground">
-          <Link href="/app/home" className="hover:text-fd-foreground">
+          <Link href="/dashboard/home" className="hover:text-fd-foreground">
             Dashboard
           </Link>
           <a

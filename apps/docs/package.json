@@ -5,7 +5,7 @@
   "scripts": {
     "build": "node ../../packages/mdx/dist/bin.js && next build",
     "clean": "rimraf .next",
-    "dev": "node ../../packages/mdx/dist/bin.js && next dev",
+    "dev": "node ../../packages/mdx/dist/bin.js && next dev --webpack",
     "lint": "node ../../packages/mdx/dist/bin.js && eslint .",
     "start": "next start"
   },

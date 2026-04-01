@@ -1,0 +1,27 @@
+---
+title: Permissões e Roteamento Seguro
+description: Como a plataforma PodcastADS diferencia Produtores e Ouvintes sem criar código duplicado.
+---
+
+Se os episódios fossem artigos, nossa área `Admin` é nossa máquina de impressão. Criamos uma das funcionalidades mais inteligentes arquiteturais do projeto baseada em `BasePath` de Next.js App Router. 
+
+### A Filosofia do `isAdmin`
+
+Como não queríamos duplicar arquivos como botões, cartões, menus e avatares dentro do repositório, implementamos um sistema de detecção de URls por baixo do React (usando `usePathname()` do Header/Layout).
+
+- Caso o visitante esteja em **`/admin/...`**: 
+  Nós ativamos os privilégios estáticos, revelando os botões sensíveis e links para formulários de criação (Acesso restrito à Diretoria da Equipe).
+- Caso a URL comece em **`/dashboard/...`**: 
+  O portal imediatamente esconde botões CRUD. Mantém-se o mesmíssimo layout negro estético e dados dos servidores, porém num contexto somente-leitura e interações mínimas (Acesso de qualquer Aluno/Ouvinte).
+
+### Blindagem de Componentes
+
+Se você está desenvolvendo novas Features (como relatórios ou votações), e precisa checar o tipo de usuário no Componente e ocultar um link, você pode simplesmente enviar:
+```tsx
+const isAdmin = pathname.startsWith('/admin')
+```
+E usar `{ isAdmin ? <Botao_Deletar_Tudo /> : null }`.
+
+## Por que foi feito assim? 
+
+Mantemos centralizada a correção de Bugs. Se a visualização de um episódio apresentar problemas na Landing Page Pública ou no Painel Adminstrativo de Podcasters, um único conserto refletirá nos três ambientes para a *Faculdade Serra Dourada*.

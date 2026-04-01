@@ -16,6 +16,7 @@ import {
 } from './page-client';
 import type { AnchorProviderProps, TOCItemType } from '@xispedocs/core/toc';
 import * as TocDefault from '../../components/layout/toc';
+import TocClerk from '../../components/layout/toc-clerk';
 import { TOCProvider, TOCScrollArea } from '../../components/layout/toc';
 
 interface BreadcrumbOptions extends BreadcrumbProps {
@@ -124,7 +125,7 @@ export function DocsPage({
             <PageTOCPopoverContent>
               {tocPopoverOptions.header}
               <TOCScrollArea>
-                  <TocDefault.TOCItems />
+                  {tocPopoverOptions.style === 'clerk' ? <TocClerk /> : <TocDefault.TOCItems />}
               </TOCScrollArea>
               {tocPopoverOptions.footer}
             </PageTOCPopoverContent>
@@ -158,7 +159,7 @@ export function DocsPage({
               <I18nLabel label="toc" />
             </h3>
             <TOCScrollArea>
-               <TocDefault.TOCItems />
+               {tocOptions.style === 'clerk' ? <TocClerk /> : <TocDefault.TOCItems />}
             </TOCScrollArea>
             {tocOptions.footer}
           </div>
@@ -245,7 +246,7 @@ export function PageTOCItems({
 }: ComponentProps<'div'> & { variant?: 'clerk' | 'normal' }) {
   return (
     <TOCScrollArea {...props}>
-       <TocDefault.TOCItems />
+       {_variant === 'clerk' ? <TocClerk /> : <TocDefault.TOCItems />}
     </TOCScrollArea>
   );
 }
@@ -256,7 +257,7 @@ export function PageTOCPopoverItems({
 }: ComponentProps<'div'> & { variant?: 'clerk' | 'normal' }) {
   return (
     <TOCScrollArea {...props}>
-       <TocDefault.TOCItems />
+       {_variant === 'clerk' ? <TocClerk /> : <TocDefault.TOCItems />}
     </TOCScrollArea>
   );
 }
@@ -266,7 +267,7 @@ export function PageArticle(props: ComponentProps<'article'>) {
     <article
       {...props}
       className={cn(
-        'flex min-w-0 w-full flex-col gap-4 pt-8 px-4 md:px-6 md:mx-auto',
+        'flex min-w-0 w-full flex-col gap-4 pt-12 px-4 md:px-6 md:mx-auto',
         props.className,
       )}
     >

@@ -29,7 +29,7 @@ export default function Layout({ children }: LayoutProps<'/'>) {
           items: [
             {
               text: 'Guia do Ouvinte',
-              url: '/projeto',
+              url: '/docs',
               icon: <Book />,
             },
             {
@@ -39,7 +39,7 @@ export default function Layout({ children }: LayoutProps<'/'>) {
             },
             {
               text: 'Dashboard',
-              url: '/app/home',
+              url: '/dashboard/home',
               icon: <LayoutDashboard />,
             },
           ],
@@ -50,10 +50,10 @@ export default function Layout({ children }: LayoutProps<'/'>) {
           children: (
             <NavbarMenu>
               <NavbarMenuTrigger>
-                <Link href="/projeto">Explorar</Link>
+                <Link href="/docs">Explorar</Link>
               </NavbarMenuTrigger>
               <NavbarMenuContent className="text-[15px]">
-                <NavbarMenuLink href="/projeto" className="md:row-span-2">
+                <NavbarMenuLink href="/docs" className="md:row-span-2">
                   <div className="-mx-3 -mt-3">
                     <Image
                       src={Preview}
@@ -93,24 +93,13 @@ export default function Layout({ children }: LayoutProps<'/'>) {
                 </NavbarMenuLink>
 
                 <NavbarMenuLink
-                  href="/projeto"
-                  className="lg:col-start-3 lg:row-start-1"
-                >
-                  <PlusIcon className="bg-fd-primary text-fd-primary-foreground p-1 mb-2 rounded-md" />
-                  <p className="font-medium">Sobre o Projeto</p>
-                  <p className="text-fd-muted-foreground text-sm">
-                    Descubra quem somos e qual a nossa missão tecnológica.
-                  </p>
-                </NavbarMenuLink>
-
-                <NavbarMenuLink
-                  href="/app/home"
+                  href="/dashboard/home"
                   className="lg:col-start-3 lg:row-start-2"
                 >
                   <LayoutDashboard className="bg-fd-primary text-fd-primary-foreground p-1 mb-2 rounded-md" />
-                  <p className="font-medium">Dashboard Admin</p>
+                  <p className="font-medium">Dashboard do Podcast</p>
                   <p className="text-fd-muted-foreground text-sm">
-                    Painel de configurações e operação exclusivo da equipe.
+                    Painel completo para visualização de estatísticas e episódios.
                   </p>
                 </NavbarMenuLink>
               </NavbarMenuContent>
