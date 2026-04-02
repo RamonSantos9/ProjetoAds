@@ -124,7 +124,7 @@ export default function EpisodesDashboardPage() {
       setEpisodes(initialEpisodes.map(ep => ({
         id: Math.random().toString(36).substring(7),
         ...ep,
-        status: ep.status === 'Publicado' ? 'Publicado' : 'Em Produção'
+        status: ep.status === 'Publicado' ? 'Publicado' : 'Produção'
       })));
       setLoading(false);
     }, 400);

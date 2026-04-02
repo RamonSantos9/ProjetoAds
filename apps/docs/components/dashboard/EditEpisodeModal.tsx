@@ -68,7 +68,7 @@ export function EditEpisodeModal({ isOpen, onClose, onSave, episode }: EditEpiso
       setTitle(episode.title || '');
       setSummary(episode.summary || '');
       setCategory(episode.category || '');
-      setStatus(episode.status || 'Em Produção');
+      setStatus(episode.status || 'Produção');
       setDuration(episode.duration || '00:00');
       setGuests((episode.guests || []).join(', '));
       setPlatforms((episode.platforms || []).join(', '));
@@ -203,7 +203,7 @@ export function EditEpisodeModal({ isOpen, onClose, onSave, episode }: EditEpiso
                    onChange={(e) => setStatus(e.target.value)}
                  >
                    <option>Rascunho</option>
-                   <option>Em Produção</option>
+                   <option>Produção</option>
                    <option>Publicado</option>
                  </select>
                </div>

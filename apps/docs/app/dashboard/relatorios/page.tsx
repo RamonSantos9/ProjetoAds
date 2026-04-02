@@ -188,7 +188,7 @@ export default function RelatoriosPage() {
         platforms: ep.platforms || [],
         guests: ep.guests || [],
         guest: ep.guests?.[0] || 'Convidado Externo',
-        status: (ep.status as string) === 'Publicado' ? 'Publicado' : (i % 3 === 0 ? 'Agendado' : 'Em Produção'),
+        status: (ep.status as string) === 'Publicado' ? 'Publicado' : (i % 3 === 0 ? 'Agendado' : 'Produção'),
         creator: i % 2 === 0 ? 'Ramon Santos' : 'Ana Carolina',
         createdAt: new Date(Date.now() - i * 86400000).toISOString(),
         origin: i % 4 === 0 ? 'Importado' : (i % 4 === 1 ? 'Agendado' : 'Manual')
@@ -241,7 +241,7 @@ export default function RelatoriosPage() {
 
   const stats = {
     totalGuests: Array.from(new Set(reports.map(r => r.guest))).length,
-    pending: reports.filter(r => r.status === 'Em Produção' || r.status === 'Agendado').length,
+    pending: reports.filter(r => r.status === 'Produção' || r.status === 'Agendado').length,
     published: reports.filter(r => r.status === 'Publicado').length
   };
 
@@ -282,7 +282,7 @@ export default function RelatoriosPage() {
 
               <div className="flex-auto flex flex-col gap-4 px-4 lg:px-0" style={{ minWidth: "240px" }}>
                 <div className="flex items-center gap-2 w-full justify-between text-[#74748D] font-semibold tracking-tight">
-                  <p className="text-[16px]">Em Produção</p>
+                  <p className="text-[16px]">Produção</p>
                   <TooltipRefined text="Conteúdos que estão sendo editados ou aguardando gravação final.">
                     <button className="cursor-help text-fd-muted-foreground"><Info className="size-5" /></button>
                   </TooltipRefined>

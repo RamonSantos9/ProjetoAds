@@ -9,15 +9,15 @@ Se os episódios fossem artigos, nossa área `Admin` é nossa máquina de impres
 
 Ao acessar sua aba irrestrita local (`localhost:3000/admin`), os botões de ação do Dashboard ressurgem da árvore de Componentes UI. O desenvolvedor permitiu a visualização condicional e ativou o formulário de Controle.
 
-* **Modal de Criação** 
-   - Ao puxar a janela "Criar Novo Episódio", toda propriedade de *Draft* se inicia. Pede-se: _Título, Sumário e URL/Asset de mídia principal (WAV, MP3 ou URL)._
-   
-* **Edição Detalhada (`/admin/episodios/editar`)**
-   - Uma interface simulada aos moldes da Twitch ou YouTube Studio é renderizada.
-   - Os operadores podem alterar *Thumbnails*, ajustar links de patrocinadores, corrigir metadados e validar as estatísticas daquele episódio.
+- **Modal de Criação**
+  - Ao puxar a janela "Criar Novo Episódio", toda propriedade de _Draft_ se inicia. Pede-se: _Título, Sumário e URL/Asset de mídia principal (WAV, MP3 ou URL)._
+- **Edição Detalhada (`/admin/episodios/editar`)**
+  - Uma interface simulada aos moldes da Twitch ou YouTube Studio é renderizada.
+  - Os operadores podem alterar _Thumbnails_, ajustar links de patrocinadores, corrigir metadados e validar as estatísticas daquele episódio.
 
 ## Segurança na Deleção
+
 > [!CAUTION]
-> A ação de apagar Metadados reflete nos paineis de visualização de todos instantaneamente em produção. Certifique-se nas confirmações se o arquivo desejado precisa da remoção. 
+> A ação de apagar Metadados reflete nos paineis de visualização de todos instantaneamente Produção. Certifique-se nas confirmações se o arquivo desejado precisa da remoção.
 
 Essa aba não depende de outro software; é nativa e interage inteiramente com o banco e infraestrutura (caso implementados futuramente) utilizando a API Routes do próprio `Next.js`.

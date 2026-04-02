@@ -44,7 +44,7 @@ export function CreateEpisodeModal({ isOpen, onClose, onSave }: CreateEpisodeMod
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [category, setCategory] = useState('');
-  const [status, setStatus] = useState('Em Produção');
+  const [status, setStatus] = useState('Produção');
   const [duration, setDuration] = useState('00:00');
   const [guests, setGuests] = useState('');
   const [platforms, setPlatforms] = useState('');
@@ -85,7 +85,7 @@ export function CreateEpisodeModal({ isOpen, onClose, onSave }: CreateEpisodeMod
     setTitle('');
     setSummary('');
     setCategory('');
-    setStatus('Em Produção');
+    setStatus('Produção');
     setDuration('00:00');
     setGuests('');
     setPlatforms('');
@@ -197,7 +197,7 @@ export function CreateEpisodeModal({ isOpen, onClose, onSave }: CreateEpisodeMod
                    onChange={(e) => setStatus(e.target.value)}
                  >
                    <option>Rascunho</option>
-                   <option>Em Produção</option>
+                   <option>Produção</option>
                    <option>Publicado</option>
                  </select>
                </div>
