@@ -12,13 +12,13 @@ export type PodcastEpisode = {
 export const featuredEpisodes: PodcastEpisode[] = [
   {
     slug: 'piloto-ads-serra-dourada',
-    title: 'Episódio Piloto: O que é o PodcastADS?',
+    title: 'Episódio Piloto: O que é o PodcastAds?',
     category: 'Institucional',
     duration: '18 min',
     status: 'Publicado',
     summary:
       'Apresentação oficial do projeto, da proposta de extensão e da conexão entre o curso de ADS, a faculdade e a comunidade.',
-    guests: ['Equipe PodcastADS'],
+    guests: ['Equipe PodcastAds'],
     platforms: ['Spotify', 'YouTube'],
   },
   {

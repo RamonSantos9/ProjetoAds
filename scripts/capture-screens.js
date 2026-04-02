@@ -8,10 +8,7 @@
 
 const path = require('path');
 
-// Playwright instalado em tmp-playwright (isolado do workspace pnpm)
-const { chromium } = require(
-  path.join(__dirname, '..', 'tmp-playwright', 'node_modules', 'playwright')
-);
+const { chromium } = require('playwright');
 
 const screenshotsDir = path.join(
   __dirname, '..', 'apps', 'docs', 'public', 'docs-screenshots'

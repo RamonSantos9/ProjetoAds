@@ -15,7 +15,7 @@ export function Hero() {
       <HeroBackground />
       {/* Título adaptativo para mobile e desktop */}
       <h1 className="mb-8 text-4xl font-medium md:hidden">
-        PodcastADS: Tecnologia em Pauta
+        PodcastAds: Tecnologia em Pauta
       </h1>
       <h1 className="mb-8 max-w-[600px] text-4xl font-medium max-md:hidden">
         Conectando Ideias,
@@ -23,7 +23,7 @@ export function Hero() {
         Codificando o Futuro
       </h1>
       <p className="mb-8 md:max-w-[80%] md:text-xl">
-        Bem-vindo ao PodcastADS, o canal oficial da Faculdade Serra Dourada
+        Bem-vindo ao PodcastAds, o canal oficial da Faculdade Serra Dourada
         onde discutimos as tendências de Análise e Desenvolvimento de Sistemas.
       </p>
       {/* Grupo de botões de ação */}

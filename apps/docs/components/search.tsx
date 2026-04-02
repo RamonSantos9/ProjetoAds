@@ -20,7 +20,7 @@ const entries = [
   {
     id: 'inicio',
     title: 'Início',
-    description: 'Página principal do Portal PodcastADS.',
+    description: 'Página principal do Portal PodcastAds.',
     url: '/',
   },
   {
@@ -104,7 +104,7 @@ export default function PodcastSearchDialog(props: SharedProps) {
         </SearchDialogHeader>
         <SearchDialogList items={items} />
         <SearchDialogFooter className="text-xs text-fd-muted-foreground">
-          Busca local do projeto PodcastADS
+          Busca local do projeto PodcastAds
         </SearchDialogFooter>
       </SearchDialogContent>
     </SearchDialog>

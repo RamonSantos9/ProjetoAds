@@ -13,8 +13,8 @@ import { NextProvider } from '@xispedocs/core/framework/next';
 
 export const metadata = createMetadata({
   title: {
-    template: '%s | PodcastADS',
-    default: 'PodcastADS - Faculdade Serra Dourada',
+    template: '%s | PodcastAds',
+    default: 'PodcastAds - Faculdade Serra Dourada',
   },
   description:
     'O canal oficial de tecnologia e inovação dos alunos de ADS da Faculdade Serra Dourada.',

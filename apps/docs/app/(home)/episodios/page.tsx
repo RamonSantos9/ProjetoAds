@@ -9,7 +9,7 @@ import { featuredEpisodes, publicStats } from '../_data/episodes';
 export const metadata: Metadata = createMetadata({
   title: 'Episódios',
   description:
-    'Biblioteca pública do PodcastADS com episódios, pautas em andamento e visão geral do projeto.',
+    'Biblioteca pública do PodcastAds com episódios, pautas em andamento e visão geral do projeto.',
 });
 
 export default function EpisodesPage() {
@@ -32,7 +32,7 @@ export default function EpisodesPage() {
             }}
           />
           <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight md:text-5xl">
-            Episódios, pautas e atualizações do PodcastADS.
+            Episódios, pautas e atualizações do PodcastAds.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-fd-muted-foreground md:text-lg">
             Esta área apresenta os episódios já publicados, os temas em

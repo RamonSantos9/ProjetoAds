@@ -1,7 +1,7 @@
-# PodcastADS
+# PodcastAds
 **Onde o código encontra a conversa.** 
 
-<img src="./apps/docs/public/hero.png" alt="PodcastADS Hero" width="100%" />
+<img src="./apps/docs/public/hero.png" alt="PodcastAds Hero" width="100%" />
 
 <p>O portal oficial de tecnologia dos alunos de Análise e Desenvolvimento de Sistemas (ADS) da <b>Faculdade Serra Dourada</b>.</p>
 
@@ -9,7 +9,7 @@
 
 ## Sobre o Projeto
 
-O **PodcastADS** é uma iniciativa estudantil dedicada a conectar alunos, professores e profissionais do mercado. Nossa missão é fortalecer o ecossistema acadêmico através da disseminação de conhecimento, tendências de mercado e soft skills essenciais para o futuro desenvolvedor através de áudio, blog e workshops presenciais.
+O **PodcastAds** é uma iniciativa estudantil dedicada a conectar alunos, professores e profissionais do mercado. Nossa missão é fortalecer o ecossistema acadêmico através da disseminação de conhecimento, tendências de mercado e soft skills essenciais para o futuro desenvolvedor através de áudio, blog e workshops presenciais.
 
 Mais do que apenas um site institucional, criamos uma plataforma robusta desenvolvida totalmente sob a arquitetura de **Monorepo** com *Next.js*, contendo ferramentas administrativas completas, CMS de episódios e painel de Relatórios.
 
@@ -19,19 +19,11 @@ Mais do que apenas um site institucional, criamos uma plataforma robusta desenvo
 
 Sistema de autenticação premium com login social (Google, Apple, SSO) e formulário de e-mail/senha — centralizado, responsivo e com suporte a dark mode.
 
-### Tela de Login
-<img src="./apps/docs/public/docs-screenshots/sign-in.png" width="100%" style="border-radius: 8px; border: 1px solid #444;" />
-
-<br/>
-
 ---
 
 ## Documentação Oficial (`/docs`)
 
 Portal de documentação interativo para ouvintes e membros do projeto. Contém guias, referências de conteúdo, arquitetura do sistema e tutoriais para novos colaboradores.
-<img src="./apps/docs/public/docs-screenshots/docs.png" width="100%" style="border-radius: 8px; border: 1px solid #444;" />
-
-<br/>
 
 ---
 
@@ -41,15 +33,9 @@ A interface pública visa atrair alunos e a comunidade acadêmica. O foco é exi
 
 ### Home Page
 A página oficial de onde tudo começa. Apresenta nossos diferenciais e episódios em destaque.
-<img src="./apps/docs/public/docs-screenshots/home.png" width="100%" style="border-radius: 8px; border: 1px solid #444;" />
-
-<br/>
 
 ### Episódios
 Listagem pública com curadoria de conteúdos de tecnologia, engajamento e aprofundamento.
-<img src="./apps/docs/public/docs-screenshots/episodios.png" width="100%" style="border-radius: 8px; border: 1px solid #444;" />
-
-<br/>
 
 ---
 
@@ -79,7 +65,7 @@ Visualização ágil de Business Intelligence (BI) para acompanhar a evolução 
 
 ## Objetivos Tecnológicos
 
-Para atender aos requisitos técnicos exigidos pela universidade e testar nossos limites criativos, o PodcastADS atinge três pilares:
+Para atender aos requisitos técnicos exigidos pela universidade e testar nossos limites criativos, o PodcastAds atinge três pilares:
 
 1. **Gerenciamento de Conteúdo (CMS):** Sistema responsivo para o cadastro, edição e publicação de episódios de ponta a ponta.
 2. **Painel de BI:** Interface analítica para ajudar decisões sobre os rumos futuros do conteúdo dos alunos.
@@ -121,7 +107,7 @@ São as rotas onde a equipe de produção possui privilégios totais de CRUD (Cr
 
 Utilizamos `Turborepo` em conjunto com `pnpm workspaces` construindo módulos eficientes.
 
-| Pacote                                       | Propósito no Ecossistema PodcastADS                               |
+| Pacote                                       | Propósito no Ecossistema PodcastAds                               |
 | :------------------------------------------- | :---------------------------------------------------------------- |
 | 🛠️ [`@xispedocs/cli`](./packages/cli)         | Automação local, scripts de setup e CI para episódios/posts.      |
 | 🧠 [`@xispedocs/core`](./packages/core)       | Lógica main, utilitários base que todas as aplicações compartilham. |

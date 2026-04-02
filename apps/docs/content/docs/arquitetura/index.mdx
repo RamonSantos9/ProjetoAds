@@ -3,11 +3,11 @@ title: Estrutura do Monorepo
 description: Tudo sobre a fundação técnica do projeto (Turborepo + Next.js).
 ---
 
-Ao invés de adotar repositórios de base separada, optamos pela abordagem de **Monorepo** para mantermos um fluxo coeso e unificado entre os serviços visuais e o núcleo de códigos do PodcastADS.
+Ao invés de adotar repositórios de base separada, optamos pela abordagem de **Monorepo** para mantermos um fluxo coeso e unificado entre os serviços visuais e o núcleo de códigos do PodcastAds.
 
 ## Por que Turborepo? 🚀
 
-Para suportar grandes iterações sem prejudicar a velocidade, usamos o **[`Turbo`](https://turbo.build/)** coordenando nossos espaços de trabalho (*workspaces* via `pnpm`).
+Para suportar grandes iterações sem prejudicar a velocidade, usamos o **[`Turbo`](https://turbo.build/)** coordenando nossos espaços de trabalho (_workspaces_ via `pnpm`).
 Isso garante builds em cache ultra-rápidos: quando modificamos apenas o _CSS_ de um pacote em comum, o **Next.js** nos avisa sem precisar recompilar a base estrutural inteira. O Cache inteligente agiliza em 90% a integração local.
 
 ```bash
@@ -15,17 +15,18 @@ Isso garante builds em cache ultra-rápidos: quando modificamos apenas o _CSS_ d
 │   └── docs/          # Aplicação Principal (Sistema Web & Docs)
 ├── packages/
 │   ├── ui/            # Sistema de Design / Componentes UI Compartilháveis
-│   ├── core/          # Interfaces estáticas, Lógica e Metadados 
+│   ├── core/          # Interfaces estáticas, Lógica e Metadados
 │   ├── mdx/           # Motor FumaDocs / Leitura Markdown
 │   └── cli/           # CLI helper/Ferramentas
 └── package.json       # Configuração global PNPm
 ```
 
 ## O Ecossistema do App Router
-Nosso pilar da interface é o framework **Next.js >= 15** em sua topologia `App Router`. 
 
-* As páginas são renderizadas pelo servidor (*Server Components* por default).
-* Utilizamos as pastas interativas para prover caminhos unificados e reusáveis.
-* O design está empacotado pelo TailwindCSS v4, abstraído dentro dos nossos diretórios e exportado pelo próprio `app/global.css`.
+Nosso pilar da interface é o framework **Next.js >= 15** em sua topologia `App Router`.
+
+- As páginas são renderizadas pelo servidor (_Server Components_ por default).
+- Utilizamos as pastas interativas para prover caminhos unificados e reusáveis.
+- O design está empacotado pelo TailwindCSS v4, abstraído dentro dos nossos diretórios e exportado pelo próprio `app/global.css`.
 
 A união dessas tecnologias permitiu uma aplicação unificada que escala bem as permissões estáticas até a área de administração (`/admin`) usando zero customizações destrutivas de layout.

@@ -3,19 +3,20 @@ title: Instalação e Desenvolvimento
 description: Instruções essenciais para um novo integrante de TI configurar a máquina.
 ---
 
-Para desenvolver no PodcastADS ou modificar este exato *Guia do Ouvinte* (criando seus próprios arquivos Markdown em `apps/docs/content`), você deve baixar o repositório e prepará-lo.
+Para desenvolver no PodcastAds ou modificar este exato _Guia do Ouvinte_ (criando seus próprios arquivos Markdown em `apps/docs/content`), você deve baixar o repositório e prepará-lo.
 
 ## Requisitos de Sistema
 
 - **Node.js**: Versão 18.x ou superior.
 - **Gerenciador de Pacotes**: `pnpm` (recomendável na versão 9+).
-- *Git* ativo e clonado.
+- _Git_ ativo e clonado.
 
 ## Inicializando Tudo 🚦
 
 Como utilizamos uma arquitetura em Monorepo via `Turborepo` conectando o `Next.js App Router`, os pacotes vitais (UI, Core) requerem os mesmos comandos.
 
 ### 1. Instaure as Dependências
+
 Pela primeira vez que acessar o root (na mesma pasta do `package.json` matriz), baixe toda a internet:
 
 ```bash
@@ -23,6 +24,7 @@ pnpm install
 ```
 
 ### 2. Ligue os Motores (Dev Server)
+
 Ao invés de tentar iniciar pacotes avulsos, execute a inteligência global para puxar o pacote do Portal+Docs:
 
 ```bash
@@ -30,9 +32,10 @@ pnpm dev:docs
 ```
 
 > [!WARNING]
-> É possível que a rotina dispare avisos sobre o NPM caso um arquivo `.npmrc` tente validar pacotes locais sem seu token de registro original. O ambiente rodará independentemente se o log der pequenas queixas sobre variáveis faltando. 
+> É possível que a rotina dispare avisos sobre o NPM caso um arquivo `.npmrc` tente validar pacotes locais sem seu token de registro original. O ambiente rodará independentemente se o log der pequenas queixas sobre variáveis faltando.
 
 ### 3. Acesse e Crie!
+
 Depois dessa rodada rápida, use seu navegador para acessar localmente a maravilha viva:
 
 `http://localhost:3000`

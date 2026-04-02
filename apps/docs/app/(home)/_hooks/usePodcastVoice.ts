@@ -174,7 +174,7 @@ export function usePodcastVoice() {
       try {
         await generateTTS("Olá, eu sou uma das vozes em português.", "pt", id);
       } catch {
-        alert("Sem áudio: verifique sua Chave da API do PodcastADS.");
+        alert("Sem áudio: verifique sua Chave da API do PodcastAds.");
         setCurrentPreviewingId(null);
       }
       return;

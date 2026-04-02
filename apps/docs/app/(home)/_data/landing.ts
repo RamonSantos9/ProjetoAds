@@ -31,21 +31,21 @@ export const languages: Language[] = [
     name: 'Português',
     flagUrl: 'https://flagcdn.com/w40/br.png',
     defaultText:
-      'Transforme este texto em uma narração natural com a qualidade do PodcastADS.',
+      'Transforme este texto em uma narração natural com a qualidade do PodcastAds.',
   },
   {
     code: 'en',
     name: 'English',
     flagUrl: 'https://flagcdn.com/w40/us.png',
     defaultText:
-      'Turn this text into natural narration with PodcastADS quality voice synthesis.',
+      'Turn this text into natural narration with PodcastAds quality voice synthesis.',
   },
   {
     code: 'es',
     name: 'Español',
     flagUrl: 'https://flagcdn.com/w40/es.png',
     defaultText:
-      'Convierte este texto en una narração natural con la voz de PodcastADS.',
+      'Convierte este texto en una narração natural con la voz de PodcastAds.',
   },
 ];
 

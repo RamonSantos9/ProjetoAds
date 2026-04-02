@@ -6,7 +6,7 @@ const feedback = [
     avatar: 'https://avatars.githubusercontent.com/u/1',
     user: 'Prof. Anderson',
     role: 'Coordenador de ADS',
-    message: `O PodcastADS é uma ferramenta fundamental para levar o conhecimento teórico da sala de aula para o mundo real, conectando nossos alunos com profissionais do mercado.`,
+    message: `O PodcastAds é uma ferramenta fundamental para levar o conhecimento teórico da sala de aula para o mundo real, conectando nossos alunos com profissionais do mercado.`,
   },
   {
     avatar: 'https://avatars.githubusercontent.com/u/35677084',

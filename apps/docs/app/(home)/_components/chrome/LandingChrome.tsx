@@ -174,7 +174,7 @@ export function LandingFooter() {
       <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-8 px-4 py-10 sm:px-6 md:flex-row md:items-end md:justify-between">
         <div className="max-w-xl">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-fd-muted-foreground">
-            PodcastADS
+            PodcastAds
           </p>
           <p className="mt-3 text-sm leading-6 text-fd-muted-foreground">
             Portal do projeto acadêmico desenvolvido para a Faculdade Serra

@@ -16,7 +16,7 @@ export default [
   {
     rules: {
       'no-console': 'off',
-      // for PodcastADS CLI
+      // for PodcastAds CLI
       'import/no-relative-packages': 'off',
     },
   },

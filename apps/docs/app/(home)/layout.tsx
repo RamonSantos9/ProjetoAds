@@ -72,7 +72,7 @@ export default function Layout({ children }: LayoutProps<'/'>) {
                   </div>
                   <p className="font-medium">Guia do Ouvinte</p>
                   <p className="text-fd-muted-foreground text-sm">
-                    Aprenda a ouvir e participar do PodcastADS na Serra Dourada.
+                    Aprenda a ouvir e participar do PodcastAds na Serra Dourada.
                   </p>
                 </NavbarMenuLink>
 
@@ -137,7 +137,7 @@ function Footer() {
     <footer className="mt-auto border-t bg-fd-card py-12 text-fd-secondary-foreground">
       <div className="container flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="mb-1 text-sm font-semibold">PodcastADS - Serra Dourada</p>
+          <p className="mb-1 text-sm font-semibold">PodcastAds - Serra Dourada</p>
           <p className="text-xs">
             Construído com carinho pelos alunos de ADS da{' '}
             <a

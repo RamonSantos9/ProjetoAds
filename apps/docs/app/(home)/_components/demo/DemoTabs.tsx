@@ -26,12 +26,12 @@ export function DemoTabs({ selectedCategory, onCategorySelect }: DemoTabsProps) 
             <div className="relative flex items-center gap-1.5 text-fd-foreground">
               <div className="relative mr-0.5 h-3 w-3 overflow-hidden rounded-full bg-cream">
                 <img
-                  alt="PodcastADS Logo"
+                  alt="PodcastAds Logo"
                   src="https://eleven-public-cdn.elevenlabs.io/marketing_website/_next/static/media/eleven-creative.f5fbfcf5.png"
                   className="absolute inset-0 h-full w-full object-cover"
                 />
               </div>
-              <div className="type-base hidden sm:block">PodcastADS</div>
+              <div className="type-base hidden sm:block">PodcastAds</div>
               <div className="type-base block sm:hidden">Criativo</div>
             </div>
             <div className="absolute inset-0 -z-10 rounded-full bg-fd-card shadow-[0_0_1px_rgb(0_0_0_/_0.28),0_4px_4px_rgb(0_0_0_/_0.06)] dark:shadow-[0_0_1px_rgb(255_255_255_/_0.12),0_10px_30px_rgb(0_0_0_/_0.25)]" />
@@ -46,12 +46,12 @@ export function DemoTabs({ selectedCategory, onCategorySelect }: DemoTabsProps) 
             <div className="relative flex items-center gap-1.5 text-fd-muted-foreground">
               <div className="relative mr-0.5 h-3 w-3 overflow-hidden rounded-full bg-cream">
                 <img
-                  alt="PodcastADS Admin Logo"
+                  alt="PodcastAds Admin Logo"
                   src="https://eleven-public-cdn.elevenlabs.io/marketing_website/_next/static/media/eleven-agents.d9236159.png"
                   className="absolute inset-0 h-full w-full object-cover"
                 />
               </div>
-              <div className="type-base hidden sm:block">PodcastADS Admin</div>
+              <div className="type-base hidden sm:block">PodcastAds Admin</div>
               <div className="type-base block sm:hidden">Admin</div>
             </div>
           </div>

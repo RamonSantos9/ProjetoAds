@@ -1,6 +1,6 @@
 /**
  * @file apps/docs/app/(home)/page.tsx
- * @description Página inicial do PodcastADS.
+ * @description Página inicial do PodcastAds.
  * Este arquivo serve como o container principal da landing page,
  * importando as seções modulares da pasta _sections.
  */
@@ -14,7 +14,7 @@ import { End } from './_sections/End';
 import { Feedback } from './_sections/Feedback';
 
 /**
- * Componente principal da Landing Page do PodcastADS.
+ * Componente principal da Landing Page do PodcastAds.
  * 
  * Organiza as seções modulares em uma estrutura vertical com 
  * gradientes de fundo e bordas estilizadas.

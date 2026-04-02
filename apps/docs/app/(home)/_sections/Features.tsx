@@ -25,7 +25,7 @@ export function Features() {
               Abordamos todos os pilares da tecnologia:{' '}
             </span>
             <span>
-              O PodcastADS discute desde a lógica de programação até as soft
+              O PodcastAds discute desde a lógica de programação até as soft
               skills necessárias para brilhar na Serra Dourada.
             </span>
           </>
@@ -51,7 +51,7 @@ export function Features() {
             </div>
             <pre className="p-4 text-[13px]">
               <code className="grid">
-                <span className="font-medium"># PodcastADS</span>
+                <span className="font-medium"># PodcastAds</span>
                 <span>O canal de tecnologia da Serra Dourada.</span>
                 <span>{` `}</span>
                 <span className="font-medium">{`<Spotlight episódio="01" />`}</span>

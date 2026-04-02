@@ -144,7 +144,7 @@ function Wordmark({ collapsed }: { collapsed?: boolean }) {
 const platforms = [
   {
     id: 'creative',
-    label: 'PodcastADS',
+    label: 'PodcastAds',
     description: 'Painel principal do projeto acadêmico',
     img: '/platforms/ElevenCreative.png',
   },
@@ -234,76 +234,6 @@ export function PodcastSidebar() {
           </div>
 
           <nav className="flex min-h-0 flex-1 flex-col" id="main-nav">
-            <div className="relative z-20 mt-2 flex w-full flex-col px-3.5">
-              <div className="relative flex w-full items-center">
-                <DropdownMenu.Root>
-                  <DropdownMenu.Trigger asChild>
-                    <button
-                      className="group/main-nav-item -mx-0.5 w-full rounded-[10px] bg-[#FFFFFF] dark:bg-fd-background outline-none border border-fd-border"
-                      aria-label="Alternador de plataforma. Clique para alternar plataformas."
-                      type="button"
-                      disabled={collapsed}
-                    >
-                      <div className={cn('relative overflow-hidden rounded-[10px] bg-transparent w-full text-gray-alpha-950')}>
-                        <div className="flex items-center gap-2 text-gray-500 px-2 h-8">
-                          <div className="flex w-5 shrink-0 items-center justify-center">
-                            <div className="relative flex h-5 w-5 items-center justify-center rounded-md border border-fd-border bg-fd-muted/50 dark:bg-fd-secondary/50">
-                              <span className="flex relative z-20">
-                                <img alt={activePlatform.label} src={activePlatform.img} className="h-3 w-3 rounded-full bg-gray-100" />
-                              </span>
-                            </div>
-                          </div>
-                          <div className={cn('flex h-full flex-1 items-center justify-between transition-all duration-150', collapsed ? 'w-0 translate-x-1 opacity-0' : 'w-auto translate-x-0 opacity-100')}>
-                            <p className="max-w-[168px] truncate whitespace-nowrap text-sm font-medium text-gray-950 dark:text-gray-100">{activePlatform.label}</p>
-                            <div className="ml-auto mr-0.5 flex h-4 w-4 items-center justify-center">
-                              <ChevronsUpDown className="h-4 w-4" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  </DropdownMenu.Trigger>
-
-                  <DropdownMenu.Portal>
-                    <DropdownMenu.Content
-                      align="center"
-                      sideOffset={6}
-                      className="z-50 min-w-[var(--radix-dropdown-menu-trigger-width)] rounded-[10px] border border-fd-border bg-white/95 dark:bg-fd-popover/90 p-1 shadow-md backdrop-blur data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2"
-                    >
-                      {platforms.map((p, i) => (
-                        <Fragment key={`platform-${p.id}`}>
-                          {i > 0 && (
-                            <DropdownMenu.Separator className="-mx-1 my-1 h-px bg-fd-border/30" />
-                          )}
-                          <DropdownMenu.Item
-                            onSelect={() => setActivePlatform(p)}
-                            className="relative flex cursor-pointer select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none transition-colors focus:bg-fd-accent data-[state=open]:bg-fd-accent"
-                          >
-                            <button
-                              type="button"
-                              className="flex w-full items-center gap-2 pr-4 text-left"
-                              aria-selected={activePlatform.id === p.id}
-                              aria-label={`Alternar para ${p.label}. ${p.description}`}
-                            >
-                              <div className="flex h-8 w-8 items-center justify-center rounded-[10px] border border-fd-border bg-fd-muted/50 dark:bg-fd-secondary/30 text-white">
-                                <span className="flex relative z-20">
-                                  <img alt={p.label} src={p.img} className="h-4 w-4 rounded-full bg-gray-100" />
-                                </span>
-                              </div>
-                              <div className="ml-0.5 flex flex-col">
-                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{p.label}</p>
-                                <p className="-mt-px text-xs font-normal text-gray-500 dark:text-gray-400">{p.description}</p>
-                              </div>
-                            </button>
-                          </DropdownMenu.Item>
-                        </Fragment>
-                      ))}
-                    </DropdownMenu.Content>
-                  </DropdownMenu.Portal>
-                </DropdownMenu.Root>
-              </div>
-            </div>
-
             <div
               className="flex-1 overflow-y-auto overflow-x-hidden px-3.5 py-2 no-scrollbar"
               style={{ maskImage: 'linear-gradient(rgba(255, 255, 255, 0), rgb(255, 255, 255) 8px, rgb(255, 255, 255) 100%)' }}
@@ -324,58 +254,7 @@ export function PodcastSidebar() {
               ))}
             </div>
 
-            <SidebarFooter className="gap-1.5 border-t border-fd-border bg-[#FFFFFF] dark:bg-fd-card px-3 pb-4 pt-2">
-              <button type="button" className="hidden" aria-hidden="true" tabIndex={-1} />
-
-
-              <Link
-                href="/docs"
-                className={cn(
-                  'flex items-center rounded-lg px-2 h-8 text-[13.5px] text-fd-muted-foreground transition-colors hover:bg-fd-accent/50 hover:text-fd-accent-foreground w-full',
-                )}
-              >
-                <div className="flex w-5 shrink-0 items-center justify-center">
-                  <DevelopersIcon />
-                </div>
-                <div className={cn('flex flex-1 items-center transition-all duration-150', collapsed ? 'w-0 opacity-0 overflow-hidden ml-0' : 'w-auto opacity-100 ml-2.5')}>
-                  <span className="font-medium whitespace-nowrap">
-                    Documentação
-                  </span>
-                </div>
-              </Link>
-
-              <Link
-                href={`${basePath}/subscription`}
-                className={cn(
-                  'group/upgrade relative mt-0.5 flex h-8 items-center overflow-hidden rounded-lg text-[13.5px] font-medium w-full px-2',
-                )}
-                aria-label="Upgrade subscription group"
-              >
-                <div className="pointer-events-none absolute inset-0 z-10 rounded-lg ring-1 ring-inset ring-gray-200 dark:ring-white/10 group-hover/upgrade:ring-gray-300 dark:group-hover/upgrade:ring-white/20" />
-                <div
-                  className="absolute inset-0 dark:hidden"
-                  style={{ backgroundImage: 'repeating-linear-gradient(135deg,#FFFFFF,#FFFFFF 4px,rgba(0,0,0,0.03) 4px,rgba(0,0,0,0.03) 8px)' }}
-                />
-                <div
-                  className="absolute inset-0 hidden dark:block"
-                  style={{ backgroundImage: 'repeating-linear-gradient(135deg,transparent,transparent 4px,rgba(255,255,255,0.05) 4px,rgba(255,255,255,0.05) 8px)' }}
-                />
-                <div className="absolute inset-0 dark:hidden" style={{ backgroundImage: 'linear-gradient(90deg,#FFFFFF,transparent 80%)' }} />
-                <div className="absolute inset-0 hidden dark:block" style={{ backgroundImage: 'linear-gradient(90deg,var(--background),transparent 80%)' }} />
-                <div className="relative z-10 flex w-full h-full items-center transition-all duration-150">
-                  <div className="flex w-5 shrink-0 items-center justify-center">
-                    <div className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-gray-500 to-black text-white">
-                      <Zap className="h-3.5 w-3.5" />
-                    </div>
-                  </div>
-                  <div className={cn('flex flex-1 items-center transition-all duration-150', collapsed ? 'w-0 opacity-0 overflow-hidden ml-0' : 'w-auto opacity-100 ml-2.5')}>
-                    <span className="font-medium whitespace-nowrap">
-                      Projeto final
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            </SidebarFooter>
+            
           </nav>
         </div>
       </aside>

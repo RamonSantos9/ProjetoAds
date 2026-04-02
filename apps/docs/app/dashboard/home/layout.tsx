@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 export const metadata: Metadata = {
   title: 'Home',
-  description: 'PodcastADS',
+  description: 'PodcastAds',
 };
 
 export default function HomeLayout({ children }: { children: ReactNode }) {

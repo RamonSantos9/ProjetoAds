@@ -63,7 +63,7 @@ export default function SignUpPage() {
           <p className="font-medium mt-4 text-[11px] text-gray-500 text-center leading-relaxed">
              Ao clicar em “Cadastrar-se com Google”, eu concordo com os{' '}
              <Link href="/terms" className="underline text-foreground decoration-gray-300 hover:decoration-current">Termos de Serviço</Link> e reconheço a{' '}
-             <Link href="/privacy" className="underline text-foreground decoration-gray-300 hover:decoration-current">Política de Privacidade</Link> do PodcastADS.
+             <Link href="/privacy" className="underline text-foreground decoration-gray-300 hover:decoration-current">Política de Privacidade</Link> do PodcastAds.
           </p>
         </div>
 
@@ -127,7 +127,7 @@ export default function SignUpPage() {
                 <span className="text-[11px] font-medium text-gray-500 leading-tight">
                     Eu concordo com os{' '}
                     <Link href="/terms" className="underline text-foreground decoration-gray-300 hover:decoration-current">Termos de Serviço</Link> e reconheço a{' '}
-                    <Link href="/privacy" className="underline text-foreground decoration-gray-300 hover:decoration-current">Política de Privacidade</Link> do PodcastADS
+                    <Link href="/privacy" className="underline text-foreground decoration-gray-300 hover:decoration-current">Política de Privacidade</Link> do PodcastAds
                 </span>
              </label>
           </div>

@@ -18,7 +18,7 @@ export default function Layout({ children }: LayoutProps<'/docs'>) {
           <>
             {logo}
             <span className="font-medium [.uwu_&]:hidden max-md:hidden">
-              PodcastADS
+              PodcastAds
             </span>
           </>
         ),

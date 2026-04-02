@@ -8,9 +8,9 @@ import { Pause } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 /**
- * Componente principal do Dashboard Administrativo do PodcastADS.
+ * Componente principal do Dashboard Administrativo do PodcastAds.
  * 
- * Interface personalizada para gestão de episódios (CMS) do PodcastADS.
+ * Interface personalizada para gestão de episódios (CMS) do PodcastAds.
  * Permite o cadastro, edição, publicação e análise de dados (BI).
  * 
  * @returns {JSX.Element} Painel de controle do projeto.

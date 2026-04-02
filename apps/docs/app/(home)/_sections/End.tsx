@@ -13,7 +13,7 @@ export function End() {
       {/* Bloco visual esquerda: Título atraente com efeito hover */}
       <div className="group flex flex-col min-w-0 flex-1 pt-8 **:transition-colors">
         <h2 className="text-3xl text-center font-extrabold font-mono uppercase text-fd-muted-foreground mb-4 lg:text-4xl group-hover:text-green-500">
-          Participe do PodcastADS
+          Participe do PodcastAds
         </h2>
         <p className="text-center font-mono text-xs text-fd-foreground/60 mb-8 group-hover:text-green-500/80">
           Sua voz conta. O futuro da tecnologia na Serra Dourada passa por aqui.
