@@ -72,9 +72,9 @@ export function PodcastHeader() {
       {/* Desktop Header */}
       <header 
         className="hidden lg:block fixed top-0 right-0 transition-[width] duration-150 group/header-fixed z-[30] border-b border-gray-alpha-150" 
-        style={{ width: `calc(100% - ${collapsed ? '64px' : 'var(--eleven-sidebar-width)'})` }}
+        style={{ width: `calc(100% - ${collapsed ? '64px' : 'var(--podcastads-sidebar-width)'})` }}
       >
-        <div className="h-[var(--eleven-header-height)] w-full mx-auto hstack items-center gap-2 bg-[#FFFFFF] dark:bg-[#121212] px-2.5">
+        <div className="h-[var(--podcastads-header-height)] w-full mx-auto hstack items-center gap-2 bg-[#FFFFFF] dark:bg-[#121212] px-2.5">
           <button 
             type="button"
             onClick={() => setCollapsed(!collapsed)}
@@ -152,9 +152,9 @@ export function PodcastHeader() {
       </header>
 
       {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 h-[calc(var(--eleven-header-height)+var(--eleven-banner-height)+var(--eleven-mobile-tabs-height))] w-full bg-[#FFFFFF] dark:bg-[#121212] stack z-[30]">
+      <header className="lg:hidden fixed top-0 h-[calc(var(--podcastads-header-height)+var(--podcastads-banner-height)+var(--podcastads-mobile-tabs-height))] w-full bg-[#FFFFFF] dark:bg-[#121212] stack z-[30]">
         <div className="w-full hstack px-2.5 border-b">
-          <div className="h-[var(--eleven-header-height)] hstack items-center gap-2">
+          <div className="h-[var(--podcastads-header-height)] hstack items-center gap-2">
             <button 
               aria-label="Abrir lateral" 
               onClick={() => setOpen(true)}

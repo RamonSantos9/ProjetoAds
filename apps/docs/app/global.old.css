@@ -87,10 +87,10 @@
     --background-alt: 0 0% 100%;
     --background: 0 0% 100%;
     --foreground: 240 3% 6%;
-    --eleven-header-height: 3.5rem;
-    --eleven-sidebar-width: 16rem;
-    --eleven-banner-height: 0rem;
-    --eleven-mobile-tabs-height: 0rem;
+    --podcastads-header-height: 3.5rem;
+    --podcastads-sidebar-width: 16rem;
+    --podcastads-banner-height: 0rem;
+    --podcastads-mobile-tabs-height: 0rem;
     --fd-sidebar-col: 0px;
     --tw-gray-50: 0 0% 98%;
     --tw-gray-100: 240 4.8% 95.9%;
@@ -267,10 +267,10 @@ body {
   --background-alt: 240 7% 10%;
   --background: 240 6% 7%;
   --foreground: 0 0% 96%;
-  --eleven-header-height: 3.5rem;
-  --eleven-sidebar-width: 16rem;
-  --eleven-banner-height: 0rem;
-  --eleven-mobile-tabs-height: 0rem;
+  --podcastads-header-height: 3.5rem;
+  --podcastads-sidebar-width: 16rem;
+  --podcastads-banner-height: 0rem;
+  --podcastads-mobile-tabs-height: 0rem;
   --fd-sidebar-col: 0px;
   --card: var(--background);
   --card-foreground: var(--foreground);
@@ -363,7 +363,7 @@ body {
 
 @media (min-width: 1024px) {
   :root, .dark {
-    --fd-sidebar-col: var(--eleven-sidebar-width);
+    --fd-sidebar-col: var(--podcastads-sidebar-width);
   }
   
   [data-sidebar-collapsed="true"] {

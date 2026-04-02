@@ -15,6 +15,26 @@ Mais do que apenas um site institucional, criamos uma plataforma robusta desenvo
 
 ---
 
+## Autenticação
+
+Sistema de autenticação premium com login social (Google, Apple, SSO) e formulário de e-mail/senha — centralizado, responsivo e com suporte a dark mode.
+
+### Tela de Login
+<img src="./apps/docs/public/docs-screenshots/sign-in.png" width="100%" style="border-radius: 8px; border: 1px solid #444;" />
+
+<br/>
+
+---
+
+## Documentação Oficial (`/docs`)
+
+Portal de documentação interativo para ouvintes e membros do projeto. Contém guias, referências de conteúdo, arquitetura do sistema e tutoriais para novos colaboradores.
+<img src="./apps/docs/public/docs-screenshots/docs.png" width="100%" style="border-radius: 8px; border: 1px solid #444;" />
+
+<br/>
+
+---
+
 ## Telas da Plataforma (Portal Público)
 
 A interface pública visa atrair alunos e a comunidade acadêmica. O foco é exibir design premium e performance ultra-rápida.
@@ -28,12 +48,6 @@ A página oficial de onde tudo começa. Apresenta nossos diferenciais e episódi
 ### Episódios
 Listagem pública com curadoria de conteúdos de tecnologia, engajamento e aprofundamento.
 <img src="./apps/docs/public/docs-screenshots/episodios.png" width="100%" style="border-radius: 8px; border: 1px solid #444;" />
-
-<br/>
-
-### Sobre o Projeto
-Página interativa com detalhes dos membros e arquitetura e a história por trás do PodcastADS.
-<img src="./apps/docs/public/docs-screenshots/projeto.png" width="100%" style="border-radius: 8px; border: 1px solid #444;" />
 
 <br/>
 
@@ -80,17 +94,21 @@ O sistema (Next.js App Router) está organizado em três áreas principais com n
 ### 🧩 1. Área Pública (Acesso Livre)
 São as páginas principais voltadas para qualquer visitante acessar, sem nenhuma estrutura de painel de controle.
 *   **`/`** (Página Inicial/Landing Page) - *Arquivo:* `app/(home)/page.tsx`
-*   **`/docs`** (Guia do Ouvinte / Documentação Oficial) - *Arquivo:* `app/docs/[[...slug]]/page.tsx`
 *   **`/episodios`** (Listagem Pública de Podcasts) - *Arquivo:* `app/(home)/episodios/page.tsx`
+*   **`/docs`** (Guia do Ouvinte / Documentação Oficial) - *Arquivo:* `app/docs/[[...slug]]/page.tsx`
 
-### 📊 2. Área "Dashboard" (Participantes e Ouvintes)
+### 🔐 2. Autenticação
+Rotas de acesso ao sistema com suporte a login social e formulário clássico.
+*   **`/sign-in`** (Tela de Login) - *Arquivo:* `app/sign-in/page.tsx`
+
+### 📊 3. Área "Dashboard" (Participantes e Ouvintes)
 É o painel do sistema para usuários comuns. Ele reaproveita o layout em modo de leitura, restringindo ações avançadas e modificações.
 *   **`/dashboard/home`** (Home do dashboard) - *Arquivo:* `app/dashboard/home/page.tsx`
 *   **`/dashboard/episodios`** (Visualização de episódios no painel) - *Arquivo:* `app/dashboard/episodios/page.tsx`
 *   **`/dashboard/episodios/editar`** (Roteiro/Edição restrita) - *Arquivo:* `app/dashboard/episodios/editar/page.tsx`
 *   **`/dashboard/relatorios`** (Visualização de dados/estatísticas ocultando modais de ações) - *Arquivo:* `app/dashboard/relatorios/page.tsx`
 
-### ⚙️ 3. Área "Admin" (Gestores e Equipe do Projeto)
+### ⚙️ 4. Área "Admin" (Gestores e Equipe do Projeto)
 São as rotas onde a equipe de produção possui privilégios totais de CRUD (Criar, Ler, Atualizar, Deletar).
 *   **`/admin/home`** (Home completa com criação e gestão gerencial) - *Arquivo:* `app/admin/home/page.tsx`
 *   **`/admin/episodios`** (Lista de episódios com modais de edição e botões de ação permitidos) - *Arquivo:* `app/admin/episodios/page.tsx`

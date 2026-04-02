@@ -14,7 +14,7 @@ export interface CharAlignment {
   character_end_times_seconds: number[];
 }
 
-export function useElevenLabs() {
+export function usePodcastVoice() {
   const [voices, setVoices] = useState<Voice[]>(fallbackVoices);
   const [selectedVoiceId, setSelectedVoiceId] = useState(fallbackVoices[0]?.id || "");
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(languages[0]);
@@ -36,7 +36,7 @@ export function useElevenLabs() {
 
     async function fetchVoices() {
       try {
-        const response = await fetch('/api/elevenlabs/voices');
+        const response = await fetch('/api/tts/voices');
         if (response.ok) {
           const data = await response.json();
           if (data.voices && data.voices.length > 0) {
@@ -114,7 +114,7 @@ export function useElevenLabs() {
     stopAudio();
     setIsLoading(true);
     try {
-      const response = await fetch('/api/elevenlabs/tts', {
+      const response = await fetch('/api/tts/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, voiceId: targetVoiceId, languageCode }),
@@ -174,7 +174,7 @@ export function useElevenLabs() {
       try {
         await generateTTS("Olá, eu sou uma das vozes em português.", "pt", id);
       } catch {
-        alert("Sem áudio: verifique sua Chave da API ElevenLabs.");
+        alert("Sem áudio: verifique sua Chave da API do PodcastADS.");
         setCurrentPreviewingId(null);
       }
       return;

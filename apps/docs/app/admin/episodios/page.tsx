@@ -157,7 +157,7 @@ export default function EpisodesDashboardPage() {
            <ThemeToggle mode="light-dark" />
         </div>
 
-        {/* Content Card matches modern ElevenLabs rounded-[24px] box */}
+        {/* Content Card matches modern PodcastADS rounded-[24px] box */}
         <div className="w-full p-0 flex flex-col flex-1 min-h-0">
           <section className="flex flex-col flex-1 min-h-0 h-full">
             <h1 className="text-2xl sm:text-3xl font-semibold text-fd-foreground tracking-tight mb-6 pb-8">

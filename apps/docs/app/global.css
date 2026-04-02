@@ -126,12 +126,12 @@ body {
   }
   
   .lg-studio-pb {
-    padding-bottom: var(--eleven-player-height, 0);
+    padding-bottom: var(--podcastads-player-height, 0);
   }
 }
 
 .pt-studio-calc {
-  padding-top: calc(var(--eleven-header-height, 0rem) + var(--eleven-banner-height, 0rem));
+  padding-top: calc(var(--podcastads-header-height, 0rem) + var(--podcastads-banner-height, 0rem));
 }
 
 .min-h-100advh {
@@ -140,4 +140,35 @@ body {
 
 .box-border {
   box-sizing: border-box;
+}
+
+@utility hstack {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+@utility stack {
+  display: flex;
+  flex-direction: column;
+}
+
+@utility center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@utility inter {
+  font-family: var(--font-sans);
+}
+
+@utility font-waldenburg-ht {
+  font-family: var(--font-display);
+}
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }

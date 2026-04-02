@@ -6,9 +6,9 @@ export function createMetadata(override: Metadata): Metadata {
     openGraph: {
       title: override.title ?? undefined,
       description: override.description ?? undefined,
-      url: 'https://elevenlabs.xispe.com',
+      url: 'https://podcastads.vercel.app',
       images: '/banner.png',
-      siteName: 'ElevenLabs',
+      siteName: 'PodcastADS',
       ...override.openGraph,
     },
     twitter: {
@@ -23,8 +23,8 @@ export function createMetadata(override: Metadata): Metadata {
       types: {
         'application/rss+xml': [
           {
-            title: 'ElevenLabs Blog',
-            url: 'https://elevenlabs.xispe.com/blog/rss.xml',
+            title: 'PodcastADS Blog',
+            url: 'https://podcastads.vercel.app/blog/rss.xml',
           },
         ],
       },
@@ -34,7 +34,6 @@ export function createMetadata(override: Metadata): Metadata {
 }
 
 export const baseUrl =
-  process.env.NODE_ENV === 'development' ||
-  !process.env.VERCEL_PROJECT_PRODUCTION_URL
+  process.env.NODE_ENV === 'development'
     ? new URL('http://localhost:3000')
-    : new URL(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
+    : new URL('https://podcastads.vercel.app');

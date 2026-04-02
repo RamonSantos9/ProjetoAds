@@ -26,7 +26,7 @@ export function DemoTabs({ selectedCategory, onCategorySelect }: DemoTabsProps) 
             <div className="relative flex items-center gap-1.5 text-fd-foreground">
               <div className="relative mr-0.5 h-3 w-3 overflow-hidden rounded-full bg-cream">
                 <img
-                  alt=""
+                  alt="PodcastADS Logo"
                   src="https://eleven-public-cdn.elevenlabs.io/marketing_website/_next/static/media/eleven-creative.f5fbfcf5.png"
                   className="absolute inset-0 h-full w-full object-cover"
                 />
@@ -46,13 +46,13 @@ export function DemoTabs({ selectedCategory, onCategorySelect }: DemoTabsProps) 
             <div className="relative flex items-center gap-1.5 text-fd-muted-foreground">
               <div className="relative mr-0.5 h-3 w-3 overflow-hidden rounded-full bg-cream">
                 <img
-                  alt=""
+                  alt="PodcastADS Admin Logo"
                   src="https://eleven-public-cdn.elevenlabs.io/marketing_website/_next/static/media/eleven-agents.d9236159.png"
                   className="absolute inset-0 h-full w-full object-cover"
                 />
               </div>
-              <div className="type-base hidden sm:block">ElevenAgents</div>
-              <div className="type-base block sm:hidden">Agentes</div>
+              <div className="type-base hidden sm:block">PodcastADS Admin</div>
+              <div className="type-base block sm:hidden">Admin</div>
             </div>
           </div>
         </div>

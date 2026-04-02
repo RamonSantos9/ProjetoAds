@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     const apiKey = process.env.ELEVENLABS_API_KEY;
 
     if (!apiKey) {
-      console.error('ELEVENLABS_API_KEY não configurada');
+      console.error('API KEY do PodcastADS não configurada');
       return NextResponse.json({ error: 'Erro de configuração no servidor' }, { status: 500 });
     }
 
@@ -37,10 +37,10 @@ export async function POST(req: Request) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Erro na API ElevenLabs:', errorText);
+      console.error('Erro na API de Voz do PodcastADS:', errorText);
       try {
         if (response.status === 402) {
-          return NextResponse.json({ error: 'Sem créditos na conta ElevenLabs (402).' }, { status: 402 });
+          return NextResponse.json({ error: 'Limite de créditos da API atingido.' }, { status: 402 });
         }
         const errorData = JSON.parse(errorText);
         return NextResponse.json({ error: errorData.detail?.status || errorData.detail || 'Erro ao gerar áudio' }, { status: response.status });

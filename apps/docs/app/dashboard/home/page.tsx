@@ -10,7 +10,7 @@ import { usePathname } from 'next/navigation';
 /**
  * Componente principal do Dashboard Administrativo do PodcastADS.
  * 
- * Interface inspirada no ElevenLabs para gestão de episódios (CMS).
+ * Interface personalizada para gestão de episódios (CMS) do PodcastADS.
  * Permite o cadastro, edição, publicação e análise de dados (BI).
  * 
  * @returns {JSX.Element} Painel de controle do projeto.

@@ -10,7 +10,7 @@ import {
 import Link from '@xispedocs/core/link';
 import Image from 'next/image';
 import Preview from '@/public/banner.png';
-import { Book, ComponentIcon, LayoutDashboard, Pencil, PlusIcon, Server } from 'lucide-react';
+import { Book, ComponentIcon, LayoutDashboard, Server, ShieldCheck } from 'lucide-react';
 
 export default function Layout({ children }: LayoutProps<'/'>) {
   return (
@@ -41,6 +41,11 @@ export default function Layout({ children }: LayoutProps<'/'>) {
               text: 'Dashboard',
               url: '/dashboard/home',
               icon: <LayoutDashboard />,
+            },
+            {
+              text: 'Dashboard Admin',
+              url: '/admin/home',
+              icon: <ShieldCheck />,
             },
           ],
         },
@@ -80,6 +85,17 @@ export default function Layout({ children }: LayoutProps<'/'>) {
                 </NavbarMenuLink>
 
                 <NavbarMenuLink
+                  href="/dashboard/home"
+                  className="lg:col-start-3"
+                >
+                  <LayoutDashboard className="bg-fd-primary text-fd-primary-foreground p-1 mb-2 rounded-md" />
+                  <p className="font-medium">Painel do Ouvinte</p>
+                  <p className="text-fd-muted-foreground text-sm">
+                    Visualize estatísticas e acompanhe seus episódios favoritos.
+                  </p>
+                </NavbarMenuLink>
+
+                <NavbarMenuLink
                   href="https://serradouradalorena.com.br"
                   target="_blank"
                   rel="noreferrer noopener"
@@ -93,13 +109,13 @@ export default function Layout({ children }: LayoutProps<'/'>) {
                 </NavbarMenuLink>
 
                 <NavbarMenuLink
-                  href="/dashboard/home"
+                  href="/admin/home"
                   className="lg:col-start-3 lg:row-start-2"
                 >
-                  <LayoutDashboard className="bg-fd-primary text-fd-primary-foreground p-1 mb-2 rounded-md" />
-                  <p className="font-medium">Dashboard do Podcast</p>
+                  <ShieldCheck className="bg-fd-primary text-fd-primary-foreground p-1 mb-2 rounded-md" />
+                  <p className="font-medium">Dashboard Admin</p>
                   <p className="text-fd-muted-foreground text-sm">
-                    Painel completo para visualização de estatísticas e episódios.
+                    Gerencie episódios, pautas e usuários da plataforma.
                   </p>
                 </NavbarMenuLink>
               </NavbarMenuContent>

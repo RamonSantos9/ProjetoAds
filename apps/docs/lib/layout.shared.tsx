@@ -1,17 +1,14 @@
 import { type LinkItemType } from '@xispedocs/ui/layouts/docs';
-import { AlbumIcon } from 'lucide-react';
-import Image from 'next/image';
 import type { BaseLayoutProps } from '@xispedocs/ui/layouts/shared';
 import { XispeDocsIcon } from '@/app/layout.client';
-import Logo from '@/public/logo.png';
 
 export const linkItems: LinkItemType[] = [
-  {
-    icon: <AlbumIcon />,
-    text: 'Blog',
-    url: '/blog',
-    active: 'nested-url',
-  },
+  // {
+  //   icon: <AlbumIcon />,
+  //   text: 'Blog',
+  //   url: '/blog',
+  //   active: 'nested-url',
+  // },
 ];
 
 export const logo = (

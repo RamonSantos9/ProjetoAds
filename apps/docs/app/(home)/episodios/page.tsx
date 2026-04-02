@@ -16,13 +16,13 @@ export default function EpisodesPage() {
   return (
     <main className="container relative z-2 max-w-[1100px] px-2 py-4 lg:py-8">
       <div
-        className="overflow-hidden border-x border-t border-dashed border-fd-border"
+        className="overflow-hidden border-x border border-dashed border-fd-border"
         style={{
           background:
             'repeating-linear-gradient(to bottom, transparent, color-mix(in oklab, var(--color-fd-primary) 1%, transparent) 500px, transparent 1000px)',
         }}
       >
-        <section className="relative overflow-hidden border-b border-dashed bg-fd-background/80 px-5 py-14 md:px-10">
+        <section className="relative overflow-hidden px-5 py-14 md:px-10">
           <div
             className="absolute inset-0 z-[-1]"
             style={{
@@ -31,9 +31,6 @@ export default function EpisodesPage() {
               opacity: 0.5,
             }}
           />
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-fd-muted-foreground">
-            Biblioteca Pública
-          </p>
           <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight md:text-5xl">
             Episódios, pautas e atualizações do PodcastADS.
           </h1>
@@ -46,7 +43,7 @@ export default function EpisodesPage() {
               Voltar para o portal
             </Link>
             <Link
-              href="/projeto"
+              href="/docs"
               className={cn(buttonVariants({ variant: 'outline', size: 'lg' }))}
             >
               Entender o projeto
@@ -54,8 +51,8 @@ export default function EpisodesPage() {
           </div>
         </section>
 
-        <section className="grid grid-cols-1 border-r border-dashed border-fd-border md:grid-cols-2 lg:grid-cols-4">
-          <div className="col-span-full flex flex-row items-start justify-center border-l border-t border-dashed border-fd-border p-8 pb-2 text-center bg-transparent">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+          <div className="col-span-full flex flex-row items-start justify-center border-t border-dashed p-8 pb-2 text-center bg-transparent">
             <h2 className="bg-fd-primary text-fd-primary-foreground px-2 text-2xl font-semibold">
               Estatísticas
             </h2>
@@ -63,7 +60,7 @@ export default function EpisodesPage() {
           </div>
 
           {publicStats.map((stat) => (
-            <div key={stat.label} className="border-l border-t border-dashed border-fd-border px-6 py-12 bg-transparent">
+            <div key={stat.label} className="border-l border-t border-dashed px-6 py-12 bg-transparent">
               <div className="mb-4 flex flex-row items-center gap-2 text-fd-muted-foreground">
                 <h2 className="text-sm font-medium">{stat.label}</h2>
               </div>
@@ -72,8 +69,8 @@ export default function EpisodesPage() {
           ))}
         </section>
 
-        <section className="grid grid-cols-1 border-r border-dashed border-fd-border md:grid-cols-2 lg:grid-cols-3">
-          <div className="col-span-full flex flex-row items-start justify-center border-l border-t border-dashed border-fd-border p-8 pb-2 text-center bg-transparent">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div className="col-span-full flex flex-row items-start justify-center border-t border-dashed p-8 pb-2 text-center bg-transparent">
             <h2 className="bg-fd-primary text-fd-primary-foreground px-2 text-2xl font-semibold">
               Programação de Episódios
             </h2>
@@ -83,7 +80,7 @@ export default function EpisodesPage() {
           {featuredEpisodes.map((episode) => (
             <article
               key={episode.slug}
-              className="border-l border-t border-dashed border-fd-border px-6 py-12 bg-transparent flex flex-col"
+              className="border-l border-t border-b border-dashed px-6 py-12 bg-transparent flex flex-col"
             >
               <div className="flex flex-wrap items-center gap-2 text-xs mb-4">
                 <span className="rounded-full bg-fd-primary/10 px-2.5 py-1 font-medium text-fd-primary">
@@ -114,23 +111,6 @@ export default function EpisodesPage() {
               </div>
             </article>
           ))}
-
-          <aside className="border-l border-t border-dashed border-fd-border px-6 py-12 bg-transparent flex flex-col">
-            <div className="mb-4 flex flex-row items-center gap-2 text-fd-muted-foreground">
-              <Mic2 className="size-4" />
-              <h2 className="text-sm font-medium">Como acompanhar</h2>
-            </div>
-            
-            <span className="text-base font-medium leading-7 mb-6 block">
-              O portal concentra informações sobre o projeto, episódios, temas em pauta e canais de divulgação da equipe.
-            </span>
-
-            <ul className="space-y-4 text-sm text-fd-muted-foreground mt-auto">
-              <li className="flex gap-3 items-start"><span className="text-fd-primary font-bold mt-0.5">•</span> Spotify para distribuição principal dos episódios.</li>
-              <li className="flex gap-3 items-start"><span className="text-fd-primary font-bold mt-0.5">•</span> YouTube e Instagram para cortes, chamadas e divulgação.</li>
-              <li className="flex gap-3 items-start"><span className="text-fd-primary font-bold mt-0.5">•</span> Dashboard interno para operação, publicação e acompanhamento.</li>
-            </ul>
-          </aside>
         </section>
       </div>
     </main>

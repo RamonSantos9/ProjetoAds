@@ -19,7 +19,7 @@ function GridLayout({ children }: { children: ReactNode }) {
     >
       <PodcastSidebar />
       <PodcastHeader />
-      <main className="[grid-area:main] relative z-10 flex min-h-screen min-w-0 flex-col bg-[#FFFFFF] dark:bg-fd-background pt-[var(--eleven-header-height)] max-[1023px]:pt-[calc(var(--eleven-header-height)+var(--eleven-banner-height)+var(--eleven-mobile-tabs-height))]">
+      <main className="[grid-area:main] relative z-10 flex min-h-screen min-w-0 flex-col bg-[#FFFFFF] dark:bg-fd-background pt-[var(--podcastads-header-height)] max-[1023px]:pt-[calc(var(--podcastads-header-height)+var(--podcastads-banner-height)+var(--podcastads-mobile-tabs-height))]">
         {children}
       </main>
     </div>
