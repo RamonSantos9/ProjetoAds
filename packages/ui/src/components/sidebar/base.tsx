@@ -14,7 +14,7 @@ import {
 } from 'react';
 import Link, { type LinkProps } from '@xispedocs/core/link';
 import { useOnChange } from '@xispedocs/core/utils/use-on-change';
-import { cn } from '@/utils/cn';
+import { cn } from '../../utils/cn';
 import {
   Collapsible,
   CollapsibleContent,

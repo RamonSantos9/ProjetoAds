@@ -1,7 +1,7 @@
 'use client';
 import * as Primitive from '@xispedocs/core/toc';
 import { type ComponentProps, useEffect, useRef, useState } from 'react';
-import { cn } from '@/utils/cn';
+import { cn } from '../../utils/cn';
 import { TocThumb, useTOCItems } from '.';
 import { mergeRefs } from '@/utils/merge-refs';
 import { useI18n } from '@/contexts/i18n';

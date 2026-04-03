@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'node:crypto';
 import { transcribeAudio } from '@/lib/deepgram';
-import { addEpisode, Episode, Guest } from '@/lib/db';
+import { addEpisode, Episode, Guest, EpisodeCategory, EpisodeStatus } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,8 +10,8 @@ export async function POST(req: NextRequest) {
     const externalUrl = formData.get('externalUrl') as string | null;
     const title = formData.get('title') as string;
     const summary = formData.get('summary') as string;
-    const category = formData.get('category') as string || 'Geral';
-    const status = formData.get('status') as any || 'Produção';
+    const category = (formData.get('category') as string || 'Geral') as EpisodeCategory;
+    const status = (formData.get('status') as string || 'Produção') as EpisodeStatus;
     
     // Parse JSON arrays/objects from formData
     const rawGuests = formData.get('guests') as string;

@@ -3,7 +3,7 @@ import { Check, ChevronsUpDown } from 'lucide-react';
 import { type ComponentProps, type ReactNode, useMemo, useState } from 'react';
 import Link from '@xispedocs/core/link';
 import { usePathname } from '@xispedocs/core/framework';
-import { cn } from '@/utils/cn';
+import { cn } from '../../../utils/cn';
 import { isActive, normalize } from '@/utils/urls';
 import { useSidebar } from '@/components/sidebar/base';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';

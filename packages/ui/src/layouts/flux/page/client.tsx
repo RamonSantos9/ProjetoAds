@@ -13,7 +13,7 @@ import {
 } from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight, X as XIcon } from '@/icons';
 import Link from '@xispedocs/core/link';
-import { cn } from '@/utils/cn';
+import { cn } from '../../../utils/cn';
 import { useI18n } from '@/contexts/i18n';
 import { useTreeContext, useTreePath } from '@/contexts/tree';
 import type * as PageTree from '@xispedocs/core/page-tree';

@@ -2,6 +2,8 @@
  * OpenAI Whisper AI Integration for PodcastAds
  */
 
+import { Blob } from 'node:buffer';
+
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
 
 export interface TranscriptionResult {
@@ -29,7 +31,7 @@ export async function transcribeAudio(
 
   try {
     const formData = new FormData();
-    const blob = new Blob([audioFile], { type: 'audio/mpeg' });
+    const blob = new (globalThis as any).Blob([audioFile], { type: 'audio/mpeg' });
     formData.append('file', blob, filename);
     formData.append('model', 'whisper-1');
     formData.append('language', 'pt');

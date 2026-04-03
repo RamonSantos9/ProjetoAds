@@ -1,4 +1,4 @@
-@import 'tailwindcss' source(none);
+@import "tailwindcss";
 @import '@xispedocs/ui/css/neutral.css';
 @import '@xispedocs/ui/css/preset.css';
 

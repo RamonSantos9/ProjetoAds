@@ -1,6 +1,6 @@
 'use client';
 import { useI18n } from '@/contexts/i18n';
-import { cn } from '@/utils/cn';
+import { cn } from '../../utils/cn';
 import { type ComponentProps, useRef } from 'react';
 import { mergeRefs } from '@/utils/merge-refs';
 import { TocThumb, useTOCItems } from '.';

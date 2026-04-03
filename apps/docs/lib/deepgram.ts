@@ -3,7 +3,7 @@
  * High-performance transcription for PT-BR
  */
 
-const DEEPGRAM_API_KEY = process.env.DEEPGRAM_API_KEY || 'eaec2dc71349491989a93ea2732d17895aec7d96';
+const DEEPGRAM_API_KEY = process.env.DEEPGRAM_API_KEY;
 
 export interface TranscriptionResult {
   text: string;

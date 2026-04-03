@@ -1,7 +1,7 @@
 'use client';
 import * as Primitive from '@xispedocs/core/toc';
 import * as React from 'react';
-import { cn } from '@/utils/cn';
+import { cn } from '../../utils/cn';
 import { mergeRefs } from '@/utils/merge-refs';
 import { useOnChange } from '@xispedocs/core/utils/use-on-change';
 

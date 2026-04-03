@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { HomeBadge } from '@/components/home/HomeBadge';
-import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
+import { ThemeToggle } from '@xispedocs/ui/components/layout';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ViewToggle } from '@/components/ui/ViewToggle';
 import { Edit2, Search, PlayCircle } from 'lucide-react';
 import { CreateEpisodeModal, EpisodeFormData } from '@/components/dashboard/CreateEpisodeModal';
-import { EditEpisodeModal, Episode } from '@/components/dashboard/EditEpisodeModal';
+import { EditEpisodeModal } from '@/components/dashboard/EditEpisodeModal';
+import { Episode } from '@/lib/db';
 import { cn } from '@/lib/cn';
 import { usePathname } from 'next/navigation';
 
@@ -140,11 +141,15 @@ export default function EpisodesDashboardPage() {
 
   const handleCreateSave = (newEp: EpisodeFormData) => {
     setEpisodes(prev => [{
-      id: Math.random().toString(36).substring(7),
       ...newEp,
-      guests: newEp.guests.split(',').filter(Boolean),
-      platforms: newEp.platforms.split(',').filter(Boolean),
-    }, ...prev]);
+      id: newEp.id || Math.random().toString(36).substring(7),
+      guests: newEp.guests,
+      platforms: newEp.platforms,
+      createdAt: new Date().toISOString(),
+      category: newEp.category as any,
+      status: newEp.status as any,
+      duration: newEp.duration || '00:00'
+    } as Episode, ...prev]);
   };
 
   const handleEditSave = (updated: Episode) => {

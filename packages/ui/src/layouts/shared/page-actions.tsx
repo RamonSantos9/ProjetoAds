@@ -1,7 +1,7 @@
 'use client';
 import { type ComponentProps, useMemo, useState } from 'react';
 import { Check, ChevronDown, Copy, ExternalLink, Text } from 'lucide-react';
-import { cn } from '@/utils/cn';
+import { cn } from '../../utils/cn';
 import { useCopyButton } from '@/utils/use-copy-button';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { buttonVariants } from '@/components/ui/button';
