@@ -134,10 +134,13 @@ export default function EpisodesDashboardPage() {
     fetchEpisodes();
   }, []);
 
-  const filtered = episodes.filter((p) =>
-    p.title.toLowerCase().includes(search.toLowerCase()) || 
-    p.summary.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = episodes.filter((p) => {
+    const searchLower = search.toLowerCase();
+    return (
+      String(p.title || '').toLowerCase().includes(searchLower) || 
+      String(p.summary || '').toLowerCase().includes(searchLower)
+    );
+  });
 
   const handleCreateSave = (newEp: EpisodeFormData) => {
     setEpisodes(prev => [{

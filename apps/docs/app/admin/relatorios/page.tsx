@@ -123,7 +123,7 @@ export default function RelatoriosPage() {
         
         const mapped: ReportRecord[] = data.map((ep: any) => ({
           ...ep,
-          guest: ep.guests?.[0] || 'Sem Convidado',
+          guest: typeof ep.guests?.[0] === 'object' ? ep.guests[0].name : ep.guests?.[0] || 'Sem Convidado',
           creator: 'Sistema',
           origin: ep.origin || 'Manual'
         }));
@@ -139,10 +139,11 @@ export default function RelatoriosPage() {
   }, []);
 
   const filtered = reports.filter(r => {
+    const searchLower = search.toLowerCase();
     const matchesSearch = 
-      r.guest.toLowerCase().includes(search.toLowerCase()) || 
-      r.title.toLowerCase().includes(search.toLowerCase()) ||
-      r.id.toLowerCase().includes(search.toLowerCase());
+      String(r.guest || '').toLowerCase().includes(searchLower) || 
+      String(r.title || '').toLowerCase().includes(searchLower) ||
+      String(r.id || '').toLowerCase().includes(searchLower);
     
     const matchesOrigin = 
       originFilter === "Todas Origens" || 
@@ -237,7 +238,7 @@ export default function RelatoriosPage() {
           <div className="bg-white dark:bg-fd-background w-full flex flex-col flex-1">
              <div className="flex-1 flex flex-col gap-6">
                {/* Stats Grid */}
-              <div className="flex flex-col lg:flex-row items-stretch lg:items-center p-4 lg:p-10 border border-[#ECECEE] dark:border-fd-border rounded-xl">
+              <div className="flex flex-col lg:flex-row items-stretch lg:items-center p-4 border rounded-xl">
                 <div className="flex-auto flex flex-col gap-4 px-4 lg:px-0" style={{ minWidth: "240px" }}>
                   <div className="flex items-center gap-2 w-full justify-between text-background tracking-tight">
                     <p className="text-[16px]">Total Convidados</p>
@@ -300,14 +301,14 @@ export default function RelatoriosPage() {
                 <table className="w-full border-separate border-spacing-0 leading-[12px]">
                   <thead>
                     <tr>
-                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:rounded-s-xl first:border-s p-5 text-left whitespace-nowrap">Convidado</th>
-                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap">Episódio</th>
-                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap">Status</th>
-                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap">Origem</th>
-                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap">Criação</th>
-                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">ID</th>
+                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:rounded-s-xl first:border-s p-5 text-left whitespace-nowrap text-xs">Convidado</th>
+                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap text-xs">Episódio</th>
+                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap text-xs">Status</th>
+                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap text-xs">Origem</th>
+                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap text-xs">Criação</th>
+                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap text-xs">ID</th>
                       {isAdmin && (
-                        <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-right whitespace-nowrap">Ações</th>
+                        <th className="bg-background border-y first:border-s last:rounded-e-xl last:border-e p-5 text-right whitespace-nowrap text-xs">Ações</th>
                       )}
                     </tr>
                   </thead>

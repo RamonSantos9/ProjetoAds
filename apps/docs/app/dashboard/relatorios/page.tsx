@@ -85,7 +85,7 @@ export default function RelatoriosPage() {
         
         const mapped: ReportRecord[] = data.map((ep: any) => ({
           ...ep,
-          guest: ep.guests?.[0] || 'Sem Convidado',
+          guest: typeof ep.guests?.[0] === 'object' ? ep.guests[0].name : ep.guests?.[0] || 'Sem Convidado',
           creator: 'Sistema',
           origin: ep.origin || 'Manual'
         }));
@@ -101,10 +101,11 @@ export default function RelatoriosPage() {
   }, []);
 
   const filtered = reports.filter(r => {
+    const searchLower = search.toLowerCase();
     const matchesSearch = 
-      r.guest.toLowerCase().includes(search.toLowerCase()) || 
-      r.title.toLowerCase().includes(search.toLowerCase()) ||
-      r.id.toLowerCase().includes(search.toLowerCase());
+      String(r.guest || '').toLowerCase().includes(searchLower) || 
+      String(r.title || '').toLowerCase().includes(searchLower) ||
+      String(r.id || '').toLowerCase().includes(searchLower);
     
     const matchesOrigin = 
       originFilter === "Todas Origens" || 
