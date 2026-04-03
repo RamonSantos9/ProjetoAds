@@ -40,10 +40,10 @@ export function ActionButton({
       {...props}
       className={cn(
         'relative group cursor-pointer disabled:cursor-not-allowed disabled:opacity-50',
-        'flex items-center justify-center gap-2 font-medium text-sm transition-all duration-200 rounded-lg h-9 px-3 w-full sm:w-auto',
+        'flex items-center justify-center gap-2 font-medium text-sm transition-all duration-200 rounded-lg h-8 px-3 w-full sm:w-auto',
         isPrimary
-          ? 'bg-fd-primary text-fd-primary-foreground hover:opacity-90 border-transparent'
-          : 'bg-transparent text-fd-foreground border border-fd-border hover:bg-fd-muted',
+          ? 'bg-fd-primary text-fd-primary-foreground'
+          : 'bg-transparent text-fd-foreground',
         className
       )}
     >

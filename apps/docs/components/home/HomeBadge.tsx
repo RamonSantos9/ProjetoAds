@@ -7,7 +7,7 @@ interface HomeBadgeProps {
 }
 
 export const HomeBadge: React.FC<HomeBadgeProps> = ({ 
-  label = "New", 
+  label = "Novo", 
   text, 
   href 
 }) => {

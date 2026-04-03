@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { AudioProvider } from '@/lib/audio-context';
 import { PodcastAudioPlayer } from '@/app/(home)/_components/podcast-dashboard/PodcastAudioPlayer';
+import { SidebarProvider } from '@xispedocs/ui/contexts/sidebar';
 
 const SearchDialog = dynamic(() => import('@/components/search'), {
   ssr: false,
@@ -38,14 +39,16 @@ export function Provider({ children }: { children: ReactNode }) {
       }}
     >
       <TooltipProvider>
-        <AudioProvider>
-          <script
-            suppressHydrationWarning
-            dangerouslySetInnerHTML={{ __html: inject }}
-          />
-          {children}
-          <PodcastAudioPlayer />
-        </AudioProvider>
+        <SidebarProvider>
+          <AudioProvider>
+            <script
+              suppressHydrationWarning
+              dangerouslySetInnerHTML={{ __html: inject }}
+            />
+            {children}
+            <PodcastAudioPlayer />
+          </AudioProvider>
+        </SidebarProvider>
       </TooltipProvider>
     </RootProvider>
   );

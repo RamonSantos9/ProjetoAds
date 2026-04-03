@@ -7,11 +7,15 @@
 
 import { UwuHero } from '@/app/(home)/uwu';
 import { Hero } from './_sections/Hero';
+import { LatestEpisodes } from './_sections/LatestEpisodes';
 import { Features } from './_sections/Features';
 import { Highlights } from './_sections/Highlights';
 import { Architecture } from './_sections/Architecture';
+import { Contributors } from './_sections/Contributors';
 import { End } from './_sections/End';
 import { Feedback } from './_sections/Feedback';
+
+export const dynamic = 'force-dynamic';
 
 /**
  * Componente principal da Landing Page do PodcastAds.
@@ -37,6 +41,9 @@ export default function Page() {
             <UwuHero />
           </div>
 
+          {/* Últimos Episódios Dinâmicos */}
+          <LatestEpisodes />
+
           {/* Seção de depoimentos/feedbacks */}
           <Feedback />
 
@@ -59,6 +66,7 @@ export default function Page() {
           <Features />
           <Highlights />
           <Architecture />
+          <Contributors />
           <End />
         </div>
       </main>

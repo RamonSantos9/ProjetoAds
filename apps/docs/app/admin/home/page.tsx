@@ -6,6 +6,8 @@ import { cn } from '@/lib/cn';
 import { useAudioPlayer } from '@/lib/audio-context';
 import { Pause } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Episode } from '@/lib/db';
 
 /**
  * Componente principal do Dashboard Administrativo do PodcastAds.
@@ -24,6 +26,25 @@ export default function AppHomePage() {
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
+
+  useEffect(() => {
+    async function loadEpisodes() {
+      try {
+        const res = await fetch('/api/episodes');
+        if (res.ok) {
+          const data = await res.json();
+          // Pegar os últimos 5 episódios
+          setEpisodes(data.slice(0, 5));
+        }
+      } catch (error) {
+        console.error('Failed to load episodes:', error);
+      }
+    }
+    loadEpisodes();
+  }, []);
+
   const podcastVoices = [
     {
       name: 'Abertura institucional',
@@ -412,49 +433,52 @@ export default function AppHomePage() {
               <div className={isAdmin ? "grid md:grid-cols-2 gap-10 mb-12" : "grid md:grid-cols-1 gap-10 mb-12"}>
                 {/* Latest from the library */}
                 <div>
-                  <p className="text-lg text-fd-foreground font-semibold mb-3">Últimas demos do podcast</p>
+                  <p className="text-lg text-fd-foreground font-semibold mb-3">Últimos Podcasts</p>
                   <ul className="eleven-list mb-2">
-                    {[
-                      { name: "Shaun - Britânico, Limpo e Confiável", desc: "Shaun - Locução Britânica Masculina - Homem britânico com voz neutra e um toque de sotaque do oeste do país, perfeito para vídeos instrutivos.", img: "orb-5.png", hue: 91, professional: true },
-                      { name: "Adam Coley - Quente, Natural e Estável", desc: "Adam Coley - Uma voz britânica profunda das East Midlands.", img: "orb-1.png", hue: 0, professional: true },
-                      { name: "Tessa - Líder sábia", desc: "Uma líder sábia e pé no chão, ideal para personagens de jogos. Mística, profunda e profética.", img: "orb-5.png", hue: 164, professional: true },
-                      { name: "Om - Calmo e Suave", desc: "Uma voz americana masculina meditativa para histórias relaxantes de fim de noite, ASMR, contemplação Tao, meditação Yoga ou qualquer coisa que exija uma narração suave.", img: "orb-4.png", hue: 332, professional: true },
-                      { name: "Christina - Natural e Conversacional", desc: "Christina - Natural e Conversacional - Fácil de ouvir com uma vibra amigável e real. Eu adoraria conversar com você!", img: "orb-5.png", hue: 339, professional: true }
-                    ].map((voice, idx) => {
-                      const displayVoice = podcastVoices[idx] ?? voice;
-                      const isCurrent = currentVoice?.name === displayVoice.name;
-                      const active = isCurrent && isPlaying;
-                      
-                      return (
-                      <li key={idx} className="eleven-list-item hstack items-center p-3 gap-3 transition-colors duration-75 relative hover:bg-black dark:hover:bg-white cursor-pointer group !p-0 !bg-transparent">
-                        <button className="text-left rounded absolute inset-0 focus:outline-none focus-visible:ring-[1.5px] ring-inset ring-gray-alpha-950 bg-transparent"></button>
-                        <div className="w-full hstack items-center py-3 gap-2">
-                          <div className="shrink-0 center rounded-[10px] bg-transparent w-8 h-8 self-start my-1 focus-within:ring-0">
-                            <div className="relative group shrink-0 h-8 w-8">
-                              <div className="block opacity-100 transition-opacity duration-100 h-full w-full">
-                                <div className="relative w-full h-full rounded-full overflow-hidden bg-[#FFFFFF] dark:bg-fd-background">
-                                  <div className="absolute inset-0 bg-black/40 transition-opacity duration-100 opacity-0 group-hover:opacity-100 z-10" />
-                                  <img 
-                                    alt={displayVoice.name} 
-                                    loading="lazy" 
-                                    width="60" 
-                                    height="60" 
-                                    className="w-full h-full max-w-full max-h-full object-cover" 
-                                    style={{ filter: `hue-rotate(${displayVoice.hue}deg) saturate(120%)`, transform: `rotate(${displayVoice.hue}deg)`, objectPosition: 'center center' }} 
-                                    src={`/images/home/${displayVoice.img}`} 
-                                  />
+                    {episodes.length > 0 ? (
+                      episodes.map((ep, idx) => {
+                        const fallbackVoice = podcastVoices[idx % podcastVoices.length];
+                        const displayVoice = {
+                          name: ep.title,
+                          desc: ep.summary,
+                          img: fallbackVoice.img,
+                          hue: fallbackVoice.hue,
+                          professional: true
+                        };
+                        const isCurrent = currentVoice?.name === displayVoice.name;
+                        const active = isCurrent && isPlaying;
+                        
+                        const handlePlay = (e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          playTrack({
+                            ...displayVoice,
+                            url: ep.audioUrl || 'https://storage.googleapis.com/eleven-public-prod/database/workspace/9ffd9eb76f364648abbfb2c74b299b4a/voices/goT3UYdM9bhm0n2lmKQx/8e1e53b7-9320-4bab-acf2-86d7e77d1b8b.mp3'
+                          });
+                        };
+                        
+                        return (
+                        <li key={ep.id || idx} onClick={handlePlay} className="eleven-list-item hstack items-center px-3 gap-3 transition-colors duration-75 relative hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer group rounded-xl">
+                          <div className="w-full hstack items-center py-3 gap-2">
+                            <div className="shrink-0 center rounded-[10px] bg-transparent w-8 h-8 self-start my-1 focus-within:ring-0">
+                              <div className="relative group shrink-0 h-8 w-8">
+                                <div className="block opacity-100 transition-opacity duration-100 h-full w-full">
+                                  <div className="relative w-full h-full rounded-full overflow-hidden bg-[#FFFFFF] dark:bg-fd-background">
+                                    <div className="absolute inset-0 bg-black/40 transition-opacity duration-100 opacity-0 group-hover:opacity-100 z-10" />
+                                    <img 
+                                      alt={displayVoice.name} 
+                                      loading="lazy" 
+                                      width="60" 
+                                      height="60" 
+                                      className="w-full h-full max-w-full max-h-full object-cover" 
+                                      style={{ filter: `hue-rotate(${displayVoice.hue}deg) saturate(120%)`, transform: `rotate(${displayVoice.hue}deg)`, objectPosition: 'center center' }} 
+                                      src={`/images/home/${displayVoice.img}`} 
+                                    />
+                                  </div>
                                 </div>
-                              </div>
-                              
-                              <div className={cn("absolute inset-0 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-100 z-10", active ? "opacity-100" : "opacity-0")}>
-                                <button 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    playTrack({
-                                      ...displayVoice,
-                                      url: 'https://storage.googleapis.com/eleven-public-prod/database/workspace/9ffd9eb76f364648abbfb2c74b299b4a/voices/goT3UYdM9bhm0n2lmKQx/8e1e53b7-9320-4bab-acf2-86d7e77d1b8b.mp3'
-                                    });
-                                  }}
+                                
+                                <div className={cn("absolute inset-0 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-100 z-10", active ? "opacity-100" : "opacity-0")}>
+                                  <button 
+                                    onClick={handlePlay}
                                   tabIndex={0} 
                                   aria-label="Reproduzir demo" 
                                   type="button" 
@@ -494,7 +518,10 @@ export default function AppHomePage() {
                         </div>
                       </li>
                       );
-                    })}
+                    })
+                    ) : (
+                      <li className="text-center p-3 text-sm text-gray-500">Nenhum episódio cadastrado.</li>
+                    )}
                   </ul>
                   <a href={`${basePath}/episodios`}>
                     <button className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 bg-[#FFFFFF] dark:bg-fd-background border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 text-fd-foreground h-8 px-2.5 rounded-lg text-xs">Ver acervo do podcast</button>

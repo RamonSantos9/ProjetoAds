@@ -9,7 +9,6 @@ import { ViewToggle } from '@/components/ui/ViewToggle';
 import { Edit2, Search, PlayCircle } from 'lucide-react';
 import { CreateEpisodeModal, EpisodeFormData } from '@/components/dashboard/CreateEpisodeModal';
 import { EditEpisodeModal, Episode } from '@/components/dashboard/EditEpisodeModal';
-import { featuredEpisodes as initialEpisodes } from '../../(home)/_data/episodes';
 import { cn } from '@/lib/cn';
 import { usePathname } from 'next/navigation';
 
@@ -116,19 +115,22 @@ export default function EpisodesDashboardPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(null);
 
-  // Load initial dummy data
+  // Load real data from API
   useEffect(() => {
-    setLoading(true);
-    // Mimic API delay
-    const timer = setTimeout(() => {
-      setEpisodes(initialEpisodes.map(ep => ({
-        id: Math.random().toString(36).substring(7),
-        ...ep,
-        status: ep.status === 'Publicado' ? 'Publicado' : 'Produção'
-      })));
-      setLoading(false);
-    }, 400);
-    return () => clearTimeout(timer);
+    const fetchEpisodes = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/episodes');
+        if (!res.ok) throw new Error('Failed to fetch episodes');
+        const data = await res.json();
+        setEpisodes(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEpisodes();
   }, []);
 
   const filtered = episodes.filter((p) =>

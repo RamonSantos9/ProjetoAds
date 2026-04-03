@@ -21,127 +21,27 @@ import {
   Bell,
   Sparkles
 } from 'lucide-react';
+import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
+import { 
+  ActionButtonRefined, 
+  TooltipRefined 
+} from '@/components/ui/RefinedComponents';
+import { Badge } from '@/components/ui/Badge';
 import { CreateEpisodeModal, EpisodeFormData } from '@/components/dashboard/CreateEpisodeModal';
-import { EditEpisodeModal, Episode } from '@/components/dashboard/EditEpisodeModal';
+import { EditEpisodeModal } from '@/components/dashboard/EditEpisodeModal';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { featuredEpisodes as initialEpisodes } from '../../(home)/_data/episodes';
 import { cn } from '@/lib/cn';
 import { usePathname } from 'next/navigation';
+import { Episode, Guest } from '@/lib/db';
 
 // --- Types ---
 
 interface ReportRecord extends Episode {
   guest: string; // Primary guest name for the table
-  createdAt: string; // Creation date for reporting
   origin: string; // Manual, Agendado, Importado
 }
 
-// --- Local Components (Design Sync) ---
-
-// 1. Precise ActionButton from DashboardXispeStudio
-const ActionButtonRefined = ({
-  label,
-  onClick,
-  icon,
-  showIcon = true,
-  variant = 'primary',
-  className = '',
-  disabled = false,
-  type = 'button',
-}: {
-  label: string;
-  onClick?: () => void;
-  icon?: React.ReactNode;
-  showIcon?: boolean;
-  variant?: 'primary' | 'secondary';
-  className?: string;
-  disabled?: boolean;
-  type?: 'button' | 'submit' | 'reset';
-}) => {
-  const variantStyles =
-    variant === 'primary' 
-      ? "bg-fd-primary text-[#244c4e] hover:bg-fd-primary/90 border-fd-primary"
-      : "bg-white dark:bg-fd-muted text-[#0A1B39] dark:text-fd-foreground border-[#E2E7F1] dark:border-fd-border hover:bg-[#F6F8FA] dark:hover:bg-fd-accent"; 
-
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      className={cn(
-        "leading-[24px] relative group cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:shrink-0 [&_svg]:size-5 border flex items-center font-semibold justify-center gap-2 active:scale-95 transition-all duration-200 rounded-lg h-10 px-3 w-full lg:w-auto shadow-sm",
-        variantStyles,
-        className
-      )}
-    >
-      {showIcon && (icon || <Plus className="size-5" />)}
-      {label}
-    </button>
-  );
-};
-
-// 2. Precise PageHeader from DashboardXispeStudio
-const PageHeaderRefined = ({ breadcrumbs }: { breadcrumbs: any[] }) => (
-  <header className="flex flex-col md:flex-row md:items-center justify-between w-full mb-5 gap-4">
-    <nav className="flex items-center gap-3 min-w-0 overflow-hidden">
-      {breadcrumbs.map((item, index) => (
-        <React.Fragment key={index}>
-          {index > 0 && <span className="text-gray-400 font-medium">/</span>}
-          <div className="flex items-center gap-2 min-w-0">
-            {item.icon}
-            <Link href={item.href || '#'} className="min-w-0">
-              <span className={cn(
-                "text-sm font-medium truncate whitespace-nowrap",
-                item.isCurrent ? "text-fd-foreground font-semibold" : "text-fd-muted-foreground hover:text-fd-foreground transition-colors"
-              )}>
-                {item.label}
-              </span>
-            </Link>
-          </div>
-        </React.Fragment>
-      ))}
-    </nav>
-    <div className="flex items-center gap-4">
-      <Link href="#" className="flex items-center gap-2 text-fd-muted-foreground hover:text-fd-foreground transition-colors">
-        <HelpCircle className="size-5" />
-        <span className="text-sm font-medium hidden sm:inline">Ajuda</span>
-      </Link>
-      <button className="size-10 rounded-full hover:bg-fd-muted flex items-center justify-center text-fd-muted-foreground transition-colors relative">
-        <Bell className="size-5" />
-        <span className="absolute top-2.5 right-2.5 size-2 bg-red-500 rounded-full border-2 border-fd-background"></span>
-      </button>
-      <button className="size-9 bg-fd-primary rounded-full flex items-center justify-center text-[#244c4e] shadow-lg hover:shadow-fd-primary/20 transition-all">
-        <Sparkles className="size-5" />
-      </button>
-    </div>
-  </header>
-);
-
-// 3. Tooltip matching the original one precisely
-const TooltipRefined = ({ text, children }: { text: string; children: React.ReactNode }) => (
-  <div className="relative inline-block group">
-    {children}
-    <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-[100] opacity-0 group-hover:opacity-100 transition-all duration-200 bg-white text-[#0A1B39] text-[11px] font-bold rounded-lg px-2 py-1.5 whitespace-nowrap shadow-lg border border-[#E2E7F1] text-center scale-95 group-hover:scale-100 origin-bottom">
-      {text}
-      <div className="absolute top-full left-1/2 -translate-x-1/2 border-x-4 border-x-transparent border-t-4 border-t-white" />
-    </div>
-  </div>
-);
-
-// 4. Badge matching the original one
-const BadgeRefined = ({ variant, children }: { variant: 'success' | 'warning' | 'error' | 'info'; children: React.ReactNode }) => {
-  const styles = {
-    success: "bg-green-500/10 text-green-600 border-green-500/20",
-    warning: "bg-orange-500/10 text-orange-600 border-orange-500/20",
-    error: "bg-red-500/10 text-red-600 border-red-500/20",
-    info: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-  };
-  return (
-    <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider", styles[variant])}>
-      {children}
-    </span>
-  );
-};
+// --- Local Types ---
 
 export default function RelatoriosPage() {
   const pathname = usePathname();
@@ -174,29 +74,30 @@ export default function RelatoriosPage() {
     return () => document.removeEventListener('mousedown', handleOutside);
   }, []);
 
-  // Load dummy data
+  // Load real data from API
   useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => {
-      const data: ReportRecord[] = initialEpisodes.map((ep, i) => ({
-        ...ep,
-        id: `ep-${i + 1}`,
-        slug: ep.slug || `slug-${i}`,
-        summary: ep.summary || '',
-        category: ep.category || 'Geral',
-        duration: ep.duration || '00:00',
-        platforms: ep.platforms || [],
-        guests: ep.guests || [],
-        guest: ep.guests?.[0] || 'Convidado Externo',
-        status: (ep.status as string) === 'Publicado' ? 'Publicado' : (i % 3 === 0 ? 'Agendado' : 'Produção'),
-        creator: i % 2 === 0 ? 'Ramon Santos' : 'Ana Carolina',
-        createdAt: new Date(Date.now() - i * 86400000).toISOString(),
-        origin: i % 4 === 0 ? 'Importado' : (i % 4 === 1 ? 'Agendado' : 'Manual')
-      }));
-      setReports(data);
-      setLoading(false);
-    }, 600);
-    return () => clearTimeout(timer);
+    const fetchReports = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/episodes');
+        if (!res.ok) throw new Error('Failed to fetch API');
+        const data = await res.json();
+        
+        const mapped: ReportRecord[] = data.map((ep: any) => ({
+          ...ep,
+          guest: ep.guests?.[0] || 'Sem Convidado',
+          creator: 'Sistema',
+          origin: ep.origin || 'Manual'
+        }));
+        
+        setReports(mapped);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReports();
   }, []);
 
   const filtered = reports.filter(r => {
@@ -216,27 +117,66 @@ export default function RelatoriosPage() {
     const newRecord: ReportRecord = {
       ...newEp,
       id: Math.random().toString(36).substring(7),
-      guests: newEp.guests.split(',').filter(Boolean),
-      platforms: newEp.platforms.split(',').filter(Boolean),
-      guest: newEp.guests.split(',')[0] || 'Sem Convidado',
-      status: newEp.status === 'Released' ? 'Publicado' : newEp.status,
+      slug: Math.random().toString(36).substring(7),
+      title: newEp.title,
+      summary: newEp.summary,
+      category: newEp.category,
+      duration: '00:00',
+      guests: newEp.guests,
+      platforms: newEp.platforms,
+      guest: typeof newEp.guests[0] === 'object' ? newEp.guests[0].name : newEp.guests[0] || 'Sem Convidado',
+      status: (newEp.status === 'Released' ? 'Publicado' : newEp.status) as any,
       createdAt: new Date().toISOString(),
       origin: 'Manual'
-    };
+    } as ReportRecord;
     setReports(prev => [newRecord, ...prev]);
   };
 
   const handleEditSave = (updated: Episode) => {
-    setReports(prev => prev.map(r => r.id === updated.id ? {
+    setReports(prev => prev.map(r => r.id === updated.id ? ({
       ...r,
       ...updated,
-      guest: updated.guests[0] || 'Sem Convidado'
-    } : r));
+      guest: typeof updated.guests[0] === 'object' ? (updated.guests[0] as any).name : updated.guests[0] || 'Sem Convidado'
+    } as ReportRecord) : r));
   };
 
-  const handleExport = (ext: string) => {
-     toast.success(`Exportação ${ext} iniciada!`);
-     setExportOpen(false);
+  const handleExport = (format: string) => {
+    const dataToExport = filtered;
+    let content = '';
+    let filename = `relatorio-podcastads-${new Date().toISOString().split('T')[0]}`;
+    let mimeType = 'text/plain';
+
+    if (format === 'JSON') {
+      content = JSON.stringify(dataToExport, null, 2);
+      filename += '.json';
+      mimeType = 'application/json';
+    } else if (format === 'CSV') {
+      const headers = ['ID', 'Convidado', 'Episódio', 'Status', 'Origem', 'Data Criação'];
+      const rows = dataToExport.map(r => [
+        r.id, 
+        `"${r.guest}"`, 
+        `"${r.title}"`, 
+        r.status, 
+        r.origin, 
+        r.createdAt
+      ]);
+      content = [headers, ...rows].map(e => e.join(',')).join('\n');
+      filename += '.csv';
+      mimeType = 'text/csv';
+    }
+
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast.success(`Exportação ${format} concluída!`);
+    setExportOpen(false);
   };
 
   const stats = {
@@ -246,21 +186,18 @@ export default function RelatoriosPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-fd-background p-4 md:p-8 overflow-hidden">
-      <main className="max-w-7xl mx-auto w-full flex flex-col min-h-0">
-        <PageHeaderRefined 
-          breadcrumbs={[
-            { label: 'Portal', href: '/', icon: <User className="size-4" /> },
-            { label: 'Dashboard', href: `${basePath}/home` },
-            { label: 'Relatórios', isCurrent: true }
-          ]} 
-        />
+    <div className="rebrand-body flex flex-col min-h-screen bg-[#FFFFFF] dark:bg-fd-background p-4 md:p-8 overflow-hidden">
+      <main className="max-w-6xl mx-auto w-full flex flex-col min-h-0">
+        <div className="flex justify-between items-end mb-4 md:mb-8 w-full">
+          <div className="stack">
+            <p className="truncate text-sm text-fd-muted-foreground">Análise de Dados</p>
+            <h1 className="text-2xl md:text-3xl font-semibold text-fd-foreground mt-1">Relatórios Detalhados</h1>
+          </div>
+          <ThemeToggle mode="light-dark" />
+        </div>
 
-        <div className="bg-white dark:bg-fd-muted/30 w-full p-6 md:p-8 rounded-[24px] shadow-sm border border-[#E2E7F1] dark:border-fd-border flex flex-col flex-1">
+        <div className="bg-white dark:bg-fd-background w-full flex flex-col flex-1">
           <section className="flex flex-col gap-6">
-            <h1 className="text-2xl sm:text-[32px] font-semibold text-[#121217] dark:text-fd-foreground tracking-tight">
-              Relatórios
-            </h1>
 
             {/* Stats Summary Container (Identical to reference) */}
             <div className="flex flex-wrap items-stretch justify-between border border-[#E2E7F1] dark:border-fd-border rounded-[16px] gap-0 p-5 mt-1">
@@ -325,13 +262,13 @@ export default function RelatoriosPage() {
                   <div className="relative w-full sm:w-auto" ref={originRef}>
                     <button
                       onClick={() => setOriginOpen(!originOpen)}
-                      className="h-10 flex items-center justify-between gap-2 bg-white dark:bg-fd-muted py-2 px-3 border border-[#E2E7F1] dark:border-fd-border rounded-lg text-sm font-semibold text-[#0A1B39] dark:text-fd-foreground active:scale-95 transition-all w-full sm:min-w-[200px]"
+                      className="h-8 flex items-center justify-between gap-2 py-2 px-3 border rounded-lg text-sm text-background transition-all w-full sm:min-w-[200px]"
                     >
                       <span className="truncate">{originFilter}</span>
-                      <ChevronRight className={cn("size-4 text-[#8A8AA3] transition-transform", originOpen ? "rotate-270" : "rotate-90")} />
+                      <ChevronRight className={cn("size-4 text-background transition-transform", originOpen ? "rotate-270" : "rotate-90")} />
                     </button>
                     {originOpen && (
-                      <div className="absolute top-[calc(100%+4px)] left-0 w-full bg-white dark:bg-fd-muted border border-[#E2E7F1] dark:border-fd-border rounded-lg shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1">
+                      <div className="absolute top-[calc(100%+4px)] left-0 w-full bg-[#FFFFFF] dark:bg-[#121212] border rounded-lg z-50 overflow-hidden animate-in fade-in slide-in-from-top-1">
                         {["Todas Origens", "Manual", "Agendado", "Importado"].map(f => (
                           <button 
                             key={f}
@@ -348,12 +285,12 @@ export default function RelatoriosPage() {
                   <div className="relative w-full sm:w-auto" ref={exportRef}>
                     <button 
                       onClick={() => setExportOpen(!exportOpen)}
-                      className="h-10 flex items-center justify-center gap-2 bg-white dark:bg-fd-muted border border-[#E2E7F1] dark:border-fd-border rounded-lg px-4 text-sm font-semibold text-[#0A1B39] dark:text-fd-foreground hover:bg-[#F6F8FA] dark:hover:bg-fd-accent transition-colors active:scale-95 w-full"
+                      className="h-8 flex items-center justify-center gap-2 bg-[#FFFFFF] dark:bg-[#121212] border rounded-lg px-4 text-sm text-background transition-colors w-full"
                     >
                       <Download className="size-4" /> Exportar
                     </button>
                     {exportOpen && (
-                       <div className="absolute top-[calc(100%+4px)] right-0 w-full sm:w-40 bg-white dark:bg-fd-muted border border-[#E2E7F1] dark:border-fd-border rounded-lg shadow-xl z-50 overflow-hidden">
+                       <div className="absolute top-[calc(100%+4px)] right-0 w-full sm:w-40 bg-[#FFFFFF] dark:bg-[#121212] border rounded-lg z-50 overflow-hidden">
                          <button onClick={() => handleExport('JSON')} className="w-full text-left px-4 py-2.5 text-sm font-semibold hover:bg-fd-accent border-b border-fd-border">JSON</button>
                          <button onClick={() => handleExport('CSV')} className="w-full text-left px-4 py-2.5 text-sm font-semibold hover:bg-fd-accent">CSV</button>
                        </div>
@@ -374,14 +311,14 @@ export default function RelatoriosPage() {
                 <table className="w-full border-separate border-spacing-0 leading-[12px]">
                   <thead>
                     <tr className="text-[#0a1b39] dark:text-fd-foreground text-sm">
-                      <th className="font-semibold bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s first:rounded-s-xl last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Convidado</th>
-                      <th className="font-semibold bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Episódio</th>
-                      <th className="font-semibold bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Status</th>
-                      <th className="font-semibold bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Origem</th>
-                      <th className="font-semibold bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Criação</th>
-                      <th className="font-semibold bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">ID</th>
+                      <th className="bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s first:rounded-s-xl last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Convidado</th>
+                      <th className="bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Episódio</th>
+                      <th className="bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Status</th>
+                      <th className="bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Origem</th>
+                      <th className="bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Criação</th>
+                      <th className="bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">ID</th>
                       {isAdmin && (
-                        <th className="font-semibold bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-right whitespace-nowrap">Ações</th>
+                        <th className="bg-[#f6f8fa] dark:bg-fd-muted/50 border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-right whitespace-nowrap">Ações</th>
                       )}
                     </tr>
                   </thead>
@@ -415,9 +352,9 @@ export default function RelatoriosPage() {
                             {item.title}
                           </td>
                           <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5">
-                            <BadgeRefined variant={item.status === 'Publicado' ? 'success' : item.status === 'Agendado' ? 'info' : 'warning'}>
+                            <Badge variant={item.status === 'Publicado' ? 'success' : item.status === 'Agendado' ? 'info' : 'warning'}>
                                 {item.status === 'Publicado' ? 'Ativo' : item.status}
-                            </BadgeRefined>
+                            </Badge>
                           </td>
                           <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5 text-[#74748D] dark:text-fd-muted-foreground font-medium text-xs">
                             {item.origin}

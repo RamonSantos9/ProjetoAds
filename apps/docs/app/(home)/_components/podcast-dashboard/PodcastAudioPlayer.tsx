@@ -1,16 +1,19 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useAudioPlayer } from '@/lib/audio-context';
 import { useSidebar } from '@xispedocs/ui/contexts/sidebar';
 import { cn } from '@/lib/cn';
 import { ChevronDown, Rewind, FastForward, Play, Pause, Download } from 'lucide-react';
 
 export function PodcastAudioPlayer() {
+  const pathname = usePathname();
   const { 
     currentVoice, isPlaying, currentTime, duration, 
     pauseTrack, resumeTrack, seek, rewind, fastForward,
-    isVisible, hidePlayer, isMinimized, minimizePlayer, expandPlayer
+    isVisible, hidePlayer, isMinimized, minimizePlayer, expandPlayer,
+    isInlinePlayerVisible
   } = useAudioPlayer();
   
   const { collapsed } = useSidebar();
@@ -22,7 +25,7 @@ export function PodcastAudioPlayer() {
     }
   }, [currentTime, duration]);
 
-  if (!isVisible || !currentVoice) return null;
+  if (!isVisible || !currentVoice || isInlinePlayerVisible) return null;
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -37,15 +40,28 @@ export function PodcastAudioPlayer() {
     seek(newTime);
   };
 
+  // Só aplicamos lógica de sidebar se estivermos em páginas de administração
+  const isAdminPage = pathname?.startsWith('/admin') || pathname?.startsWith('/dashboard');
+  const hasSidebar = isAdminPage && collapsed !== undefined;
+
   return (
     <div 
-      className="fixed bottom-0 z-40 pr-0 w-full max-lg:!w-full max-lg:!left-0 transition-[width] duration-150 ease-in-out"
-      style={{ 
+      className={cn(
+        "fixed bottom-0 z-40 transition-all duration-300",
+        !hasSidebar ? "w-full left-0 right-0" : "max-lg:!w-full max-lg:!left-0"
+      )}
+      style={hasSidebar ? { 
         width: collapsed ? 'calc(100% - 4rem)' : 'calc(100% - 16rem)',
         left: collapsed ? '4rem' : '16rem',
         opacity: 1 
+      } : { 
+        width: '100%',
+        left: 0,
+        right: 0,
+        opacity: 1 
       }}
     >
+
       {/* Minimized Bar (Desktop Only) */}
       <div 
         className={cn(

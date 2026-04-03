@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import { buttonVariants } from '@/components/ui/button';
 import { BatteryChargingIcon, PaperclipIcon, TimerIcon } from 'lucide-react';
+import { XispeDocsIcon } from '@/app/layout.client';
+
 
 /**
  * Rodapé/Seção de encerramento da página.
@@ -19,8 +21,8 @@ export function End() {
           Sua voz conta. O futuro da tecnologia na Serra Dourada passa por aqui.
         </p>
         {/* Elemento decorativo circular com gradiente radial */}
-        <div className="h-[200px] overflow-hidden p-8 bg-gradient-to-b from-fd-primary/10 group-hover:from-green-500/10">
-          <div className="mx-auto bg-radial-[circle_at_0%_100%] from-60% from-transparent to-fd-primary size-[500px] rounded-full group-hover:from-green-500 group-hover:to-green-600/10" />
+        <div className="h-[200px] overflow-hidden p-8 flex items-center justify-center bg-gradient-to-b from-fd-primary/10 group-hover:from-green-500/10">
+          <XispeDocsIcon className="size-[150px] text-fd-primary/20 group-hover:text-green-500/30 transition-all duration-700" />
         </div>
       </div>
 

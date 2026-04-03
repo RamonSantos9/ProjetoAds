@@ -38,22 +38,22 @@ const NAV_ITEMS: Array<{ title?: string; items: NavItem[] }> = [
     items: [
       { label: 'Novo episódio', path: '/episodios', icon: <TextToSpeechIcon /> },
       { label: 'Editar episódio', path: '/episodios/editar', icon: <VoiceChangerIcon />, adminOnly: true },
-      { label: 'Roteiros', path: '/home', icon: <VoiceIsolatorIcon /> },
-      { label: 'Vinhetas e trilhas', path: '/home', icon: <SoundEffectsIcon /> },
-      { label: 'Publicação', path: '/home', icon: <MusicIcon />, adminOnly: true },
-      { label: 'Mídias visuais', path: '/home', icon: <ImageVideoIcon /> },
-      { label: 'Modelos de post', path: '/home', icon: <TemplatesIcon /> },
+      { label: 'Roteiros', path: '/roteiros', icon: <VoiceIsolatorIcon /> },
+      { label: 'Vinhetas e trilhas', path: '/vinhetas-trilhas', icon: <SoundEffectsIcon /> },
+      { label: 'Publicação', path: '/publicacao', icon: <MusicIcon />, adminOnly: true },
+      { label: 'Mídias visuais', path: '/midias-visuais', icon: <ImageVideoIcon /> },
+      { label: 'Modelos de post', path: '/modelos-post', icon: <TemplatesIcon /> },
     ],
   },
   {
     title: 'Gestão',
     items: [
-      { label: 'Estúdio do podcast', path: '/home', icon: <StudioIcon />, adminOnly: true },
-      { label: 'Cronograma', path: '/home', icon: <FlowsIcon />, badge: 'Breve' },
-      { label: 'Convidados', path: '/home', icon: <AudiobooksIcon /> },
-      { label: 'Entrevistas', path: '/home', icon: <DubbingIcon /> },
-      { label: 'Transcrições', path: '/home', icon: <SpeechToTextIcon /> },
-      { label: 'Estatísticas', path: '/home', icon: <AudioNativeIcon /> },
+      { label: 'Estúdio do podcast', path: '/estudio', icon: <StudioIcon />, adminOnly: true },
+      { label: 'Cronograma', path: '/cronograma', icon: <FlowsIcon />, badge: 'Breve' },
+      { label: 'Convidados', path: '/convidados', icon: <AudiobooksIcon /> },
+      { label: 'Entrevistas', path: '/entrevistas', icon: <DubbingIcon /> },
+      { label: 'Transcrições', path: '/transcricoes', icon: <SpeechToTextIcon /> },
+      { label: 'Estatísticas', path: '/estatisticas', icon: <AudioNativeIcon /> },
       { label: 'Relatórios', path: '/relatorios', icon: <ProductionsIcon /> },
     ],
   },
@@ -217,7 +217,7 @@ export function PodcastSidebar() {
     <>
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex flex-col bg-[#FFFFFF] dark:bg-fd-card border-e border-fd-border text-sm transition-transform duration-150 md:[grid-area:sidebar] md:z-30',
+          'fixed inset-y-0 left-0 z-50 flex flex-col bg-background dark:bg-fd-card border-e border-fd-border text-sm transition-transform duration-150 md:[grid-area:sidebar] md:z-30',
           collapsed ? 'w-16' : 'w-64',
           open ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         )}

@@ -134,7 +134,7 @@ export default function Layout({ children }: LayoutProps<'/'>) {
 
 function Footer() {
   return (
-    <footer className="mt-auto border-t bg-fd-card py-12 text-fd-secondary-foreground">
+    <footer className="mt-auto border-t bg-background py-12 text-foreground">
       <div className="container flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="mb-1 text-sm font-semibold">PodcastAds - Serra Dourada</p>

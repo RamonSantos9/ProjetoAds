@@ -4,7 +4,7 @@ import { Mic2, MousePointer, PlayCircle, Radio, Users } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/cn';
 import { createMetadata } from '@/lib/metadata';
-import { featuredEpisodes, publicStats } from '../_data/episodes';
+import { readDb } from '@/lib/db';
 
 export const metadata: Metadata = createMetadata({
   title: 'Episódios',
@@ -12,7 +12,19 @@ export const metadata: Metadata = createMetadata({
     'Biblioteca pública do PodcastAds com episódios, pautas em andamento e visão geral do projeto.',
 });
 
-export default function EpisodesPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function EpisodesPage() {
+  const dbData = await readDb();
+  const featuredEpisodes = dbData.episodes;
+  
+  const publicStats = [
+    { label: 'Episódios cadastrados', value: String(featuredEpisodes.length) },
+    { label: 'Frentes do projeto', value: String(new Set(featuredEpisodes.map(ep => ep.category).filter(Boolean)).size || 1) },
+    { label: 'Trilhas de conteúdo', value: String(new Set(featuredEpisodes.flatMap(ep => ep.guests)).size || 1) },
+    { label: 'Acesso', value: 'Público' },
+  ];
+
   return (
     <main className="container relative z-2 max-w-[1100px] px-2 py-4 lg:py-8">
       <div
@@ -78,9 +90,10 @@ export default function EpisodesPage() {
           </div>
 
           {featuredEpisodes.map((episode) => (
-            <article
+            <Link
               key={episode.slug}
-              className="border-l border-t border-b border-dashed px-6 py-12 bg-transparent flex flex-col"
+              href={`/episodio/${episode.slug}`}
+              className="border-l border-t border-b border-dashed px-6 py-12 bg-transparent flex flex-col group hover:bg-fd-muted transition-colors cursor-pointer"
             >
               <div className="flex flex-wrap items-center gap-2 text-xs mb-4">
                 <span className="rounded-full bg-fd-primary/10 px-2.5 py-1 font-medium text-fd-primary">
@@ -94,7 +107,7 @@ export default function EpisodesPage() {
                 </span>
               </div>
 
-              <h3 className="text-xl font-semibold mb-3">{episode.title}</h3>
+              <h3 className="text-xl font-semibold mb-3 group-hover:text-fd-primary transition-colors">{episode.title}</h3>
               <p className="text-sm leading-6 text-fd-muted-foreground mb-6 flex-1">
                 {episode.summary}
               </p>
@@ -102,14 +115,14 @@ export default function EpisodesPage() {
               <div className="flex flex-col gap-3 text-sm text-fd-muted-foreground mt-auto">
                 <div className="flex items-center gap-2">
                   <Users className="size-4 shrink-0 text-fd-primary" />
-                  <span className="font-medium line-clamp-1">{episode.guests.join(' • ')}</span>
+                  <span className="font-medium line-clamp-1">{episode.guests?.join(' • ') || 'Sem Convidados'}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <PlayCircle className="size-4 shrink-0 text-fd-primary" />
-                  <span className="font-medium">{episode.platforms.join(' • ')}</span>
+                  <span className="font-medium">{episode.platforms?.join(' • ') || 'Sem Plataforma'}</span>
                 </div>
               </div>
-            </article>
+            </Link>
           ))}
         </section>
       </div>

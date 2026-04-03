@@ -21,15 +21,19 @@ import {
   Sparkles
 } from 'lucide-react';
 import { CreateEpisodeModal, EpisodeFormData } from '@/components/dashboard/CreateEpisodeModal';
-import { EditEpisodeModal, Episode } from '@/components/dashboard/EditEpisodeModal';
+import { EditEpisodeModal } from '@/components/dashboard/EditEpisodeModal';
+import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { featuredEpisodes as initialEpisodes } from '../../(home)/_data/episodes';
+import { Episode, Guest } from '@/lib/db';
+import DashboardToolbar from '@/components/dashboard/DashboardToolbar';
+
+
+
 
 // --- Types ---
 
 interface ReportRecord extends Episode {
   guest: string; 
-  createdAt: string; 
   origin: string; 
 }
 
@@ -86,19 +90,8 @@ const TooltipRefined = ({ text, children }: { text: string; children: React.Reac
   </div>
 );
 
-const BadgeRefined = ({ variant, children }: { variant: 'success' | 'warning' | 'error' | 'info'; children: React.ReactNode }) => {
-  const styles = {
-    success: "bg-green-500/10 text-green-600 border-green-500/20",
-    warning: "bg-orange-500/10 text-orange-600 border-orange-500/20",
-    error: "bg-red-500/10 text-red-600 border-red-500/20",
-    info: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-  };
-  return (
-    <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider", styles[variant])}>
-      {children}
-    </span>
-  );
-};
+
+
 
 const toast = { success: (msg: string) => console.log('[toast]', msg) };
 
@@ -116,43 +109,33 @@ export default function RelatoriosPage() {
   const [selectedRecord, setSelectedRecord] = useState<ReportRecord | null>(null);
 
   const [originFilter, setOriginFilter] = useState("Todas Origens");
-  const [originOpen, setOriginOpen] = useState(false);
-  const [exportOpen, setExportOpen] = useState(false);
-  
-  const originRef = useRef<HTMLDivElement>(null);
-  const exportRef = useRef<HTMLDivElement>(null);
+
+
+
 
   useEffect(() => {
-    const handleOutside = (e: MouseEvent) => {
-      if (originRef.current && !originRef.current.contains(e.target as Node)) setOriginOpen(false);
-      if (exportRef.current && !exportRef.current.contains(e.target as Node)) setExportOpen(false);
+    const fetchReports = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/episodes');
+        if (!res.ok) throw new Error('Failed to fetch API');
+        const data = await res.json();
+        
+        const mapped: ReportRecord[] = data.map((ep: any) => ({
+          ...ep,
+          guest: ep.guests?.[0] || 'Sem Convidado',
+          creator: 'Sistema',
+          origin: ep.origin || 'Manual'
+        }));
+        
+        setReports(mapped);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     };
-    document.addEventListener('mousedown', handleOutside);
-    return () => document.removeEventListener('mousedown', handleOutside);
-  }, []);
-
-  useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => {
-      const data: ReportRecord[] = initialEpisodes.map((ep, i) => ({
-        ...ep,
-        id: `ep-${i + 1}`,
-        slug: ep.slug || `slug-${i}`,
-        summary: ep.summary || '',
-        category: ep.category || 'Geral',
-        duration: ep.duration || '00:00',
-        platforms: ep.platforms || [],
-        guests: ep.guests || [],
-        guest: ep.guests?.[0] || 'Convidado Externo',
-        status: (ep.status as string) === 'Publicado' ? 'Publicado' : (i % 3 === 0 ? 'Agendado' : 'Produção'),
-        creator: i % 2 === 0 ? 'Ramon Santos' : 'Ana Carolina',
-        createdAt: new Date(Date.now() - i * 86400000).toISOString(),
-        origin: i % 4 === 0 ? 'Importado' : (i % 4 === 1 ? 'Agendado' : 'Manual')
-      }));
-      setReports(data);
-      setLoading(false);
-    }, 600);
-    return () => clearTimeout(timer);
+    fetchReports();
   }, []);
 
   const filtered = reports.filter(r => {
@@ -172,28 +155,67 @@ export default function RelatoriosPage() {
     const newRecord: ReportRecord = {
       ...newEp,
       id: Math.random().toString(36).substring(7),
-      guests: newEp.guests.split(',').filter(Boolean),
-      platforms: newEp.platforms.split(',').filter(Boolean),
-      guest: newEp.guests.split(',')[0] || 'Sem Convidado',
-      status: newEp.status === 'Released' ? 'Publicado' : newEp.status,
+      slug: Math.random().toString(36).substring(7),
+      title: newEp.title,
+      summary: newEp.summary,
+      category: newEp.category,
+      duration: '00:00',
+      guests: newEp.guests,
+      platforms: newEp.platforms,
+      guest: typeof newEp.guests[0] === 'object' ? newEp.guests[0].name : newEp.guests[0] || 'Sem Convidado',
+      status: (newEp.status === 'Released' ? 'Publicado' : newEp.status) as any,
       createdAt: new Date().toISOString(),
       origin: 'Manual'
-    };
+    } as ReportRecord;
     setReports(prev => [newRecord, ...prev]);
   };
 
   const handleEditSave = (updated: Episode) => {
-    setReports(prev => prev.map(r => r.id === updated.id ? {
+    setReports(prev => prev.map(r => r.id === updated.id ? ({
       ...r,
       ...updated,
-      guest: updated.guests[0] || 'Sem Convidado'
-    } : r));
+      guest: typeof updated.guests[0] === 'object' ? updated.guests[0].name : updated.guests[0] || 'Sem Convidado'
+    } as ReportRecord) : r));
   };
 
-  const handleExport = (ext: string) => {
-     toast.success(`Exportação ${ext} iniciada!`);
-     setExportOpen(false);
+  const handleExport = (format: string) => {
+    const dataToExport = filtered;
+    let content = '';
+    let filename = `relatorio-podcastads-${new Date().toISOString().split('T')[0]}`;
+    let mimeType = 'text/plain';
+
+    if (format === 'JSON') {
+      content = JSON.stringify(dataToExport, null, 2);
+      filename += '.json';
+      mimeType = 'application/json';
+    } else if (format === 'CSV') {
+      const headers = ['ID', 'Convidado', 'Episódio', 'Status', 'Origem', 'Data Criação'];
+      const rows = dataToExport.map(r => [
+        r.id, 
+        `"${r.guest}"`, 
+        `"${r.title}"`, 
+        r.status, 
+        r.origin, 
+        r.createdAt
+      ]);
+      content = [headers, ...rows].map(e => e.join(',')).join('\n');
+      filename += '.csv';
+      mimeType = 'text/csv';
+    }
+
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast.success(`Exportação ${format} concluída!`);
   };
+
 
   const stats = {
     totalGuests: Array.from(new Set(reports.map(r => r.guest))).length,
@@ -213,19 +235,18 @@ export default function RelatoriosPage() {
           </div>
 
           <div className="bg-white dark:bg-fd-background w-full flex flex-col flex-1">
-            <section className="flex flex-col gap-6">
-              {/* Stats Summary Container (Identical to reference) */}
-              <div className="flex flex-wrap items-stretch justify-between border rounded-xl gap-0 p-5 mt-1">
+             <div className="flex-1 flex flex-col gap-6">
+               {/* Stats Grid */}
+              <div className="flex flex-col lg:flex-row items-stretch lg:items-center p-4 lg:p-10 border border-[#ECECEE] dark:border-fd-border rounded-xl">
                 <div className="flex-auto flex flex-col gap-4 px-4 lg:px-0" style={{ minWidth: "240px" }}>
                   <div className="flex items-center gap-2 w-full justify-between text-background tracking-tight">
-                    <p className="text-[16px]">Total de Convidados</p>
-                    <TooltipRefined text="Valor total de convidados únicos que foram registrados em episódios do podcast.">
+                    <p className="text-[16px]">Total Convidados</p>
+                    <TooltipRefined text="Número total de convidados únicos que já participaram do seu podcast.">
                       <button className="cursor-help text-background"><Info className="size-5" /></button>
                     </TooltipRefined>
                   </div>
                   <div className="flex items-center gap-2 w-full justify-between">
                     {loading ? <Skeleton className="w-20 h-8" /> : <h2 className="text-[32px] font-bold text-background">{stats.totalGuests}</h2>}
-                    <ChevronRight className="text-background cursor-pointer hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
 
@@ -260,153 +281,107 @@ export default function RelatoriosPage() {
                 </div>
               </div>
 
-              {/* Toolbar (Design Sync) */}
-              <div className="flex flex-col gap-4 mt-2">
-                <section className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="relative w-full md:max-w-[340px] max-w-full">
-                    <input
-                      className="w-full dark:bg-fd-background border rounded-lg pl-3 pr-9 py-2 text-xs text-fd-foreground placeholder:text-background focus:outline-none focus:border-fd-primary transition-colors"
-                      placeholder="Pesquisar por ID, Convidado ou Título"
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                    />
-                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-[#83899f]" />
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center w-full sm:w-auto justify-end gap-2">
-                    <div className="relative w-full sm:w-auto" ref={originRef}>
-                      <button
-                        onClick={() => setOriginOpen(!originOpen)}
-                        className="h-8 flex items-center justify-between gap-2 py-2 px-3 border rounded-lg text-sm text-background transition-all w-full sm:min-w-[200px]"
-                      >
-                        <span className="truncate">{originFilter}</span>
-                        <ChevronRight className={cn("size-4 text-background transition-transform", originOpen ? "rotate-270" : "rotate-90")} />
-                      </button>
-                      {originOpen && (
-                        <div className="absolute top-[calc(100%+4px)] left-0 w-full bg-[#FFFFFF] dark:bg-[#121212] border rounded-lg z-50 overflow-hidden animate-in fade-in slide-in-from-top-1">
-                          {["Todas Origens", "Manual", "Agendado", "Importado"].map(f => (
-                            <button 
-                              key={f}
-                              onClick={() => { setOriginFilter(f); setOriginOpen(false); }}
-                              className="w-full text-left px-3 py-2 text-sm font-semibold hover:bg-fd-accent border-b last:border-0 border-[#E2E7F1] dark:border-fd-border"
-                            >
-                              {f}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="relative w-full sm:w-auto" ref={exportRef}>
-                      <button 
-                        onClick={() => setExportOpen(!exportOpen)}
-                        className="h-8 flex items-center justify-center gap-2 bg-[#FFFFFF] dark:bg-[#121212] border rounded-lg px-4 text-sm text-background transition-colors w-full"
-                      >
-                        <Download className="size-4" /> Exportar
-                      </button>
-                      {exportOpen && (
-                         <div className="absolute top-[calc(100%+4px)] right-0 w-full sm:w-40 bg-[#FFFFFF] dark:bg-[#121212] border rounded-lg z-50 overflow-hidden">
-                           <button onClick={() => handleExport('JSON')} className="w-full text-left px-4 py-2.5 text-sm font-semibold hover:bg-fd-accent border-b border-fd-border">JSON</button>
-                           <button onClick={() => handleExport('CSV')} className="w-full text-left px-4 py-2.5 text-sm font-semibold hover:bg-fd-accent">CSV</button>
-                         </div>
-                      )}
-                    </div>
-
-                    {isAdmin && (
-                      <ActionButtonRefined 
-                        label="Novo Episódio" 
-                        onClick={() => setIsCreateModalOpen(true)}
-                      />
-                    )}
-                  </div>
-                </section>
-
-                <div className="overflow-x-auto mt-2">
-                  <table className="w-full border-separate border-spacing-0 leading-[12px]">
-                    <thead >
-                      <tr className="text-background text-sm">
-                        <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s first:rounded-s-xl last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Convidado</th>
-                        <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Episódio</th>
-                        <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Status</th>
-                        <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Origem</th>
-                        <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">Criação</th>
-                        <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">ID</th>
-                        {isAdmin && (
-                          <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-right whitespace-nowrap">Ações</th>
-                        )}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="h-4" />
-                      {loading ? (
-                        Array.from({ length: 5 }).map((_, i) => (
-                          <tr key={i} className="animate-pulse">
-                            <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-full h-4" /></td>
-                            <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-full h-4" /></td>
-                            <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-20 h-6" /></td>
-                            <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-16 h-4" /></td>
-                            <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-24 h-4" /></td>
-                            <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-16 h-4" /></td>
-                            {isAdmin && (
-                              <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5 text-right"><Skeleton className="w-10 h-10 ml-auto" /></td>
-                            )}
-                          </tr>
-                        ))
-                      ) : filtered.length === 0 ? (
-                        <tr>
-                          <td colSpan={isAdmin ? 7 : 6} className="text-center py-20 text-background">Nenhum registro encontrado.</td>
-                        </tr>
-                      ) : (
-                        filtered.map(item => (
-                          <tr key={item.id} className="hover:bg-background transition-colors">
-                            <td className="border-b p-5 text-background text-xs truncate">
-                              {item.guest}
-                            </td>
-                            <td className="border-b p-5 text-background text-xs truncate max-w-[200px]">
-                              {item.title}
-                            </td>
-                            <td className="border-b p-5">
-                              <BadgeRefined variant={item.status === 'Publicado' ? 'success' : item.status === 'Agendado' ? 'info' : 'warning'}>
-                                  {item.status === 'Publicado' ? 'Ativo' : item.status}
-                              </BadgeRefined>
-                            </td>
-                            <td className="border-b p-5 text-background text-xs">
-                              {item.origin}
-                            </td>
-                            <td className="border-b p-5 text-background text-xs">
-                              {new Date(item.createdAt || Date.now()).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
-                            </td>
-                            <td className="border-b p-5">
-                              <div className="flex items-center gap-2">
-                                 <TooltipRefined text={item.id}>
-                                   <span 
-                                     className="text-background text-xs cursor-pointer hover:opacity-70 transition-opacity"
-                                     onClick={() => { navigator.clipboard.writeText(item.id); toast.success('ID copiado!'); }}
-                                   >
-                                     {item.id.substring(0, 8)}...
-                                   </span>
-                                 </TooltipRefined>
-                                 <ExternalLink className="size-3 text-background cursor-pointer" />
-                              </div>
-                             </td>
-                             {isAdmin && (
-                              <td className="border-b p-5 text-right">
-                                 <button 
-                                   onClick={() => { setSelectedRecord(item); setIsEditModalOpen(true); }}
-                                   className="p-2 rounded-lg bg-background"
-                                 >
-                                   <MoreVertical className="size-4 text-background" />
-                                 </button>
-                              </td>
-                             )}
-                           </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+              {/* Toolbar Modulado */}
+              <div className="mt-2">
+                <DashboardToolbar 
+                  search={search}
+                  onSearchChange={setSearch}
+                  filterValue={originFilter}
+                  onFilterChange={setOriginFilter}
+                  onExport={handleExport}
+                  showAction={isAdmin}
+                  actionLabel="Novo Episódio"
+                  onActionClick={() => setIsCreateModalOpen(true)}
+                />
               </div>
-            </section>
+
+              {/* Table Section */}
+              <div className="overflow-x-auto mt-2">
+                <table className="w-full border-separate border-spacing-0 leading-[12px]">
+                  <thead>
+                    <tr>
+                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:rounded-s-xl first:border-s p-5 text-left whitespace-nowrap">Convidado</th>
+                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap">Episódio</th>
+                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap">Status</th>
+                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap">Origem</th>
+                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap">Criação</th>
+                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">ID</th>
+                      {isAdmin && (
+                        <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-right whitespace-nowrap">Ações</th>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="h-4" />
+                    {loading ? (
+                      Array.from({ length: 5 }).map((_, i) => (
+                        <tr key={i} className="animate-pulse">
+                          <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-full h-4" /></td>
+                          <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-full h-4" /></td>
+                          <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-20 h-6" /></td>
+                          <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-16 h-4" /></td>
+                          <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-24 h-4" /></td>
+                          <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-16 h-4" /></td>
+                          {isAdmin && (
+                            <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5 text-right"><Skeleton className="w-10 h-10 ml-auto" /></td>
+                          )}
+                        </tr>
+                      ))
+                    ) : filtered.length === 0 ? (
+                      <tr>
+                        <td colSpan={isAdmin ? 7 : 6} className="text-center py-20 text-background">Nenhum registro encontrado.</td>
+                      </tr>
+                    ) : (
+                      filtered.map(item => (
+                        <tr key={item.id} className="hover:bg-background transition-colors">
+                          <td className="border-b p-5 text-background text-xs truncate">
+                            {item.guest}
+                          </td>
+                          <td className="border-b p-5 text-background text-xs truncate max-w-[200px]">
+                            {item.title}
+                          </td>
+                          <td className="border-b p-5">
+                            <Badge variant={item.status === 'Publicado' ? 'success' : item.status === 'Agendado' ? 'info' : 'warning'}>
+                              {item.status === 'Publicado' ? 'Ativo' : item.status}
+                            </Badge>
+                          </td>
+
+                          <td className="border-b p-5 text-background text-xs">
+                            {item.origin}
+                          </td>
+                          <td className="border-b p-5 text-background text-xs">
+                            {new Date(item.createdAt || Date.now()).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          </td>
+                          <td className="border-b p-5">
+                            <div className="flex items-center gap-2">
+                               <TooltipRefined text={item.id}>
+                                 <span 
+                                   className="text-background text-xs cursor-pointer hover:opacity-70 transition-opacity"
+                                   onClick={() => { navigator.clipboard.writeText(item.id); toast.success('ID copiado!'); }}
+                                 >
+                                   {item.id.substring(0, 8)}...
+                                 </span>
+                               </TooltipRefined>
+                               <ExternalLink className="size-3 text-background cursor-pointer" />
+                            </div>
+                           </td>
+                           {isAdmin && (
+                            <td className="border-b p-5 text-right">
+                               <button 
+                                 onClick={() => { setSelectedRecord(item); setIsEditModalOpen(true); }}
+                                 className="p-2 rounded-lg bg-background"
+                               >
+                                 <MoreVertical className="size-4 text-background" />
+                               </button>
+                            </td>
+                           )}
+                         </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
       </main>
 

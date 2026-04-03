@@ -9,6 +9,8 @@ interface Voice {
   hue: number;
   url?: string;
   sampleUrl?: string;
+  audioUrl?: string;
+  slug?: string;
 }
 
 interface AudioContextType {
@@ -27,6 +29,12 @@ interface AudioContextType {
   isMinimized: boolean;
   minimizePlayer: () => void;
   expandPlayer: () => void;
+  isMuted: boolean;
+  toggleMute: () => void;
+  playbackRate: number;
+  setPlaybackRate: (rate: number) => void;
+  isInlinePlayerVisible: boolean;
+  setInlinePlayerVisible: (visible: boolean) => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -38,9 +46,32 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [duration, setDuration] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [playbackRate, setPlaybackRateState] = useState(1.0);
+  const [isInlinePlayerVisible, setIsInlinePlayerVisible] = useState(false);
   
   // Store the actual audio element
   const [audio] = useState(() => typeof Audio !== 'undefined' ? new Audio() : null);
+
+  const setInlinePlayerVisible = (visible: boolean) => {
+    setIsInlinePlayerVisible(visible);
+  };
+  const playPromiseRef = useRef<Promise<void> | null>(null);
+
+  const setPlaybackRate = (rate: number) => {
+    if (audio) {
+      audio.playbackRate = rate;
+      setPlaybackRateState(rate);
+    }
+  };
+
+  const toggleMute = () => {
+    if (audio) {
+      const newMuted = !isMuted;
+      audio.muted = newMuted;
+      setIsMuted(newMuted);
+    }
+  };
 
   useEffect(() => {
     if (!audio) return;
@@ -70,13 +101,18 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const playTrack = (voice: Voice) => {
     if (!audio) return;
 
-    const url = voice.sampleUrl || voice.url || "https://storage.googleapis.com/eleven-public-prod/database/workspace/9ffd9eb76f364648abbfb2c74b299b4a/voices/goT3UYdM9bhm0n2lmKQx/8e1e53b7-9320-4bab-acf2-86d7e77d1b8b.mp3";
+    const url = voice.audioUrl || voice.url || voice.sampleUrl;
+
+    if (!url) {
+      console.warn('No audio URL found for this track');
+      return;
+    }
 
     if (currentVoice?.name === voice.name) {
       if (isPlaying) {
-        audio.pause();
+        pauseTrack();
       } else {
-        audio.play().catch(console.error);
+        resumeTrack();
       }
       return;
     }
@@ -85,18 +121,36 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     setIsVisible(true);
     setIsMinimized(false);
     
-    // Stop current track before changing src
-    audio.pause();
     audio.src = url;
-    audio.play().catch(console.error);
+    playPromiseRef.current = audio.play();
+    playPromiseRef.current.catch((e) => {
+      if (e.name !== 'AbortError') console.error(e);
+    });
   };
 
   const pauseTrack = () => {
-    audio?.pause();
+    if (!audio) return;
+    
+    if (playPromiseRef.current !== null) {
+      playPromiseRef.current
+        .then(() => {
+          audio.pause();
+          playPromiseRef.current = null;
+        })
+        .catch(() => {
+          // Play was already aborted, safely clear ref
+          playPromiseRef.current = null;
+        });
+    } else {
+      audio.pause();
+    }
   };
 
   const resumeTrack = () => {
-    audio?.play().catch(console.error);
+    if (audio) {
+      playPromiseRef.current = audio.play();
+      playPromiseRef.current.catch(console.error);
+    }
   };
 
   const seek = (time: number) => {
@@ -129,7 +183,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     <AudioContext.Provider value={{
       currentVoice, isPlaying, currentTime, duration,
       playTrack, pauseTrack, resumeTrack, seek, rewind, fastForward,
-      isVisible, hidePlayer, isMinimized, minimizePlayer, expandPlayer
+      isVisible, hidePlayer, isMinimized, minimizePlayer, expandPlayer,
+      isMuted, toggleMute, playbackRate, setPlaybackRate,
+      isInlinePlayerVisible, setInlinePlayerVisible
     }}>
       {children}
     </AudioContext.Provider>
