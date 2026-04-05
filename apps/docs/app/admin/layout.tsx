@@ -10,7 +10,8 @@ import { Toaster } from 'sonner';
 function GridLayout({ children }: { children: ReactNode }) {
   const { collapsed } = useSidebar();
   const pathname = usePathname();
-  const isStudio = pathname.startsWith('/admin/estudio');
+  // Only strip sidebar/header for the project editor (has an ID segment after /estudio/)
+  const isStudio = /^\/admin\/estudio\/.+/.test(pathname);
 
   if (isStudio) {
     return (

@@ -75,6 +75,7 @@ export interface StudioProject {
   assets?: UploadedFile[];
   aspectRatio: string;
   lastModified: string;
+  createdAt?: string;
 }
 
 export interface Feedback {

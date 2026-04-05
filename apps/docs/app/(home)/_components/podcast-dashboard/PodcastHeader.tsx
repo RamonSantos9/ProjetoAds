@@ -6,6 +6,30 @@ import { PodcastFeedback } from './PodcastFeedback';
 import { PodcastNotifications } from './PodcastNotifications';
 import { PodcastUserMenu } from './PodcastUserMenu';
 import { cn } from '@xispedocs/ui/utils/cn';
+import { usePathname } from 'next/navigation';
+
+const PAGE_TITLES: Record<string, string> = {
+  '/admin/home': 'Página Inicial',
+  '/admin/episodios': 'Episódios',
+  '/admin/estudio': 'Estúdio do podcast',
+  '/admin/cronograma': 'Cronograma',
+  '/admin/entrevistas': 'Entrevistas',
+  '/admin/transcricoes': 'Transcrições',
+  '/admin/roteiros': 'Roteiros',
+  '/admin/vinhetas-trilhas': 'Vinhetas e Trilhas',
+  '/admin/publicacao': 'Publicação',
+  '/admin/midias-visuais': 'Mídias Visuais',
+  '/admin/modelos-post': 'Modelos de Post',
+  '/admin/estatisticas': 'Estatísticas',
+  '/admin/relatorios': 'Relatórios',
+  '/admin/convidados': 'Convidados',
+};
+
+function usePageTitle() {
+  const pathname = usePathname();
+  // Match exact path or return a default/fallback
+  return PAGE_TITLES[pathname] || 'Início';
+}
 
 export function PodcastHeader() {
   const { collapsed, setCollapsed, setOpen } = useSidebar();
@@ -95,7 +119,7 @@ export function PodcastHeader() {
           
           <div className="hstack gap-1.5 items-center whitespace-nowrap min-w-0 overflow-hidden w-full py-1 px-1 -mr-1">
             <div className="shrink-0">
-              <p data-testid="page-title" className="text-sm text-foreground font-medium truncate">Início</p>
+              <p data-testid="page-title" className="text-sm text-foreground font-medium truncate">{usePageTitle()}</p>
             </div>
           </div>
           
@@ -150,7 +174,7 @@ export function PodcastHeader() {
               </svg>
             </button>
             <div className="hstack gap-2 items-center">
-              <p data-testid="page-title" className="text-sm text-foreground whitespace-nowrap font-medium">Início</p>
+              <p data-testid="page-title" className="text-sm text-foreground whitespace-nowrap font-medium">{usePageTitle()}</p>
             </div>
           </div>
           

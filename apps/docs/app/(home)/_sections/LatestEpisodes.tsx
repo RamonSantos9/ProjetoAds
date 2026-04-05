@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { PlayCircle, Users } from 'lucide-react';
+import { EpisodeCard } from '@/components/episodes/EpisodeCard';
 import { readDb } from '@/lib/db';
 
 /**
@@ -29,43 +29,11 @@ export async function LatestEpisodes() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {latest.map((episode) => (
-          <Link
+          <EpisodeCard
             key={episode.slug}
+            episode={episode}
             href={`/episodio/${episode.slug}`}
-            className="flex flex-col group relative overflow-hidden border transition-all duration-200"
-          >
-            {/* Pseudo-capa gradiente simples baseada no categoria */}
-            <div className="h-32 w-full bg-gradient-to-br from-fd-primary/10 to-fd-primary/30 flex items-center justify-center border-b">
-               <span className="text-4xl opacity-50 shrink-0">🎙️</span>
-            </div>
-            
-            <div className="p-5 flex flex-col flex-1">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-fd-primary bg-fd-primary/10 px-2 py-0.5 rounded-full">
-                  {episode.category}
-                </span>
-                <span className="text-xs text-fd-muted-foreground">{episode.duration}</span>
-              </div>
-              
-              <h3 className="line-clamp-2 text-lg font-semibold group-hover:text-fd-primary transition-colors mb-2">
-                {episode.title}
-              </h3>
-              <p className="line-clamp-2 text-sm text-fd-muted-foreground mb-4 flex-1">
-                {episode.summary}
-              </p>
-              
-              <div className="flex flex-col gap-2 mt-auto text-xs text-fd-muted-foreground">
-                <div className="flex items-center gap-1.5">
-                  <Users className="size-3.5" />
-                  <span className="truncate">{episode.guests?.join(' • ') || 'Sem Convidados'}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <PlayCircle className="size-3.5" />
-                  <span className="truncate">{episode.platforms?.join(' • ') || 'Sem Plataforma'}</span>
-                </div>
-              </div>
-            </div>
-          </Link>
+          />
         ))}
       </div>
     </div>

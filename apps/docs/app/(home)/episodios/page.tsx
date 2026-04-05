@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Mic2, MousePointer, PlayCircle, Radio, Users } from 'lucide-react';
+import { EpisodeCard } from '@/components/episodes/EpisodeCard';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/cn';
 import { createMetadata } from '@/lib/metadata';
@@ -90,39 +91,12 @@ export default async function EpisodesPage() {
           </div>
 
           {featuredEpisodes.map((episode) => (
-            <Link
+            <EpisodeCard
               key={episode.slug}
+              episode={episode}
               href={`/episodio/${episode.slug}`}
-              className="border-l border-t border-b border-dashed px-6 py-12 bg-transparent flex flex-col group hover:bg-fd-muted transition-colors cursor-pointer"
-            >
-              <div className="flex flex-wrap items-center gap-2 text-xs mb-4">
-                <span className="rounded-full bg-fd-primary/10 px-2.5 py-1 font-medium text-fd-primary">
-                  {episode.category}
-                </span>
-                <span className="rounded-full border border-black/10 dark:border-white/10 px-2.5 py-1 text-fd-muted-foreground">
-                  {episode.duration}
-                </span>
-                <span className="rounded-full border border-black/10 dark:border-white/10 px-2.5 py-1 text-fd-muted-foreground">
-                  {episode.status}
-                </span>
-              </div>
-
-              <h3 className="text-xl font-semibold mb-3 group-hover:text-fd-primary transition-colors">{episode.title}</h3>
-              <p className="text-sm leading-6 text-fd-muted-foreground mb-6 flex-1">
-                {episode.summary}
-              </p>
-
-              <div className="flex flex-col gap-3 text-sm text-fd-muted-foreground mt-auto">
-                <div className="flex items-center gap-2">
-                  <Users className="size-4 shrink-0 text-fd-primary" />
-                  <span className="font-medium line-clamp-1">{episode.guests?.join(' • ') || 'Sem Convidados'}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <PlayCircle className="size-4 shrink-0 text-fd-primary" />
-                  <span className="font-medium">{episode.platforms?.join(' • ') || 'Sem Plataforma'}</span>
-                </div>
-              </div>
-            </Link>
+              className="px-2 py-6 bg-transparent"
+            />
           ))}
         </section>
       </div>
