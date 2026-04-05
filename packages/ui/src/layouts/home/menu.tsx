@@ -75,13 +75,29 @@ export function MenuLinkItem({
       <LinkItem
         item={item as any}
         className={cn(
-          menuItemVariants({ variant: item.type as any }),
+          menuItemVariants({ 
+            variant: item.type === 'icon' ? 'icon' : 'main' 
+          }),
           props.className,
+          item.type !== 'icon' && 'flex-row items-start gap-3 py-3'
         )}
         aria-label={item.type === 'icon' ? item.label : undefined}
       >
-        {item.icon}
-        {item.type === 'icon' ? undefined : item.text}
+        {item.icon && (
+          <div className="mt-0.5 shrink-0 [&_svg]:size-4 font-bold text-fd-primary">
+            {item.icon}
+          </div>
+        )}
+        {item.type === 'icon' ? undefined : (
+          <div className="flex flex-col gap-0.5 text-left">
+            <p className="font-medium">{item.text}</p>
+            {'description' in item && item.description && (
+              <p className="text-xs text-fd-muted-foreground font-normal line-clamp-2">
+                {item.description}
+              </p>
+            )}
+          </div>
+        )}
       </LinkItem>
     </NavigationMenuLink>
   );

@@ -72,7 +72,7 @@ export function EpisodeCard({ episode, href, onEdit, isAdmin, className }: Episo
             <Badge variant={episode.status === 'Publicado' ? 'success' : 'warning'} className="text-[10px] font-bold">
               {episode.status}
             </Badge>
-            <span className="text-[10px] text-fd-muted-foreground border border-fd-border/50 px-2 py-0.5 rounded-full font-medium italic">
+            <span className="text-[10px] text-fd-muted-foreground border border-fd-border/50 px-2 py-0.5 rounded-full font-medium">
               {episode.duration}
             </span>
           </div>

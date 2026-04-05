@@ -1,10 +1,10 @@
 {
   "pages": [
     "index",
-    "episodios",
+    "guia-usuario",
+    "guia-admin",
     "arquitetura",
     "seguranca",
-    "relatorios",
     "dev"
   ]
 }

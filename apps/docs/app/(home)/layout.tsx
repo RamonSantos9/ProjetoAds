@@ -28,22 +28,26 @@ export default function Layout({ children }: LayoutProps<'/'>) {
           text: 'Explorar',
           items: [
             {
-              text: 'Guia do Ouvinte',
+              text: 'Documentação',
+              description: 'Acesse o guia técnico, arquitetura e processos do PodcastAds.',
               url: '/docs',
               icon: <Book />,
             },
             {
               text: 'Podcasts',
+              description: 'Acesse nossa biblioteca completa de episódios gravados.',
               url: '/episodios',
               icon: <ComponentIcon />,
             },
             {
-              text: 'Dashboard',
+              text: 'Painel do Ouvinte',
+              description: 'Visualize estatísticas e acompanhe seus episódios favoritos.',
               url: '/dashboard/home',
               icon: <LayoutDashboard />,
             },
             {
               text: 'Dashboard Admin',
+              description: 'Gerencie episódios, pautas e usuários da plataforma.',
               url: '/admin/home',
               icon: <ShieldCheck />,
             },
@@ -55,7 +59,7 @@ export default function Layout({ children }: LayoutProps<'/'>) {
           children: (
             <NavbarMenu>
               <NavbarMenuTrigger>
-                <Link href="/docs">Explorar</Link>
+                <Link href="/docs">Documentação</Link>
               </NavbarMenuTrigger>
               <NavbarMenuContent className="text-[15px]">
                 <NavbarMenuLink href="/docs" className="md:row-span-2">
@@ -70,9 +74,9 @@ export default function Layout({ children }: LayoutProps<'/'>) {
                       }}
                     />
                   </div>
-                  <p className="font-medium">Guia do Ouvinte</p>
+                  <p className="font-medium">Documentação</p>
                   <p className="text-fd-muted-foreground text-sm">
-                    Aprenda a ouvir e participar do PodcastAds na Serra Dourada.
+                    Acesse o guia técnico, arquitetura e processos do PodcastAds.
                   </p>
                 </NavbarMenuLink>
 

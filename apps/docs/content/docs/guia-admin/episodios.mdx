@@ -1,0 +1,42 @@
+---
+title: Gestão de Episódios
+description: Guia completo sobre o gerenciamento de conteúdo publicado no PodcastAds.
+---
+
+A área de **Gestão de Episódios** (`/admin/episodios`) permite o controle total sobre o conteúdo que os ouvintes acessam no Portal do PodcastAds.
+
+## O Que é um Episódio?
+
+Diferente de um "Projeto" no Estúdio, um **Episódio** já possui um áudio gravado, uma capa definida e está (ou estará) disponível publicamente.
+
+## Funcionalidades de Gestão
+
+### Listagem de Episódios
+Você pode ver todos os episódios em dois formatos:
+1. **Grade (Grid)**: Ideal para ver as capas e ter uma visão visual.
+2. **Lista (List)**: Ideal para encontrar e editar rapidamente múltiplos itens.
+
+### Criar e Editar Episódios
+Ao clicar em "Adicionar" ou "Editar", um modal será aberto com os seguintes campos:
+- **Título**: Nome atraente para o episódio.
+- **Sumário**: Um resumo do que será discutido.
+- **Participantes**: Escolha entre os convidados cadastrados.
+- **Categorização**: Selecione a área temática (ex: Carreira, Tecnologia).
+- **Mídia**: URL do áudio ou upload de arquivo.
+
+### Upload de Capas (Thumbnails)
+Você pode enviar imagens para representar o episódio.
+- **Pré-visualização**: Veja como a capa ficará no Portal antes de salvar.
+- **Suporte a Arquivos**: O sistema aceita formatos padrão (`PNG`, `JPG`).
+
+---
+
+## Technical Details (Dev Focus) 🛠️
+
+Se você é um desenvolvedor, aqui estão as regras de negócio e detalhes técnicos:
+
+- **Unified Component**: A listagem utiliza o componente `EpisodeCard` e `EpisodeListItem` com a propriedade `isAdmin={true}`.
+- **Data Persistence**: Todas as alterações são enviadas via API Routes do Next.js para o banco local `db.json`.
+- **Image Handling**: Utilizamos `URL.createObjectURL` para gerar pré-visualizações ricas de arquivos locais antes do upload final.
+- **Validation**: O sistema valida campos obrigatórios e formatos de áudio para garantir a integridade dos dados.
+- **Routing**: URLs amigáveis (Slugs) são geradas automaticamente para cada novo episódio.

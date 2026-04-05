@@ -1,0 +1,35 @@
+---
+title: Relatórios e BI
+description: Um manual sobre o módulo de análise de dados e estatísticas do PodcastAds.
+---
+
+O **Módulo de Relatórios** (`/admin/relatorios`) é a ferramenta de Business Intelligence (BI) do PodcastAds. É aqui que os administradores transformam dados brutos em insights e apresentações acadêmicas.
+
+## O Que é BI (Business Intelligence)?
+
+BI é o processo de coletar, organizar e analisar dados para tomar decisões melhores. No PodcastAds, usamos BI para entender quais temas os alunos mais gostam e como as pautas estão evoluindo.
+
+## Como Usar o Módulo de Relatórios
+
+### Dashboard Geral de Dados
+Ao entrar em Relatórios, você verá os principais indicadores (KPIs):
+- **Crescimento de Audiência**: Quantas pessoas estão ouvindo.
+- **Eficiência de Pautas**: Quantas ideias se tornaram episódios reais.
+- **Distribuição de Categorias**: Gráfico de pizza mostrando os temas explorados.
+
+### Visualização de Estatísticas
+Os dados são apresentados de forma clara e visual:
+- **Gráficos de Linha**: Para ver a evolução do tempo.
+- **Tabelas Detalhadas**: Para exportação manual e análise minuciosa.
+
+---
+
+## Technical Details (Dev Focus) 🛠️
+
+Se você é um desenvolvedor trabalhando nos relatórios, aqui estão os detalhes da arquitetura de dados:
+
+- **Data Transformation**: Pegamos os dados crus de `db.json` e os processamos no servidor para gerar as agregações necessárias.
+- **Chart.js / Recharts**: Utilizamos bibliotecas de visualização para renderizar os gráficos de forma responsiva.
+- **Agregação de Categorias**: Calculamos a frequência de cada categoria (`Map` de JS) para gerar as fatias do gráfico de pizza.
+- **Filtragem Dinâmica**: Os dados podem ser filtrados por período ou status, reagindo instantaneamente às mudanças de estado.
+- **Performance**: Usamos cache agressivo para evitar o repasse de dados pesados a cada renderização.

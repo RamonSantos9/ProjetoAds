@@ -1,0 +1,40 @@
+---
+title: Estúdio e Gestão de Projetos
+description: Um manual sobre a ferramenta de organização de pautas e workflow no PodcastAds.
+---
+
+O **Estúdio** (`/admin/estudio`) é a ferramenta onde o conteúdo do PodcastAds começa. É aqui que os administradores organizam o que ainda não foi gravado.
+
+## O Que é um Projeto no Estúdio?
+
+Um "Projeto" representa uma pauta, uma ideia ou uma entrevista agendada que ainda é um rascunho de conteúdo. No Estúdio, cada projeto é exibido em um **Card Interativo de Alta Fidelidade**.
+
+## Funcionalidades do Estúdio
+
+### Cards de Projetos Dinâmicos
+Cada card no Estúdio oferece informações imediatas e ações rápidas:
+- **Título**: O que será discutido.
+- **Participantes**: Convidados envolvidos.
+- **Data e Horário**: Agendamento de gravação.
+
+### Menu de Ações Rápidas (3 Pontos)
+Ao passar o mouse sobre um card, um ícone de **3 pontos** aparecerá no canto superior direito. Ao clicar nele, você abre um menu premium com as seguintes opções:
+- **Editar**: Altere metadados, participantes ou status.
+- **Excluir**: Remova a pauta do sistema.
+- **Ver Detalhes**: Visualize o roteiro e informações adicionais.
+
+### Experiência de Uso (UX)
+O Estúdio foi desenhado para ser fluido e profissional:
+- **Retenção de Hover**: O card permanece destacado enquanto o menu de ações estiver aberto, evitando erros de clique.
+- **Animações Suaves**: Transições com `backdrop-blur` ajudam a focar na ação atual.
+
+---
+
+## Technical Details (Dev Focus) 🛠️
+
+Se você é um desenvolvedor trabalhando no Estúdio, aqui estão os pontos-chave de implementação:
+
+- **Radix UI**: Utilizamos o `@radix-ui/react-popover` para os menus de ação.
+- **State Management**: Utilizamos o estado `isOpen` no componente `ProjectCard` para manter o efeito de hover visual (`group-hover`) mesmo quando o mouse sai do card mas está sobre o popover.
+- **Estilização**: TailwindCSS v4 com animações customizadas (`fade-in`, `zoom-in`, `slide-in`) e classes de utilidade para o efeito de vidro (`glassmorphism`).
+- **Data Loading**: Os projetos são carregados dinamicamente do banco centralizado em `db.json`.

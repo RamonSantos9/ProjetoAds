@@ -109,7 +109,7 @@ export default function ClerkTOCItems({
               upperOffsetY = offsetY - 4;
           }
           
-          d.push(`C ${upperOffsetX} ${offsetY - 4} ${offsetX} ${upperOffsetY + 4} ${offsetX} ${offsetY} L ${offsetX} ${bottom}`);
+          d.push(`L ${offsetX} ${offsetY} L ${offsetX} ${bottom}`);
         }
       }
 
