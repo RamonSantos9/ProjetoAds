@@ -44,6 +44,39 @@ export interface Episode {
   imageFile?: any;      // Local File object for optimistic UI
 }
 
+export interface TimelineTrack {
+  id: string;
+  name: string;
+  duration: number; // in seconds
+  startTime: number; // offset in seconds
+  color: string;
+  type?: string;
+  url?: string;
+  layerIndex?: number;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  rotation?: number;
+}
+
+export interface UploadedFile {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url?: string;
+}
+
+export interface StudioProject {
+  id: string;
+  name: string;
+  tracks: TimelineTrack[];
+  assets?: UploadedFile[];
+  aspectRatio: string;
+  lastModified: string;
+}
+
 export interface Feedback {
   avatar: string;
   user: string;
@@ -54,6 +87,7 @@ export interface Feedback {
 export interface DbSchema {
   episodes: Episode[];
   feedbacks: Feedback[];
+  projects: StudioProject[];
 }
 
 const initialFeedbacks: Feedback[] = [
@@ -164,12 +198,17 @@ async function initDb(): Promise<void> {
       updated = true;
     }
 
+    if (!parsed.projects) {
+      parsed.projects = [];
+      updated = true;
+    }
+
     if (updated) {
       await fs.writeFile(DB_PATH, JSON.stringify(parsed, null, 2));
     }
   } catch (err: any) {
     if (err.code === 'ENOENT') {
-      await fs.writeFile(DB_PATH, JSON.stringify({ episodes: initialEpisodes, feedbacks: initialFeedbacks }, null, 2));
+      await fs.writeFile(DB_PATH, JSON.stringify({ episodes: initialEpisodes, feedbacks: initialFeedbacks, projects: [] }, null, 2));
     }
   }
 }
@@ -210,4 +249,63 @@ export async function getEpisodeBySlug(slug: string): Promise<Episode | null> {
 export async function getEpisodeById(id: string): Promise<Episode | null> {
   const db = await readDb();
   return db.episodes.find(t => t.id === id) || null;
+}
+
+// ------ STUDIO PROJECT CRUD ------ //
+
+export async function getProjects(): Promise<StudioProject[]> {
+  const db = await readDb();
+  return db.projects || [];
+}
+
+export async function addProject(project: StudioProject) {
+  const db = await readDb();
+  db.projects.unshift(project);
+  await writeDb(db);
+}
+
+export async function updateProject(id: string, updates: Partial<StudioProject>) {
+  const db = await readDb();
+  const index = db.projects.findIndex(p => p.id === id);
+  if (index !== -1) {
+    db.projects[index] = { ...db.projects[index], ...updates };
+    await writeDb(db);
+  }
+}
+
+export async function getProjectById(id: string): Promise<StudioProject | null> {
+  const db = await readDb();
+  return db.projects.find(p => p.id === id) || null;
+}
+
+export async function deleteProject(id: string) {
+  const db = await readDb();
+  db.projects = db.projects.filter(p => p.id !== id);
+  await writeDb(db);
+}
+
+export async function addAsset(projectId: string, asset: UploadedFile) {
+  const db = await readDb();
+  const index = db.projects.findIndex(p => p.id === projectId);
+  if (index !== -1) {
+    if (!db.projects[index].assets) db.projects[index].assets = [];
+    db.projects[index].assets!.push(asset);
+    await writeDb(db);
+  }
+}
+
+export async function deleteAsset(projectId: string, assetId: string): Promise<UploadedFile | null> {
+  const db = await readDb();
+  const index = db.projects.findIndex(p => p.id === projectId);
+  if (index !== -1) {
+    const project = db.projects[index];
+    if (!project.assets) return null;
+    const assetIndex = project.assets.findIndex(a => a.id === assetId);
+    if (assetIndex !== -1) {
+      const [deletedAsset] = project.assets.splice(assetIndex, 1);
+      await writeDb(db);
+      return deletedAsset;
+    }
+  }
+  return null;
 }

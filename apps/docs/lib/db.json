@@ -136,5 +136,30 @@
       "role": "Desenvolvedor Fullstack",
       "message": "Eu não teria a chance de aprender tanto sobre o mercado de trabalho sem as conversas incríveis deste podcast! 💚"
     }
+  ],
+  "projects": [
+    {
+      "id": "proj-1775352862714",
+      "name": "Meu Primeiro Projeto",
+      "tracks": [],
+      "aspectRatio": "16 / 9",
+      "lastModified": "2026-04-05T01:34:22.714Z",
+      "assets": [
+        {
+          "id": "asset-1775353434045",
+          "name": "banner (1).png",
+          "size": 3085715,
+          "type": "image/png",
+          "url": "/uploads/studio/image/proj-1775352862714-1775353434016-banner__1_.png"
+        },
+        {
+          "id": "asset-1775354226925",
+          "name": "LOGO PODCAST ADS.png",
+          "size": 1595,
+          "type": "image/png",
+          "url": "/uploads/studio/image/proj-1775352862714-1775354226924-logo_podcast_ads.png"
+        }
+      ]
+    }
   ]
 }

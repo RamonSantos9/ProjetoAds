@@ -186,7 +186,7 @@ export default function AppHomePage() {
                 </a>
 
                 {/* Publish episode */}
-                <a data-agent-id="link-_r_8h_" aria-label="Publicar episódio" className="group stack items-center outline-none" data-testid="home-card-image-video" href={`${basePath}/home`}>
+                <a data-agent-id="link-_r_8h_" aria-label="Publicar episódio" className="group stack items-center outline-none" data-testid="home-card-image-video" href={`${basePath}/publicacao`}>
                   <div className="stack gap-2 w-full max-w-[180px]">
                     <div className="relative overflow-hidden flex-1 rounded-[20px] flex items-center justify-center bg-black/5 dark:bg-white/5 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors duration-200 w-full outline-none group-focus-visible:outline-none group-focus-visible:ring-[1.5px] group-focus-visible:ring-ring">
                       <div className="relative w-full pb-[100%]"></div>
@@ -223,7 +223,7 @@ export default function AppHomePage() {
                 </a>
 
                 {/* Guests */}
-                <a data-agent-id="link-_r_8i_" aria-label="Convidados" className="group stack items-center outline-none" data-testid="home-card-ai-agent" href={`${basePath}/home`}>
+                <a data-agent-id="link-_r_8i_" aria-label="Convidados" className="group stack items-center outline-none" data-testid="home-card-ai-agent" href={`${basePath}/convidados`}>
                   <div className="stack gap-2 w-full max-w-[180px]">
                     <div className="relative overflow-hidden flex-1 rounded-[20px] flex items-center justify-center bg-black/5 dark:bg-white/5 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors duration-200 w-full outline-none group-focus-visible:outline-none group-focus-visible:ring-[1.5px] group-focus-visible:ring-ring">
                       <div className="relative w-full pb-[100%]"></div>
@@ -268,7 +268,7 @@ export default function AppHomePage() {
                 </a>
 
                 {/* Music */}
-                <a data-agent-id="link-_r_8j_" aria-label="Música" className="group stack items-center outline-none" data-testid="home-card-music" href={`${basePath}/home`}>
+                <a data-agent-id="link-_r_8j_" aria-label="Música" className="group stack items-center outline-none" data-testid="home-card-music" href={`${basePath}/vinhetas-trilhas`}>
                   <div className="stack gap-2 w-full max-w-[180px]">
                     <div className="relative overflow-hidden flex-1 rounded-[20px] flex items-center justify-center bg-black/5 dark:bg-white/5 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors duration-200 w-full outline-none group-focus-visible:outline-none group-focus-visible:ring-[1.5px] group-focus-visible:ring-ring">
                       <div className="relative w-full pb-[100%]"></div>
@@ -369,7 +369,7 @@ export default function AppHomePage() {
                 </a>
 
                 {/* Dubbed video */}
-                <a data-agent-id="link-_r_8k_" aria-label="Vídeo dublado" className="group stack items-center outline-none" data-testid="home-card-dubbing-studio" href={`${basePath}/home`}>
+                <a data-agent-id="link-_r_8k_" aria-label="Vídeo dublado" className="group stack items-center outline-none" data-testid="home-card-dubbing-studio" href={`${basePath}/midias-visuais`}>
                   <div className="stack gap-2 w-full max-w-[180px]">
                     <div className="relative overflow-hidden flex-1 rounded-[20px] flex items-center justify-center bg-black/5 dark:bg-white/5 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors duration-200 w-full outline-none group-focus-visible:outline-none group-focus-visible:ring-[1.5px] group-focus-visible:ring-ring">
                       <div className="relative w-full pb-[100%]"></div>
