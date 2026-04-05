@@ -1,43 +1,74 @@
 ---
 title: Instalação e Desenvolvimento
-description: Instruções essenciais para um novo integrante de TI configurar a máquina.
+description: Guia estratégico para configuração do ambiente local e governança de código no Monorepo.
 ---
 
-Para desenvolver no PodcastAds ou modificar este exato _Guia do Ouvinte_ (criando seus próprios arquivos Markdown em `apps/docs/content`), você deve baixar o repositório e prepará-lo.
+A plataforma de documentação e o portal **PodcastAds** são construídos sob uma arquitetura de Monorepo de alto desempenho. Se você é um novo desenvolvedor ou colaborador acadêmico, siga este guia para configurar seu ambiente de trabalho local.
+
+---
+
+## Fluxo de Configuração (Fast-Track) ⚡
+
+Utilizamos um fluxo linear para garantir que as dependências e o orquestrador Turbo estejam em sincronia:
+
+```mermaid
+graph TD
+    Repo[Clone Repository] --> PNPM[Install pnpm 9+]
+    PNPM --> Deps[pnpm install]
+    Deps --> Dev[pnpm dev:docs]
+    Dev --> Portals[http://localhost:3000]
+    
+    style Dev fill:#00ff00,stroke:#333,stroke-width:2px
+    style Portals fill:#00ffff,stroke:#333,stroke-width:2px
+```
+
+---
 
 ## Requisitos de Sistema
 
-- **Node.js**: Versão 18.x ou superior.
-- **Gerenciador de Pacotes**: `pnpm` (recomendável na versão 9+).
-- _Git_ ativo e clonado.
+Para operar o ecossistema sem atritos, sua máquina deve atender aos padrões mínimos:
 
-## Inicializando Tudo
+- **Node.js**: Versão 18 ou superior (LTS recomendada).
+- **Gerenciador de Pacotes**: **pnpm** (Obrigatório para gestão do Monorepo).
+- **Ambiente**: WSL2 (Windows) ou Linux/macOS Nativo para melhor performance de I/O.
 
-Como utilizamos uma arquitetura em Monorepo via `Turborepo` conectando o `Next.js App Router`, os pacotes vitais (UI, Core) requerem os mesmos comandos.
+---
 
-### 1. Instaure as Dependências
+## Operações do Ciclo de Desenvolvimento
 
-Pela primeira vez que acessar o root (na mesma pasta do `package.json` matriz), baixe toda a internet:
+### 1. Preparação do Monorepo
+Na raiz do projeto (onde reside o arquivo `pnpm-workspace.yaml`), execute a instalação das dependências:
 
 ```bash
 pnpm install
 ```
 
-### 2. Ligue os Motores (Dev Server)
-
-Ao invés de tentar iniciar pacotes avulsos, execute a inteligência global para puxar o pacote do Portal+Docs:
+### 2. Execução do Servidor de Desenvolvimento
+A arquitetura utiliza o **Turborepo** para gerenciar a execução simultânea dos pacotes de UI, Core e o aplicativo de Documentação. Execute o comando centralizado:
 
 ```bash
 pnpm dev:docs
 ```
 
-> [!WARNING]
-> É possível que a rotina dispare avisos sobre o NPM caso um arquivo `.npmrc` tente validar pacotes locais sem seu token de registro original. O ambiente rodará independentemente se o log der pequenas queixas sobre variáveis faltando.
+<Callout type="warn">
+O comando acima inicia o Next.js no modo `dev` e ativa o HMR (Hot Module Replacement) para Markdown e componentes React de forma granular através dos pacotes `@xispedocs`.
+</Callout>
 
-### 3. Acesse e Crie!
+### 3. Build de Produção e Validação
+Para validar que seu código está pronto para deploy (visto pela Vercel), execute a rotina de build completa:
 
-Depois dessa rodada rápida, use seu navegador para acessar localmente a maravilha viva:
+```bash
+pnpm build
+```
 
-`http://localhost:3000`
+---
 
-Se quiser criar uma nova documentação? Vá aos subdiretórios `apps/docs/content/docs` e comece a escrever sua própria página `.mdx` utilizando nossos Componentes UI customizados!
+## Governança de Código
+
+- **Documentação**: Todo conteúdo reside em `apps/docs/content/docs`. O formato aceito é `.mdx`, permitindo o uso de Componentes React diretamente no texto.
+- **Interface (UI)**: Alterações visuais globais devem ser feitas no pacote `packages/ui` para garantir que o Portal e o Admin reflitam a mudança consistentemente.
+- **Lógica (Core)**: Scripts de utilidade e interfaces de tipos residem em `packages/core`.
+
+<Callout type="info">
+Use a CLI interna (se disponível via `pnpm xispe`) para acelerar a criação de novas pautas e validação de slugs de episódios antes de comitá-los ao Git.
+</Callout>

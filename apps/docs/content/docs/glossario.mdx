@@ -1,0 +1,44 @@
+---
+title: Glossário de Termos
+description: Definições técnicas e de domínio para facilitar a compreensão do ecossistema PodcastAds.
+---
+
+Este glossário serve como uma referência central para alinhar o entendimento de desenvolvedores, gestores e acadêmicos sobre os termos utilizados no projeto.
+
+---
+
+### Termos Técnicos (Engenharia)
+
+#### Monorepo
+Uma estratégia de gerenciamento de software onde múltiplos projetos (Packages e Apps) são armazenados em um único repositório Git. No PodcastAds, isso nos permite compartilhar a UI e o Core entre a área de Documentação e o Portal do Ouvinte.
+
+#### Turborepo (Turbo)
+O orquestrador de build de alto desempenho que utilizamos. Ele gerencia o cache e a execução de tarefas no monorepo, garantindo que o desenvolvimento local e o deploy sejam ultra-rápidos.
+
+#### SSR (Server-Side Rendering)
+Técnica onde o conteúdo da página é gerado no servidor a cada requisição. Utilizamos isso via Next.js para garantir SEO impecável e performance inicial superior.
+
+#### Hydration (Hidratação)
+O processo onde o React no cliente assume o controle do HTML estático que veio do servidor, tornando a página interativa (ativando botões, listeners, etc.).
+
+---
+
+### Termos de Domínio (Produto)
+
+#### Pauta / Projeto
+Um rascunho de conteúdo criado no **Estúdio**. Representa uma ideia ou entrevista que ainda não foi gravada ou publicada.
+
+#### Episódio
+A unidade final de conteúdo. Um episódio é uma pauta concluída, com áudio gravado, editado e metadados preenchidos, pronta para consumo no **Portal do Ouvinte**.
+
+#### CMS (Content Management System)
+Sistema de Gerenciamento de Conteúdo. No nosso contexto, refere-se às áreas de `/admin/episodios` e `/admin/estudio`, onde manipulamos os dados do podcast.
+
+#### BI (Business Intelligence)
+Inteligência de Negócio. Refere-se ao módulo de **Relatórios**, onde transformamos dados de audição e engajamento em gráficos e insights estratégicos.
+
+---
+
+<Callout type="warn">
+Encontrou um termo que não está aqui? Sinta-se à vontade para sugerir a inclusão via Pull Request na pasta `apps/docs/content/docs/glossario.mdx`.
+</Callout>

@@ -1,29 +1,54 @@
 ---
 title: Permissões e Roteamento Seguro
-description: Como a plataforma PodcastAds diferencia Produtores e Ouvintes sem criar código duplicado.
+description: Como a plataforma PodcastAds diferencia Produtores e Ouvintes de forma resiliente e unificada.
 ---
 
-Se os episódios fossem artigos, nossa área `Admin` é nossa máquina de impressão. Criamos uma das funcionalidades mais inteligentes arquiteturais do projeto baseada em `BasePath` de Next.js App Router.
+A segurança e a integridade dos dados no **PodcastAds** são garantidas por uma arquitetura de controle de acesso robusta, que diferencia contextos administrativos de consumo sem a necessidade de redundância de código.
 
-### A Filosofia do `isAdmin`
+## Arquitetura de Permissões (RBAC)
 
-Como não queríamos duplicar arquivos como botões, cartões, menus e avatares dentro do repositório, implementamos um sistema de detecção de URls por baixo do React (usando `usePathname()` do Header/Layout).
+Implementamos um sistema de **Controle de Acesso Baseado em Funções (Role-Based Access Control)** simplificado, porém resiliente, fundamentado no roteamento dinâmico do Next.js.
 
-- Caso o visitante esteja em **`/admin/...`**:
-  Nós ativamos os privilégios estáticos, revelando os botões sensíveis e links para formulários de criação (Acesso restrito à Diretoria da Equipe).
-- Caso a URL comece em **`/dashboard/...`**:
-  O portal imediatamente esconde botões CRUD. Mantém-se o mesmíssimo layout negro estético e dados dos servidores, porém num contexto somente-leitura e interações mínimas (Acesso de qualquer Aluno/Ouvinte).
+### Identificação de Contexto via Pathname
 
-### Blindagem de Componentes
+O sistema utiliza o `usePathname()` para identificar o ambiente de execução e aplicar as camadas de segurança e visibilidade adequadas:
 
-Se você está desenvolvendo novas Features (como relatórios ou votações), e precisa checar o tipo de usuário no Componente e ocultar um link, você pode simplesmente enviar:
+1.  **Contexto Administrativo (`/admin/*`)**:
+    *   **Público-Alvo**: Equipe de Produção e Direção.
+    *   **Capacidade**: Acesso total (CRUD) aos módulos de Estúdio, Episódios e Relatórios.
+    *   **UI**: Revela controles sensíveis, modais de edição e ferramentas de Business Intelligence.
+2.  **Contexto do Ouvinte (`/dashboard/*`)**:
+    *   **Público-Alvo**: Estudantes e Convidados Acadêmicos.
+    *   **Capacidade**: Interação _Read-Only_ ou de engajamento controlado.
+    *   **UI**: Oculta funcionalidades de mutação de dados, mantendo o foco na experiência de áudio e visualização de pautas.
+
+---
+
+## Implementação Técnica
+
+Para garantir a consistência entre os ambientes, os componentes de interface (pacote `@xispedocs/ui`) são projetados para serem agnósticos ao contexto, recebendo flags de permissão em tempo de execução.
 
 ```tsx
+// Exemplo de abstração de segurança no componente
 const isAdmin = pathname.startsWith('/admin');
+
+return (
+  <header>
+    <UserAvatar />
+    {isAdmin && <AdminQuickActions />}
+  </header>
+);
 ```
 
-E usar `{ isAdmin ? <Botao_Deletar_Tudo /> : null }`.
+### Segurança na Camada de Dados
 
-## Por que foi feito assim?
+Toda mutação de dados (POST, PUT, DELETE) é validada nos *API Routes* do Next.js. Mesmo que um usuário tente forçar uma ação via console, o servidor verifica a origem da requisição e as credenciais associadas à sessão antes de persistir alterações no `db.json`.
 
-Mantemos centralizada a correção de Bugs. Se a visualização de um episódio apresentar problemas na Landing Page Pública ou no Painel Adminstrativo de Podcasters, um único conserto refletirá nos três ambientes para a _Faculdade Serra Dourada_.
+<Callout type="error">
+Nenhuma funcionalidade de exclusão ou alteração de pauta é exposta fora do prefixo `/admin`, garantindo que o portal público permaneça uma zona de consumo segura e protegida contra mutações acidentais.
+</Callout>
+
+## Vantagens da Abordagem Única
+
+*   **Manutenção Centralizada**: Correções de bugs na lógica de exibição de novos episódios são aplicadas uma única vez e refletem globalmente.
+*   **Performance**: Como não há duplicação de layout, o bundle do Next.js permanece otimizado e a navegação entre áreas de diferentes níveis de acesso é instantânea (Client-side routing).

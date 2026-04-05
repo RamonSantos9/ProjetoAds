@@ -1,20 +1,42 @@
 ---
 title: Entendendo os Pacotes Customizados
-description: Um olhar profundo de como organizamos as pastas "@xispedocs".
+description: Um olhar profundo sobre a arquitetura e responsabilidades do namespace @xispedocs.
 ---
 
-O repositório do PodcastAds consome suas próprias ferramentas empacotadas. Todo nosso fluxo está armazenado na pasta `/packages` visando o total reuso do código limpo caso novos clientes ou projetos nasçam da Faculdade Serra Dourada.
+A arquitetura modular do **PodcastAds** é segmentada em pacotes especializados sob o namespace `@xispedocs`. Esta separação de responsabilidades (Separation of Concerns) permite que a lógica de negócio, a interface de usuário e o motor de processamento de conteúdo evoluam de forma independente e sejam altamente reutilizáveis.
 
-### `1.` Pacote _@xispedocs/ui_
+---
 
-O coração visual da interface que é exposto tanto na nossa Home quanto no próprio Guia do Ouvinte.
-Ele armazena bibliotecas como `Lucide-React`, `Radix-UI` e `TailwindCSS v4` usando o `preset.css` padrão verde desenvolvido sob-medida.
-Nenhum botão de Admin quebra a harmonia do frontend público porque todos consomem da mesma folha de estilo gerenciada pelo pacote UI.
+## 1. Design System (@xispedocs/ui)
 
-### `2.` Pacote _@xispedocs/mdx_
+O coração visual da plataforma. Este pacote consolida a identidade visual da **Faculdade Serra Dourada** em componentes React reutilizáveis.
 
-Como traduzir essa própria página documentada na tela? Este pacote serve para fazer a conversão dos arquivos `.mdx` localizados (`content/docs/*`) e transformá-los de volta em AST / HTML estilizado. Usa plugins de terceiros como `Unified` e `Remark`.
+*   **Stack**: TailwindCSS v4, Radix UI, Lucide React.
+*   **Responsabilidade**: Fornecer componentes atômicos e complexos (Botões, Cards, Layouts de Página) que mantêm a consistência visual entre o Portal Público, o Dashboard do Ouvinte e o CMS Administrativo.
+*   **Tematização**: Gerencia o `preset.css` e as variáveis de cor dinâmicas (como o verde institucional) através de um sistema de tokens CSS modernos.
 
-### `3.` Pacote _@xispedocs/core_
+## 2. Conteúdo e Processamento (@xispedocs/mdx)
 
-Toda a mecânica abstrata e lógicas duras essenciais de Next.js (como as customizações de _basePath_, wrappers de _Server Action_ e Link alternativo) ficam aqui, livrando a UI de sujar a pasta raíz da aplicação.
+O motor de renderização que transforma arquivos Markdown estáticos em experiências interativas ricas.
+
+*   **Stack**: Fumadocs, Unified, Remark, Rehype.
+*   **Responsabilidade**: Processar a árvore de sintaxe (AST) dos arquivos `.mdx`, injetando componentes React customizados (Callouts, Diagrams, Cards) e gerando automaticamente metadados como Tabelas de Conteúdo (TOC) e tempos de leitura.
+
+## 3. Núcleo Lógico (@xispedocs/core)
+
+A camada de abstração que isola a lógica de negócios e as integrações de sistema da camada de apresentação.
+
+*   **Stack**: TypeScript, Next.js Server Actions, Hook API.
+*   **Responsabilidade**: Gerenciar interfaces de dados, estados globais de navegação, utilitários de tratamento de URL e wrappers de segurança. Ao manter essa lógica no `core`, evitamos o "lock-in" de componentes UI com lógicas de roteador específicas.
+
+---
+
+## 4. Ferramentas de Suporte (@xispedocs/cli)
+
+Utilitários de linha de comando para automação de tarefas repetitivas e manutenção do repositório.
+
+*   **Responsabilidade**: Gerar scaffolds de novos documentos, validar a integridade do `db.json` e auxiliar no deploy automatizado.
+
+<Callout type="info">
+Desenvolvedores devem sempre priorizar a criação de componentes no pacote `ui` e lógicas no `core`, garantindo que as aplicações na pasta `/apps` permaneçam apenas como orquestradores de rotas e dados.
+</Callout>

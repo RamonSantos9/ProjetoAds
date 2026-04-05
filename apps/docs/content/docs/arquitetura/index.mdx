@@ -3,30 +3,43 @@ title: Estrutura do Monorepo
 description: Tudo sobre a fundação técnica do projeto (Turborepo + Next.js).
 ---
 
-Ao invés de adotar repositórios de base separada, optamos pela abordagem de **Monorepo** para mantermos um fluxo coeso e unificado entre os serviços visuais e o núcleo de códigos do PodcastAds.
+Ao adotar uma arquitetura de **Monorepo**, o PodcastAds garante um ecossistema coeso onde o núcleo lógico, a interface visual e o motor de documentação coexistem de forma harmoniosa, maximizando o reuso de código e a velocidade de entrega.
 
-## Por que Turborepo? 🚀
+## Estrutura de Monorepo 🏗️
 
-Para suportar grandes iterações sem prejudicar a velocidade, usamos o **[`Turbo`](https://turbo.build/)** coordenando nossos espaços de trabalho (_workspaces_ via `pnpm`).
-Isso garante builds em cache ultra-rápidos: quando modificamos apenas o _CSS_ de um pacote em comum, o **Next.js** nos avisa sem precisar recompilar a base estrutural inteira. O Cache inteligente agiliza em 90% a integração local.
+Utilizamos o **[Turborepo](https://turbo.build/)** para orquestrar nossos espaços de trabalho (_workspaces_) via `pnpm`. Esta abordagem permite o cache inteligente de builds e testes, reduzindo drasticamente o tempo de CI/CD.
 
-```bash
-├── apps/
-│   └── docs/          # Aplicação Principal (Sistema Web & Docs)
-├── packages/
-│   ├── ui/            # Sistema de Design / Componentes UI Compartilháveis
-│   ├── core/          # Interfaces estáticas, Lógica e Metadados
-│   ├── mdx/           # Motor FumaDocs / Leitura Markdown
-│   └── cli/           # CLI helper/Ferramentas
-└── package.json       # Configuração global PNPm
+```mermaid
+graph TD
+    Root[Monorepo Root]
+    Apps(apps/)
+    Pkgs(packages/)
+    
+    Root --> Apps
+    Root --> Pkgs
+    
+    Apps --> Docs[docs - Portal & Admin]
+    
+    Pkgs --> UI[@xispedocs/ui - Design System]
+    Pkgs --> Core[@xispedocs/core - Logic & Types]
+    Pkgs --> MDX[@xispedocs/mdx - Content Engine]
+    
+    Docs -.-> UI
+    Docs -.-> Core
+    Docs -.-> MDX
+    
+    UI -.-> Core
 ```
 
-## O Ecossistema do App Router
+### Por que Turborepo?
+Para suportar iterações em larga escala, o Turbo coordena a execução de scripts. Quando alteramos um componente no pacote `@xispedocs/ui`, apenas as aplicações que dependem dele são invalidadas, garantindo que o ambiente de desenvolvimento permaneça ágil (HMR sub-segundo).
 
-Nosso pilar da interface é o framework **Next.js >= 15** em sua topologia `App Router`.
+## O Ecossistema App Router
 
-- As páginas são renderizadas pelo servidor (_Server Components_ por default).
-- Utilizamos as pastas interativas para prover caminhos unificados e reusáveis.
-- O design está empacotado pelo TailwindCSS v4, abstraído dentro dos nossos diretórios e exportado pelo próprio `app/global.css`.
+Nossa base tecnológica é sustentada pelo **Next.js >= 15** em sua topologia `App Router`, permitindo:
 
-A união dessas tecnologias permitiu uma aplicação unificada que escala bem as permissões estáticas até a área de administração (`/admin`) usando zero customizações destrutivas de layout.
+1. **Server Components por Padrão**: Minimizando o bundle de JavaScript enviado ao cliente e otimizando o SEO.
+2. **Layouts Aninhados**: Garantindo que a Área de Administração (`/admin`) compartilhe a mesma casca estrutural que o Portal do Ouvinte, mantendo a consistência visual.
+3. **TailwindCSS v4**: Estilização atômica e performática, abstraída em nosso pacote `@xispedocs/ui` e exportada via variáveis CSS modernas.
+
+Esta união de tecnologias permite uma plataforma que escala de simples apresentações acadêmicas a sistemas de gestão de mídia complexos com esforço mínimo de manutenção.

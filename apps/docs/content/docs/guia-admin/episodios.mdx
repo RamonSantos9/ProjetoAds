@@ -1,42 +1,59 @@
 ---
-title: Gestão de Episódios
-description: Guia completo sobre o gerenciamento de conteúdo publicado no PodcastAds.
+title: Ciclo de Vida de Conteúdo
+description: Guia estratégico e operacional sobre o fluxo de produção de episódios no PodcastAds.
 ---
 
-A área de **Gestão de Episódios** (`/admin/episodios`) permite o controle total sobre o conteúdo que os ouvintes acessam no Portal do PodcastAds.
+No **PodcastAds**, a gestão de conteúdo segue um rigoroso padrão de Engenharia de Mídia, garantindo que cada pauta acadêmica seja transformada em um ativo digital de alta qualidade. Este ciclo é dividido em fases críticas que conectam o **Estúdio** ao **Portal do Ouvinte**.
 
-## O Que é um Episódio?
+## Fluxo Operacional (Workflow)
 
-Diferente de um "Projeto" no Estúdio, um **Episódio** já possui um áudio gravado, uma capa definida e está (ou estará) disponível publicamente.
+Utilizamos um pipeline linear para garantir a consistência dos dados e a integridade da mídia:
 
-## Funcionalidades de Gestão
-
-### Listagem de Episódios
-Você pode ver todos os episódios em dois formatos:
-1. **Grade (Grid)**: Ideal para ver as capas e ter uma visão visual.
-2. **Lista (List)**: Ideal para encontrar e editar rapidamente múltiplos itens.
-
-### Criar e Editar Episódios
-Ao clicar em "Adicionar" ou "Editar", um modal será aberto com os seguintes campos:
-- **Título**: Nome atraente para o episódio.
-- **Sumário**: Um resumo do que será discutido.
-- **Participantes**: Escolha entre os convidados cadastrados.
-- **Categorização**: Selecione a área temática (ex: Carreira, Tecnologia).
-- **Mídia**: URL do áudio ou upload de arquivo.
-
-### Upload de Capas (Thumbnails)
-Você pode enviar imagens para representar o episódio.
-- **Pré-visualização**: Veja como a capa ficará no Portal antes de salvar.
-- **Suporte a Arquivos**: O sistema aceita formatos padrão (`PNG`, `JPG`).
+```mermaid
+graph LR
+    Pauta[Estúdio: Pauta/Projeto] --> Grav[Gravação & Edição]
+    Grav --> CMS[Gerenciamento: Episódio]
+    CMS --> Pub[Publicação: Portal]
+    
+    style Pauta fill:#f9f,stroke:#333Offset,stroke-width:2px
+    style Pub fill:#0f0,stroke:#333,stroke-width:4px
+```
 
 ---
 
-## Technical Details (Dev Focus) 🛠️
+## 1. Fase de Idealização: O Estúdio
+Todo conteúdo nasce no `/admin/estudio`. 
+- **Projetos**: Representam o estado de rascunho (Draft). Aqui definimos convidados e objetivos pedagógicos.
+- **Transição**: Uma pauta só deixa o Estúdio após a conclusão da gravação bruta.
 
-Se você é um desenvolvedor, aqui estão as regras de negócio e detalhes técnicos:
+## 2. Fase de Gestão: O CMS de Episódios
+A área de `/admin/episodios` é a central de comando para conteúdo finalizado.
 
-- **Unified Component**: A listagem utiliza o componente `EpisodeCard` e `EpisodeListItem` com a propriedade `isAdmin={true}`.
-- **Data Persistence**: Todas as alterações são enviadas via API Routes do Next.js para o banco local `db.json`.
-- **Image Handling**: Utilizamos `URL.createObjectURL` para gerar pré-visualizações ricas de arquivos locais antes do upload final.
-- **Validation**: O sistema valida campos obrigatórios e formatos de áudio para garantir a integridade dos dados.
-- **Routing**: URLs amigáveis (Slugs) são geradas automaticamente para cada novo episódio.
+### Atributos Técnicos do Episódio
+Para que um episódio seja considerado "Production Ready", ele deve conter:
+- **Metadados Ricos**: Título chamativo, sumário detalhado e tags de categoria.
+- **Thumbnail High-Res**: Imagem representativa seguindo a identidade visual da Faculdade.
+- **Mídia Integrada**: URL ou arquivo de áudio processado.
+
+### Gestão de Listagem
+O administrador possui duas visualizações para auditoria:
+1. **Grade (Grid View)**: Auditoria visual de capas e marketing.
+2. **Lista (List View)**: Edição em massa e verificação rápida de paramentros técnicos.
+
+---
+
+## Technical SOP (Standard Operating Procedure) 🛠️
+
+Para operadores de mídia e desenvolvedores, o sistema impõe as seguintes regras de integridade:
+
+<Callout type="warn">
+- **Integridade de Arquivos**: O sistema valida a tipagem MIME para garantir que apenas áudios compatíveis sejam publicados.
+- **Slugs Amigáveis**: URLs são normalizadas para SEO (Search Engine Optimization) no momento da criação.
+- **Persistência Federada**: Alterações no `/admin` são propagadas instantaneamente para o cache do `db.json`, refletindo em tempo real no Dashboard do Ouvinte.
+</Callout>
+
+### Resolução de Conflitos
+Caso um episódio apresente erro de carregamento:
+1. Verifique a validade da URL da mídia no campo `audioUrl`.
+2. Certifique-se de que o convidado (`participant`) ainda existe na base de dados.
+3. Limpe o cache do Next.js se a alteração for estrutural no `db.json`.
