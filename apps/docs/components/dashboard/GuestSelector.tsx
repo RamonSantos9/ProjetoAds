@@ -27,7 +27,7 @@ export function GuestSelector({ selected, onChange }: GuestSelectorProps) {
             if (ep.guests && Array.isArray(ep.guests)) {
               ep.guests.forEach(g => {
                  // DB might have stored them as string or object
-                 const guestObj = typeof g === 'object' ? g : { name: g };
+                 const guestObj = typeof g === 'object' ? g as Guest : { id: `legacy-${Math.random().toString(36).substr(2, 9)}`, name: g as string } as Guest;
                  if (guestObj && guestObj.name) {
                     allGuests.push(guestObj);
                  }

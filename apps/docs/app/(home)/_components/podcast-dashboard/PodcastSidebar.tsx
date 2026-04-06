@@ -217,9 +217,9 @@ export function PodcastSidebar() {
 
   return (
     <>
-      <aside
+      <aside 
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-black border-e text-sm transition-transform duration-150 md:[grid-area:sidebar] md:z-30',
+          'fixed inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-[#121212] border-e text-sm transition-transform duration-150 md:[grid-area:sidebar] md:z-30',
           collapsed ? 'w-16' : 'w-64',
           open ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         )}

@@ -153,9 +153,10 @@ export function CreateEpisodeModal({ isOpen, onClose, onSave }: CreateEpisodeMod
     setLoading(true);
 
     try {
-      const guestsData: Guest[] = selectedGuests.map(name => ({ name }));
+      const guestsData: Guest[] = selectedGuests.map(name => ({ id: `guest-${Math.random().toString(36).substr(2, 5)}`, name }));
       if (isNewGuest && guestName.trim() !== '') {
         guestsData.push({
+          id: `guest-${Math.random().toString(36).substr(2, 5)}`,
           name: guestName,
           bio: guestBio || undefined,
           social: guestSocial || undefined,
@@ -252,7 +253,7 @@ export function CreateEpisodeModal({ isOpen, onClose, onSave }: CreateEpisodeMod
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-semibold">Categoria <span className="text-red-500">*</span></label>
-                <CategorySelector value={category} onChange={setCategory} />
+                <CategorySelector value={category} onChange={(val) => setCategory(val as any)} />
               </div>
             </div>
 

@@ -250,6 +250,11 @@ function AssetCard({ file, onAddTrack, onDeleteAsset }: AssetCardProps) {
   return (
     <div className="flex flex-col gap-1 group/asset-item relative" ref={cardRef}>
       <div 
+        draggable
+        onDragStart={(e) => {
+          e.dataTransfer.setData('application/json', JSON.stringify(file));
+          e.dataTransfer.effectAllowed = 'copy';
+        }}
         className="aspect-[16/9] shrink-0 w-full bg-fd-accent/50 rounded-[10px] flex items-center justify-center overflow-hidden relative group/item cursor-pointer"
         onClick={togglePlay}
         title={isPlaying ? "Pause" : "Play"}
@@ -383,7 +388,14 @@ function WorkspaceTabContent({ assets, onAddTrack }: { assets: UploadedFile[], o
                 ) : (
                   assets.map((file) => (
                     <div key={file.id} className="w-full" data-state="open">
-                      <div role="button" tabIndex={0} aria-roledescription="draggable" data-file-item="true" className="w-full transition-colors duration-150 group/item relative select-none rounded-lg flex items-center gap-2 px-2 py-3 -mt-px first:mt-0 focus:outline-none focus-visible:ring-1 focus-visible:ring-fd-border text-foreground hover:text-foreground hover:bg-fd-accent/50 border-transparent cursor-pointer">
+                      <div 
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData('application/json', JSON.stringify(file));
+                          e.dataTransfer.effectAllowed = 'copy';
+                        }}
+                        role="button" tabIndex={0} aria-roledescription="draggable" data-file-item="true" className="w-full transition-colors duration-150 group/item relative select-none rounded-lg flex items-center gap-2 px-2 py-3 -mt-px first:mt-0 focus:outline-none focus-visible:ring-1 focus-visible:ring-fd-border text-foreground hover:text-foreground hover:bg-fd-accent/50 border-transparent cursor-pointer"
+                      >
                         <div className="relative flex-shrink-0 flex items-center justify-center overflow-hidden w-7 h-7 rounded">
                           {file.type?.startsWith('image/') || file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
                             <img alt={file.name} draggable="false" className="w-full h-full rounded-[4px] object-cover" src={file.url} />

@@ -47,42 +47,22 @@ export default function MidiasAdminPage() {
   const [assets, setAssets] = useState<VisualAsset[]>([]);
   const [filterType, setFilterType] = useState<AssetType | 'Todos'>('Todos');
 
-  useEffect(() => {
-    // Simulando carregamento de assets visuais baseados nos episódios
-    async function loadData() {
-      try {
-        const res = await fetch('/api/episodes');
-        if (res.ok) {
-          const episodes: Episode[] = await res.json();
-          const derivedAssets: VisualAsset[] = [];
-          
-          episodes.forEach(ep => {
-              // Mocking a few assets for each episode
-              derivedAssets.push({
-                id: `ast-t-${ep.id}`,
-                episodeId: ep.id,
-                title: `Thumbnail: ${ep.title}`,
-                type: 'Thumbnail',
-                url: `https://picsum.photos/seed/${ep.id}/800/450`,
-                createdAt: ep.createdAt
-              });
-              derivedAssets.push({
-                id: `ast-s-${ep.id}`,
-                episodeId: ep.id,
-                title: `Post Instagram: ${ep.title}`,
-                type: 'Social Post',
-                url: `https://picsum.photos/seed/${ep.id}-insta/1080/1080`,
-                createdAt: ep.createdAt
-              });
-          });
-          setAssets(derivedAssets);
-        }
-      } catch (error) {
-        console.error('Failed to load data:', error);
-      } finally {
-        setLoading(false);
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/assets');
+      if (res.ok) {
+        const data = await res.json();
+        setAssets(data);
       }
+    } catch (error) {
+      console.error('Failed to load assets:', error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadData();
   }, []);
 
@@ -91,6 +71,16 @@ export default function MidiasAdminPage() {
     const matchesType = filterType === 'Todos' || a.type === filterType;
     return matchesSearch && matchesType;
   });
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Excluir esta mídia permanentemente?')) return;
+    try {
+      const res = await fetch(`/api/assets?id=${id}`, { method: 'DELETE' });
+      if (res.ok) loadData();
+    } catch (error) {
+      console.error('Error deleting asset:', error);
+    }
+  };
 
   const getTypeIcon = (type: AssetType) => {
     switch (type) {
@@ -198,11 +188,17 @@ export default function MidiasAdminPage() {
                        <div className="aspect-video relative overflow-hidden bg-fd-accent">
                           <img src={asset.url} alt={asset.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                             <button className="p-2 bg-white rounded-full text-black hover:bg-fd-primary hover:text-white transition-colors">
+                             <button className="p-2 bg-white rounded-full text-black hover:bg-fd-primary hover:text-white transition-colors" title="Visualizar">
                                 <Maximize2 className="size-4" />
                              </button>
-                             <button className="p-2 bg-white rounded-full text-black hover:bg-fd-primary hover:text-white transition-colors">
+                             <button className="p-2 bg-white rounded-full text-black hover:bg-fd-primary hover:text-white transition-colors" title="Download">
                                 <Download className="size-4" />
+                             </button>
+                             <button 
+                               onClick={() => handleDelete(asset.id)}
+                               className="p-2 bg-white rounded-full text-red-500 hover:bg-red-500 hover:text-white transition-colors" title="Excluir"
+                             >
+                                <Plus className="size-4 rotate-45" />
                              </button>
                           </div>
                           <div className="absolute top-3 left-3 px-2 py-1 bg-black/60 rounded-md text-[9px] font-bold text-white backdrop-blur-sm flex items-center gap-1.5 uppercase">

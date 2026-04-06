@@ -42,6 +42,7 @@ import {
   ChevronRight,
   Plus
 } from "lucide-react"
+import { CreateEpisodeModal } from "@/components/dashboard/CreateEpisodeModal"
 
 import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
 import DashboardToolbar from "@/components/dashboard/DashboardToolbar";
@@ -118,6 +119,7 @@ const interactiveChartConfig = {
 export default function EstatisticasAdminPage() {
   const [episodes, setEpisodes] = React.useState<any[]>([])
   const [loading, setLoading] = React.useState(true)
+  const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false)
 
   // Toolbar & Filtering States
   const [search, setSearch] = React.useState("")
@@ -137,6 +139,11 @@ export default function EstatisticasAdminPage() {
 
   const handleExport = (format: 'JSON' | 'CSV') => {
     console.log(`Exportando dados em formato ${format} para ${episodes.length} episódios...`)
+  }
+
+  const handleCreateSave = (data: any) => {
+    setEpisodes(prev => [data, ...prev])
+    setIsCreateModalOpen(false)
   }
 
   // --- Derived Data from DB ---
@@ -291,7 +298,7 @@ export default function EstatisticasAdminPage() {
         onExport={handleExport}
         showAction={true}
         actionLabel="Novo Episódio"
-        onActionClick={() => console.log("Abrir modal de criação")}
+        onActionClick={() => setIsCreateModalOpen(true)}
       />
 
       {/* Stats Cards Grid */}
@@ -530,6 +537,12 @@ export default function EstatisticasAdminPage() {
           </CardContent>
         </Card>
       </div>
+
+      <CreateEpisodeModal 
+        isOpen={isCreateModalOpen} 
+        onClose={() => setIsCreateModalOpen(false)} 
+        onSave={handleCreateSave} 
+      />
     </div>
   )
 }
