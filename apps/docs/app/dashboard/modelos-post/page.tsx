@@ -5,9 +5,9 @@ import { Layout } from 'lucide-react';
 
 export default function ModelosPostPage() {
   return (
-    <GenericSkeletonPage 
-      title="Modelos de Post" 
-      icon={Layout} 
+    <GenericSkeletonPage
+      title="Modelos de Post"
+      icon={Layout}
       description="Gerencie templates para redes sociais (Instagram, LinkedIn, X). Padronize a comunicação visual do seu podcast."
     />
   );

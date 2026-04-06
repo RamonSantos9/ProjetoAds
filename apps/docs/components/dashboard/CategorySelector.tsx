@@ -2,7 +2,15 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/cn';
-import { Check, ChevronDown, Building, Briefcase, GraduationCap, Users, Tag } from 'lucide-react';
+import {
+  Check,
+  ChevronDown,
+  Building,
+  Briefcase,
+  GraduationCap,
+  Users,
+  Tag,
+} from 'lucide-react';
 
 export type CategoryOption = {
   id: string;
@@ -29,7 +37,10 @@ export function CategorySelector({ value, onChange }: CategorySelectorProps) {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -51,14 +62,21 @@ export function CategorySelector({ value, onChange }: CategorySelectorProps) {
       >
         <div className="flex flex-wrap gap-1 items-center overflow-hidden">
           {!value ? (
-            <span className="text-primary text-[12px] font-bold truncate">Categoria</span>
+            <span className="text-primary text-[12px] font-bold truncate">
+              Categoria
+            </span>
           ) : (
             <span className="inline-flex items-center text-primary text-[12px] font-bold truncate">
               {value}
             </span>
           )}
         </div>
-        <ChevronDown className={cn("size-4 text-fd-muted-foreground transition-transform", isOpen && "rotate-180")} />
+        <ChevronDown
+          className={cn(
+            'size-4 text-fd-muted-foreground transition-transform',
+            isOpen && 'rotate-180',
+          )}
+        />
       </button>
 
       {isOpen && (
@@ -73,15 +91,17 @@ export function CategorySelector({ value, onChange }: CategorySelectorProps) {
                   type="button"
                   onClick={() => toggleCategory(opt.id)}
                   className={cn(
-                    "flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors",
-                    isSelected ? "bg-fd-primary/10 text-fd-primary" : "hover:bg-fd-muted text-fd-foreground"
+                    'flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors',
+                    isSelected
+                      ? 'bg-fd-primary/10 text-fd-primary'
+                      : 'hover:bg-fd-muted text-fd-foreground',
                   )}
                 >
                   <div className="flex items-center gap-2">
                     <Icon className="size-4" />
                     {opt.id}
                   </div>
-                  {isSelected && <Check className="size-4" /> }
+                  {isSelected && <Check className="size-4" />}
                 </button>
               );
             })}

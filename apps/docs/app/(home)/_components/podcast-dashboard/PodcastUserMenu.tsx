@@ -8,11 +8,11 @@ import { usePathname } from 'next/navigation';
 
 function ThemeMenuItem() {
   const [open, setOpen] = React.useState(false);
-  
+
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={setOpen}>
       <PopoverPrimitive.Trigger asChild>
-        <li 
+        <li
           className="relative px-1"
           onMouseEnter={() => setOpen(true)}
           onMouseLeave={() => setOpen(false)}
@@ -33,31 +33,40 @@ function ThemeMenuItem() {
           align="end"
           sideOffset={8}
           className={cn(
-            "z-50 w-56 overflow-visible rounded-[10px] bg-popover/90 backdrop-blur text-popover-foreground shadow-popover-sm outline-none transition-all duration-150",
-            "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
-            "mb-[-5px]"
+            'z-50 w-56 overflow-visible rounded-[10px] bg-popover/90 backdrop-blur text-popover-foreground shadow-popover-sm outline-none transition-all duration-150',
+            'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+            'mb-[-5px]',
           )}
           onMouseEnter={() => setOpen(true)}
           onMouseLeave={() => setOpen(false)}
         >
-          <div className="absolute right-0 top-0 w-4 h-full translate-x-full" aria-hidden="true" />
+          <div
+            className="absolute right-0 top-0 w-4 h-full translate-x-full"
+            aria-hidden="true"
+          />
           <div className="overflow-auto" style={{ scrollbarWidth: 'thin' }}>
             <div className="py-1">
               <ul className="last:border-b-0 last:pb-0 last:mb-0 border-gray-alpha-200 border-b pb-1 mb-1">
                 <li className="relative px-1">
                   <button className="relative w-full flex cursor-pointer select-none items-center rounded-lg px-3 py-1.5 text-sm outline-none transition-colors hover:bg-gray-alpha-100 hover:text-foreground group justify-between">
-                    <span className="block truncate"><span>Claro</span></span>
+                    <span className="block truncate">
+                      <span>Claro</span>
+                    </span>
                     <Check className="shrink-0 w-4 h-4 text-foreground opacity-50" />
                   </button>
                 </li>
                 <li className="relative px-1">
                   <button className="relative w-full flex cursor-pointer select-none items-center rounded-lg px-3 py-1.5 text-sm outline-none transition-colors hover:bg-gray-alpha-100 hover:text-foreground group justify-between">
-                    <span className="block truncate"><span>Escuro</span></span>
+                    <span className="block truncate">
+                      <span>Escuro</span>
+                    </span>
                   </button>
                 </li>
                 <li className="relative px-1">
                   <button className="relative w-full flex cursor-pointer select-none items-center rounded-lg px-3 py-1.5 text-sm outline-none transition-colors hover:bg-gray-alpha-100 hover:text-foreground group justify-between">
-                    <span className="block truncate"><span>Sistema</span></span>
+                    <span className="block truncate">
+                      <span>Sistema</span>
+                    </span>
                   </button>
                 </li>
               </ul>
@@ -69,58 +78,104 @@ function ThemeMenuItem() {
   );
 }
 
-export function PodcastUserMenu({ 
+export function PodcastUserMenu({
   children,
   open,
-  onOpenChange
-}: { 
-  children: React.ReactNode,
-  open?: boolean,
-  onOpenChange?: (open: boolean) => void
+  onOpenChange,
+}: {
+  children: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      <PopoverPrimitive.Trigger asChild>
-        {children}
-      </PopoverPrimitive.Trigger>
+      <PopoverPrimitive.Trigger asChild>{children}</PopoverPrimitive.Trigger>
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content
           align="end"
           side="bottom"
           sideOffset={8}
           className={cn(
-            "z-50 w-56 overflow-visible rounded-[10px] bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md text-popover-foreground shadow-popover-sm outline-none transition-all duration-150",
-            "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
-            "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 flex flex-col p-0"
+            'z-50 w-56 overflow-visible rounded-[10px] bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md text-popover-foreground shadow-popover-sm outline-none transition-all duration-150',
+            'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+            'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 flex flex-col p-0',
           )}
           style={{
             // @ts-ignore
-            "--radix-popover-content-transform-origin": "var(--radix-popper-transform-origin)",
+            '--radix-popover-content-transform-origin':
+              'var(--radix-popper-transform-origin)',
           }}
         >
           <div className="overflow-auto" style={{ scrollbarWidth: 'thin' }}>
             {/* Balance Section */}
-            <div className="p-1 pb-0 bg-gray-alpha-50 dark:bg-transparent" style={{ opacity: 1 }}>
+            <div
+              className="p-1 pb-0 bg-gray-alpha-50 dark:bg-transparent"
+              style={{ opacity: 1 }}
+            >
               <div className="w-full text-sm stack gap-3.5 p-2.5 px-3 bg-background dark:bg-gray-alpha-100 shadow-natural-xs rounded-lg">
                 <div className="hstack justify-between text-gray-alpha-500">
                   <div className="hstack items-center">
                     <div>
                       <div className="flex relative" style={{ opacity: 1 }}>
-                        <div className="absolute [transform:rotate(18deg)] css-o6x0z7" aria-valuemax={100} aria-valuemin={0} aria-valuenow={9} role="progressbar">
+                        <div
+                          className="absolute [transform:rotate(18deg)] css-o6x0z7"
+                          aria-valuemax={100}
+                          aria-valuemin={0}
+                          aria-valuenow={9}
+                          role="progressbar"
+                        >
                           <svg viewBox="0 0 100 100" className="css-r94w0k">
-                            <circle cx="50" cy="50" r="42" strokeWidth="10px" className="chakra-progress__track css-nj4szp"></circle>
-                            <circle cx="50" cy="50" r="42" strokeWidth="10px" className="chakra-progress__indicator css-1xtv0dr stroke-foreground dark:stroke-white" strokeLinecap="round" strokeDashoffset="66" strokeDasharray="23.76 240.24"></circle>
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="42"
+                              strokeWidth="10px"
+                              className="chakra-progress__track css-nj4szp"
+                            ></circle>
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="42"
+                              strokeWidth="10px"
+                              className="chakra-progress__indicator css-1xtv0dr stroke-foreground dark:stroke-white"
+                              strokeLinecap="round"
+                              strokeDashoffset="66"
+                              strokeDasharray="23.76 240.24"
+                            ></circle>
                           </svg>
                         </div>
-                        <div className="!absolute left-0 top-0 [transform:rotateY(180deg)] css-o6x0z7" aria-valuemax={100} aria-valuemin={0} aria-valuenow={81} role="progressbar">
+                        <div
+                          className="!absolute left-0 top-0 [transform:rotateY(180deg)] css-o6x0z7"
+                          aria-valuemax={100}
+                          aria-valuemin={0}
+                          aria-valuenow={81}
+                          role="progressbar"
+                        >
                           <svg viewBox="0 0 100 100" className="css-r94w0k">
-                            <circle cx="50" cy="50" r="42" strokeWidth="10px" className="chakra-progress__track css-nj4szp"></circle>
-                            <circle cx="50" cy="50" r="42" strokeWidth="10px" className="chakra-progress__indicator css-i93dgl" strokeLinecap="round" strokeDashoffset="66" strokeDasharray="213.84 50.16"></circle>
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="42"
+                              strokeWidth="10px"
+                              className="chakra-progress__track css-nj4szp"
+                            ></circle>
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="42"
+                              strokeWidth="10px"
+                              className="chakra-progress__indicator css-i93dgl"
+                              strokeLinecap="round"
+                              strokeDashoffset="66"
+                              strokeDasharray="213.84 50.16"
+                            ></circle>
                           </svg>
                         </div>
                       </div>
                     </div>
-                    <div className="text-foreground font-medium ml-1.5">Saldo</div>
+                    <div className="text-foreground font-medium ml-1.5">
+                      Saldo
+                    </div>
                   </div>
                   <div>
                     <button className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-foreground text-background shadow-none hover:bg-gray-800 px-1.5 rounded-md h-6 text-xs">
@@ -132,7 +187,9 @@ export function PodcastUserMenu({
                   <div className="stack gap-0.5 flex-grow">
                     <div className="hstack justify-between">
                       <div className="text-subtle">Total</div>
-                      <div className="tabular-nums font-medium">10.000 créditos</div>
+                      <div className="tabular-nums font-medium">
+                        10.000 créditos
+                      </div>
                     </div>
                     <div className="hstack justify-between">
                       <div className="text-subtle">Restante</div>
@@ -144,22 +201,51 @@ export function PodcastUserMenu({
             </div>
 
             {/* Current Workspace Section */}
-            <div className="p-1 border-b bg-gray-alpha-50 dark:bg-transparent" style={{ opacity: 1 }}>
+            <div
+              className="p-1 border-b bg-gray-alpha-50 dark:bg-transparent"
+              style={{ opacity: 1 }}
+            >
               <div className="bg-background dark:bg-gray-alpha-100 p-2 px-1 pb-1 w-full text-sm stack shadow-natural-xs rounded-lg">
                 <div style={{ opacity: 1 }}>
-                  <p aria-hidden="true" className="text-xs font-normal truncate overflow-ellipsis inter text-gray-alpha-500 px-2 mb-0.5">Espaço de trabalho atual</p>
+                  <p
+                    aria-hidden="true"
+                    className="text-xs font-normal truncate overflow-ellipsis inter text-gray-alpha-500 px-2 mb-0.5"
+                  >
+                    Espaço de trabalho atual
+                  </p>
                 </div>
                 <div style={{ height: '48px' }}>
                   <div>
-                    <div className="relative text-left w-full stack rounded-lg px-2 py-1.5 text-sm outline-none group" style={{ opacity: 1 }}>
+                    <div
+                      className="relative text-left w-full stack rounded-lg px-2 py-1.5 text-sm outline-none group"
+                      style={{ opacity: 1 }}
+                    >
                       <div className="hstack justify-between items-center">
                         <div className="stack max-w-[calc(100%-2rem)]">
-                          <p className="text-sm text-foreground font-medium block truncate">Meu Espaço</p>
-                          <p className="text-xs text-subtle font-normal block truncate">Plano gratuito</p>
+                          <p className="text-sm text-foreground font-medium block truncate">
+                            Meu Espaço
+                          </p>
+                          <p className="text-xs text-subtle font-normal block truncate">
+                            Plano gratuito
+                          </p>
                         </div>
                         <div>
-                          <button aria-label="Alternar espaço" className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 active:bg-gray-alpha-100 hover:border-gray-alpha-300 text-foreground shadow-none active:border-gray-alpha-300 disabled:bg-background disabled:text-gray-300 disabled:border-gray-alpha-200 rounded-md text-xs center p-0 h-6 w-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left-right shrink-0 w-3 h-3">
+                          <button
+                            aria-label="Alternar espaço"
+                            className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 active:bg-gray-alpha-100 hover:border-gray-alpha-300 text-foreground shadow-none active:border-gray-alpha-300 disabled:bg-background disabled:text-gray-300 disabled:border-gray-alpha-200 rounded-md text-xs center p-0 h-6 w-6"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="lucide lucide-arrow-left-right shrink-0 w-3 h-3"
+                            >
                               <path d="M8 3 4 7l4 4"></path>
                               <path d="M4 7h16"></path>
                               <path d="m16 21 4-4-4-4"></path>
@@ -192,8 +278,12 @@ export function PodcastUserMenu({
               </ul>
 
               <ul className="last:border-b-0 last:pb-0 last:mb-0 border-gray-alpha-200 border-b pb-1 mb-1">
-                <MenuItem href="/voiceover-studio">Estúdio de Voiceover</MenuItem>
-                <MenuItem href="/ai-classifier">Classificador de Voz IA</MenuItem>
+                <MenuItem href="/voiceover-studio">
+                  Estúdio de Voiceover
+                </MenuItem>
+                <MenuItem href="/ai-classifier">
+                  Classificador de Voz IA
+                </MenuItem>
                 <MenuItem hasSubmenu>Docs e recursos</MenuItem>
                 <MenuItem hasSubmenu>Termos e privacidade</MenuItem>
               </ul>
@@ -203,8 +293,22 @@ export function PodcastUserMenu({
                   <button className="relative w-full flex cursor-pointer select-none items-center rounded-lg px-3 py-1.5 text-sm outline-none transition-colors hover:bg-gray-alpha-100 hover:text-foreground group justify-between">
                     <span className="block truncate">
                       <span className="inline-block mr-1.5 align-top translate-y-[3px]">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16" fill="none" color="currentColor" className="w-4">
-                          <path stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M10.6667 11.3333L14 8m0 0L10.6667 4.66667M14 8H6m0-6H5.2c-1.1201 0-1.68016 0-2.10798.21799C2.7157 2.40973 2.40973 2.71569 2.21799 3.09202C2 3.51984 2 4.07989 2 5.2v5.6c0 1.1201 0 1.6802.21799 2.108C2.40973 13.2843 2.71569 13.5903 3.09202 13.782C3.51984 14 4.0799 14 5.2 14H6"></path>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="1em"
+                          height="1em"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          color="currentColor"
+                          className="w-4"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M10.6667 11.3333L14 8m0 0L10.6667 4.66667M14 8H6m0-6H5.2c-1.1201 0-1.68016 0-2.10798.21799C2.7157 2.40973 2.40973 2.71569 2.21799 3.09202C2 3.51984 2 4.07989 2 5.2v5.6c0 1.1201 0 1.6802.21799 2.108C2.40973 13.2843 2.71569 13.5903 3.09202 13.782C3.51984 14 4.0799 14 5.2 14H6"
+                          ></path>
                         </svg>
                       </span>
                       <span>Sair</span>
@@ -220,14 +324,14 @@ export function PodcastUserMenu({
   );
 }
 
-function MenuItem({ 
-  children, 
-  href, 
-  hasSubmenu, 
-  onClick 
-}: { 
-  children: React.ReactNode; 
-  href?: string; 
+function MenuItem({
+  children,
+  href,
+  hasSubmenu,
+  onClick,
+}: {
+  children: React.ReactNode;
+  href?: string;
   hasSubmenu?: boolean;
   onClick?: () => void;
 }) {
@@ -237,7 +341,8 @@ function MenuItem({
     </span>
   );
 
-  const className = "relative w-full flex cursor-pointer select-none items-center rounded-lg px-3 py-1.5 text-sm outline-none transition-colors hover:bg-gray-alpha-100 hover:text-foreground group justify-between";
+  const className =
+    'relative w-full flex cursor-pointer select-none items-center rounded-lg px-3 py-1.5 text-sm outline-none transition-colors hover:bg-gray-alpha-100 hover:text-foreground group justify-between';
   const pathname = usePathname();
   const basePath = pathname?.startsWith('/admin') ? '/admin' : '/dashboard';
 
@@ -246,7 +351,9 @@ function MenuItem({
       <li className="relative px-1">
         <a href={`${basePath}${href}`} className={className}>
           {content}
-          {hasSubmenu && <ChevronRight className="h-4 w-4 opacity-50 transition-transform duration-100 group-hover:opacity-100 group-hover:translate-x-0.5" />}
+          {hasSubmenu && (
+            <ChevronRight className="h-4 w-4 opacity-50 transition-transform duration-100 group-hover:opacity-100 group-hover:translate-x-0.5" />
+          )}
         </a>
       </li>
     );
@@ -256,7 +363,9 @@ function MenuItem({
     <li className="relative px-1">
       <button onClick={onClick} className={className}>
         {content}
-        {hasSubmenu && <ChevronRight className="h-4 w-4 opacity-50 transition-transform duration-100 group-hover:opacity-100 group-hover:translate-x-0.5" />}
+        {hasSubmenu && (
+          <ChevronRight className="h-4 w-4 opacity-50 transition-transform duration-100 group-hover:opacity-100 group-hover:translate-x-0.5" />
+        )}
       </button>
     </li>
   );

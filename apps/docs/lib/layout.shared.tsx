@@ -11,9 +11,7 @@ export const linkItems: LinkItemType[] = [
   // },
 ];
 
-export const logo = (
-  <XispeDocsIcon className="size-8 md:size-10" />
-);
+export const logo = <XispeDocsIcon className="size-8 md:size-10" />;
 
 export function baseOptions(): BaseLayoutProps {
   return {

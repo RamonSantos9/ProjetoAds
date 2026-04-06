@@ -17,8 +17,6 @@ export function TreeProvider({
   children: ReactNode;
 }) {
   return (
-    <TreeContext.Provider value={{ tree }}>
-      {children}
-    </TreeContext.Provider>
+    <TreeContext.Provider value={{ tree }}>{children}</TreeContext.Provider>
   );
 }

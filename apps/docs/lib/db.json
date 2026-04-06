@@ -16,10 +16,7 @@
           "avatar": "https://github.com/RamonSantos9.png"
         }
       ],
-      "platforms": [
-        "Spotify",
-        "YouTube"
-      ],
+      "platforms": ["Spotify", "YouTube"],
       "createdAt": "2026-04-03T12:03:43.189Z",
       "transcriptionText": ""
     },
@@ -61,14 +58,8 @@
       "duration": "0:30",
       "status": "Publicado",
       "summary": "Apresentação oficial do projeto e da tecnologia por trás dele.",
-      "guests": [
-        "Ramon Santos",
-        "IA Voice"
-      ],
-      "platforms": [
-        "Spotify",
-        "YouTube"
-      ],
+      "guests": ["Ramon Santos", "IA Voice"],
+      "platforms": ["Spotify", "YouTube"],
       "audioUrl": "https://storage.googleapis.com/eleven-public-cdn/audio-native/audio-native-player-demo-voice.mp3",
       "transcriptionText": "[00:00] Olá a todos, bem-vindos ao PodcastAds.\n[00:04] Neste canal, vamos explorar as fronteiras da tecnologia e inovação.\n[00:09] Eu sou o seu host e hoje temos um convidado muito especial.\n[00:14] Vamos discutir como a inteligência artificial está moldando o futuro.\n[00:20] Fique conosco para uma conversa profunda e cheia de insights.\n[00:26] PodcastAds: O seu lugar para aprender ADS na prática.",
       "createdAt": "2026-04-02T20:17:14.677Z"
@@ -81,14 +72,8 @@
       "duration": "26 min",
       "status": "Em gravação",
       "summary": "Conversa com empreendedores e profissionais da região sobre empregabilidade, portfólio e primeiros passos na tecnologia.",
-      "guests": [
-        "Empreendedor local",
-        "Professor convidado"
-      ],
-      "platforms": [
-        "Spotify",
-        "Instagram"
-      ],
+      "guests": ["Empreendedor local", "Professor convidado"],
+      "platforms": ["Spotify", "Instagram"],
       "createdAt": "2026-04-01T20:17:14.677Z"
     },
     {
@@ -99,15 +84,8 @@
       "duration": "22 min",
       "status": "Em pauta",
       "summary": "Debate sobre comunicação, trabalho em equipe e postura profissional para estudantes e futuros desenvolvedores.",
-      "guests": [
-        "Docente ADS",
-        "Aluno líder"
-      ],
-      "platforms": [
-        "Spotify",
-        "YouTube",
-        "Instagram"
-      ],
+      "guests": ["Docente ADS", "Aluno líder"],
+      "platforms": ["Spotify", "YouTube", "Instagram"],
       "createdAt": "2026-03-31T20:17:14.677Z"
     }
   ],

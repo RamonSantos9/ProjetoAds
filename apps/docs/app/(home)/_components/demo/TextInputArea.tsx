@@ -49,7 +49,10 @@ export function TextInputArea({
 
       if (part.startsWith('[') && part.endsWith(']')) {
         result.push(
-          <span key={start} className="rounded bg-fd-muted px-0.5 text-fd-muted-foreground">
+          <span
+            key={start}
+            className="rounded bg-fd-muted px-0.5 text-fd-muted-foreground"
+          >
             {part}
           </span>,
         );
@@ -180,7 +183,11 @@ export function TextInputArea({
                         : 'text-fd-muted-foreground hover:bg-fd-muted',
                     )}
                   >
-                    <img src={lang.flagUrl} alt="" className="size-4 rounded-full" />
+                    <img
+                      src={lang.flagUrl}
+                      alt=""
+                      className="size-4 rounded-full"
+                    />
                     {lang.name}
                     {selectedLanguage.code === lang.code ? (
                       <svg

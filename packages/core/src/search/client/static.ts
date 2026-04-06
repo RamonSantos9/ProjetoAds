@@ -1,10 +1,7 @@
 import { type AnyOrama, create, load, type Orama } from '@orama/orama';
 import { searchSimple } from '../orama/search/simple';
 import { searchAdvanced } from '../orama/search/advanced';
-import {
-  type advancedSchema,
-  type simpleSchema,
-} from '../orama/create-db';
+import { type advancedSchema, type simpleSchema } from '../orama/create-db';
 import type { ExportedData } from '../server';
 
 export interface StaticOptions {

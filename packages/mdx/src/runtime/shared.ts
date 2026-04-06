@@ -80,7 +80,6 @@ export type AsyncDocCollectionEntry<Frontmatter> = DocMethods & {
   load: () => Promise<DocData>;
 } & Frontmatter;
 
-
 export function missingProcessedMarkdown(): never {
   throw new Error(
     "getText('processed') requires `includeProcessedMarkdown` to be enabled in your collection config.",

@@ -18,11 +18,22 @@ export const dynamic = 'force-dynamic';
 export default async function EpisodesPage() {
   const dbData = await readDb();
   const featuredEpisodes = dbData.episodes;
-  
+
   const publicStats = [
     { label: 'Episódios cadastrados', value: String(featuredEpisodes.length) },
-    { label: 'Frentes do projeto', value: String(new Set(featuredEpisodes.map(ep => ep.category).filter(Boolean)).size || 1) },
-    { label: 'Trilhas de conteúdo', value: String(new Set(featuredEpisodes.flatMap(ep => ep.guests)).size || 1) },
+    {
+      label: 'Frentes do projeto',
+      value: String(
+        new Set(featuredEpisodes.map((ep) => ep.category).filter(Boolean))
+          .size || 1,
+      ),
+    },
+    {
+      label: 'Trilhas de conteúdo',
+      value: String(
+        new Set(featuredEpisodes.flatMap((ep) => ep.guests)).size || 1,
+      ),
+    },
     { label: 'Acesso', value: 'Público' },
   ];
 
@@ -73,7 +84,10 @@ export default async function EpisodesPage() {
           </div>
 
           {publicStats.map((stat) => (
-            <div key={stat.label} className="border-l border-t border-dashed px-6 py-12 bg-transparent">
+            <div
+              key={stat.label}
+              className="border-l border-t border-dashed px-6 py-12 bg-transparent"
+            >
               <div className="mb-4 flex flex-row items-center gap-2 text-fd-muted-foreground">
                 <h2 className="text-sm font-medium">{stat.label}</h2>
               </div>

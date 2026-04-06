@@ -21,7 +21,7 @@ function calc(container: HTMLElement, active: string[]): TOCThumb {
 
     const styles = getComputedStyle(element);
     const top = element.offsetTop + parseFloat(styles.paddingTop);
-    
+
     if (top < upper) {
       upper = top;
       const depth = parseInt(element.getAttribute('data-depth') ?? '2');

@@ -6,7 +6,11 @@ import { usePathname } from '@xispedocs/core/framework';
 import { cn } from '../../utils/cn';
 import { isActive, normalize } from '@/utils/urls';
 import { useSidebar } from '@/components/sidebar/base';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import type { SidebarTab } from '@/components/sidebar/tabs';
 import { AnimatePresence, motion } from 'motion/react';
 
@@ -98,7 +102,9 @@ export function SidebarTabsDropdown({
                 item.props?.className,
               )}
             >
-              <div className="shrink-0 mb-auto size-4.5 empty:hidden">{item.icon}</div>
+              <div className="shrink-0 mb-auto size-4.5 empty:hidden">
+                {item.icon}
+              </div>
               <div>
                 <p className="text-sm font-medium leading-none">{item.title}</p>
                 <p className="text-[0.8125rem] text-fd-muted-foreground mt-1 empty:hidden">

@@ -33,7 +33,7 @@ export default async function Page(props: {
       <p className="text-lg text-fd-muted-foreground mb-4">
         {page.data.description}
       </p>
-      
+
       <div className="prose flex-1 text-fd-foreground/90">
         <Mdx
           components={getMDXComponents({
@@ -51,7 +51,7 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const params = await props.params;
   const page = source.getPage(params.slug);
-  
+
   if (!page)
     return {
       title: 'Not Found',

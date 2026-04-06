@@ -23,19 +23,27 @@ export function GuestSelector({ selected, onChange }: GuestSelectorProps) {
         if (res.ok) {
           const data: Episode[] = await res.json();
           const allGuests: Guest[] = [];
-          data.forEach(ep => {
+          data.forEach((ep) => {
             if (ep.guests && Array.isArray(ep.guests)) {
-              ep.guests.forEach(g => {
-                 // DB might have stored them as string or object
-                 const guestObj = typeof g === 'object' ? g as Guest : { id: `legacy-${Math.random().toString(36).substr(2, 9)}`, name: g as string } as Guest;
-                 if (guestObj && guestObj.name) {
-                    allGuests.push(guestObj);
-                 }
+              ep.guests.forEach((g) => {
+                // DB might have stored them as string or object
+                const guestObj =
+                  typeof g === 'object'
+                    ? (g as Guest)
+                    : ({
+                        id: `legacy-${Math.random().toString(36).substr(2, 9)}`,
+                        name: g as string,
+                      } as Guest);
+                if (guestObj && guestObj.name) {
+                  allGuests.push(guestObj);
+                }
               });
             }
           });
           // Remove duplicates based on name
-          const uniqueGuests = Array.from(new Map(allGuests.map(item => [item.name, item])).values());
+          const uniqueGuests = Array.from(
+            new Map(allGuests.map((item) => [item.name, item])).values(),
+          );
           setGuests(uniqueGuests);
         }
       } catch (err) {
@@ -47,7 +55,10 @@ export function GuestSelector({ selected, onChange }: GuestSelectorProps) {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -72,16 +83,26 @@ export function GuestSelector({ selected, onChange }: GuestSelectorProps) {
       >
         <div className="flex flex-wrap gap-1 items-center overflow-hidden">
           {selected.length === 0 ? (
-            <span className="text-primary text-[12px] font-bold truncate">Convidados</span>
+            <span className="text-primary text-[12px] font-bold truncate">
+              Convidados
+            </span>
           ) : (
             selected.map((name) => (
-              <span key={name} className="inline-flex items-center text-primary text-[12px] font-bold truncate">
+              <span
+                key={name}
+                className="inline-flex items-center text-primary text-[12px] font-bold truncate"
+              >
                 {name},
               </span>
             ))
           )}
         </div>
-        <ChevronDown className={cn("size-4 text-fd-muted-foreground transition-transform", isOpen && "rotate-180")} />
+        <ChevronDown
+          className={cn(
+            'size-4 text-fd-muted-foreground transition-transform',
+            isOpen && 'rotate-180',
+          )}
+        />
       </button>
 
       {isOpen && (
@@ -100,18 +121,22 @@ export function GuestSelector({ selected, onChange }: GuestSelectorProps) {
                     type="button"
                     onClick={() => toggleGuest(opt.name)}
                     className={cn(
-                      "flex items-center justify-between px-2 py-2 rounded-lg text-sm transition-all group",
-                      isSelected ? "bg-fd-primary/10 text-fd-primary" : "hover:bg-fd-muted text-fd-foreground"
+                      'flex items-center justify-between px-2 py-2 rounded-lg text-sm transition-all group',
+                      isSelected
+                        ? 'bg-fd-primary/10 text-fd-primary'
+                        : 'hover:bg-fd-muted text-fd-foreground',
                     )}
                   >
                     <div className="flex items-center gap-3">
-                       <div className="overflow-hidden flex items-center justify-center rounded-md transition-colors">
-                          
-                       </div>
-                       <div className="flex flex-col items-start gap-0.5">
-                         <span>{opt.name}</span>
-                         {opt.bio && <span className="text-[10px] text-foreground opacity-70 truncate max-w-[150px]">{opt.bio}</span>}
-                       </div>
+                      <div className="overflow-hidden flex items-center justify-center rounded-md transition-colors"></div>
+                      <div className="flex flex-col items-start gap-0.5">
+                        <span>{opt.name}</span>
+                        {opt.bio && (
+                          <span className="text-[10px] text-foreground opacity-70 truncate max-w-[150px]">
+                            {opt.bio}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     {isSelected && <Check className="size-4" />}
                   </button>

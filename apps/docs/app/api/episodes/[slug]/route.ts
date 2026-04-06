@@ -3,7 +3,7 @@ import { getEpisodeBySlug } from '@/lib/db';
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
     const { slug } = await params;

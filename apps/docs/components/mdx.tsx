@@ -1,1 +1,4 @@
-export { getMDXComponents, getMDXComponents as useMDXComponents } from '@/mdx-components';
+export {
+  getMDXComponents,
+  getMDXComponents as useMDXComponents,
+} from '@/mdx-components';

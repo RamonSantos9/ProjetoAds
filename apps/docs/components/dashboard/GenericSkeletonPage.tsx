@@ -1,19 +1,20 @@
 'use client';
 
 import React from 'react';
-import { 
-  Search, 
-  Download,
-  Filter,
-  Plus
-} from 'lucide-react';
+import { Search, Download, Filter, Plus } from 'lucide-react';
 import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
-import { 
-  ActionButtonRefined 
-} from '@/components/ui/RefinedComponents';
+import { ActionButtonRefined } from '@/components/ui/RefinedComponents';
 import { usePathname } from 'next/navigation';
 
-export default function GenericSkeletonPage({ title, icon: Icon, description }: { title: string, icon: any, description: string }) {
+export default function GenericSkeletonPage({
+  title,
+  icon: Icon,
+  description,
+}: {
+  title: string;
+  icon: any;
+  description: string;
+}) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith('/admin');
   const basePath = isAdmin ? '/admin' : '/dashboard';
@@ -40,8 +41,8 @@ export default function GenericSkeletonPage({ title, icon: Icon, description }: 
               <p className="text-[#74748D] dark:text-fd-muted-foreground text-sm max-w-2xl">
                 {description}
               </p>
-              <ActionButtonRefined 
-                label={`Novo ${title.slice(0, -1)}`} 
+              <ActionButtonRefined
+                label={`Novo ${title.slice(0, -1)}`}
                 icon={<Plus className="size-5" />}
               />
             </div>
@@ -72,8 +73,12 @@ export default function GenericSkeletonPage({ title, icon: Icon, description }: 
             {/* Empty State / List Placeholder */}
             <div className="flex flex-col items-center justify-center py-10 border border-dashed border-[#E2E7F1] gap-4 mt-4">
               <div className="flex flex-col items-center gap-1">
-                <p className="text-sm font-bold text-fd-foreground">Nenhum registro encontrado</p>
-                <p className="text-xs text-[#74748D] dark:text-fd-muted-foreground">Comece criando um novo registro para visualizar aqui.</p>
+                <p className="text-sm font-bold text-fd-foreground">
+                  Nenhum registro encontrado
+                </p>
+                <p className="text-xs text-[#74748D] dark:text-fd-muted-foreground">
+                  Comece criando um novo registro para visualizar aqui.
+                </p>
               </div>
             </div>
           </section>

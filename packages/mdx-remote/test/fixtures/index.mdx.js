@@ -102,7 +102,7 @@ function _createMdxContent(props) {
           }, undefined, false, {
             fileName: "<source.js>",
             lineNumber: 8,
-            columnNumber: 11
+            columnNumber: 13
           }, this)]
         }, undefined, true, {
           fileName: "<source.js>",

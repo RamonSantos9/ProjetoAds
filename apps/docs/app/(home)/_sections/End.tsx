@@ -4,7 +4,6 @@ import { buttonVariants } from '@/components/ui/button';
 import { BatteryChargingIcon, PaperclipIcon, TimerIcon } from 'lucide-react';
 import { XispeDocsIcon } from '@/app/layout.client';
 
-
 /**
  * Rodapé/Seção de encerramento da página.
  * Inclui uma chamada visual grande e uma lista de benefícios rápidos com links.
@@ -57,10 +56,10 @@ export function End() {
         </li>
         {/* Botões de ação final */}
         <li className="flex flex-row flex-wrap gap-2 mt-auto">
-          <Link 
-            href="https://open.spotify.com" 
-            target="_blank" 
-            rel="noreferrer noopener" 
+          <Link
+            href="https://open.spotify.com"
+            target="_blank"
+            rel="noreferrer noopener"
             className={cn(buttonVariants())}
           >
             Ouvir no Spotify

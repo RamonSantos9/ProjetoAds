@@ -16,11 +16,15 @@ export async function LatestEpisodes() {
     <div className="relative border-x border-t border-dashed bg-fd-background p-8 md:p-12">
       <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <h2 className="text-sm font-medium text-fd-primary">Últimos Lançamentos</h2>
-          <p className="mt-2 text-2xl font-semibold md:text-3xl">Pautas recentes do PodcastAds</p>
+          <h2 className="text-sm font-medium text-fd-primary">
+            Últimos Lançamentos
+          </h2>
+          <p className="mt-2 text-2xl font-semibold md:text-3xl">
+            Pautas recentes do PodcastAds
+          </p>
         </div>
-        <Link 
-          href="/episodios" 
+        <Link
+          href="/episodios"
           className="text-sm font-medium text-fd-primary hover:underline"
         >
           Ver todos os episódios &rarr;

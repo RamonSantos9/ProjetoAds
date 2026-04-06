@@ -23,8 +23,8 @@ export function Hero() {
         Codificando o Futuro
       </h1>
       <p className="mb-8 md:max-w-[80%] md:text-xl">
-        Bem-vindo ao PodcastAds, o canal oficial da Faculdade Serra Dourada
-        onde discutimos as tendências de Análise e Desenvolvimento de Sistemas.
+        Bem-vindo ao PodcastAds, o canal oficial da Faculdade Serra Dourada onde
+        discutimos as tendências de Análise e Desenvolvimento de Sistemas.
       </p>
       {/* Grupo de botões de ação */}
       <div className="inline-flex items-center gap-3 max-md:mx-auto">

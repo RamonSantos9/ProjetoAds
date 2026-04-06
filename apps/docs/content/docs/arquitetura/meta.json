@@ -1,7 +1,4 @@
 {
   "title": "Arquitetura Técnica",
-  "pages": [
-    "index",
-    "pacotes"
-  ]
+  "pages": ["index", "pacotes"]
 }

@@ -10,8 +10,10 @@ import {
 import type { RenderContext, ServerObject } from '@/types';
 import { defaultAdapters, type MediaAdapter } from '@/media/adapter';
 
-export interface ApiProviderProps
-  extends Omit<ApiContextType, 'mediaAdapters'> {
+export interface ApiProviderProps extends Omit<
+  ApiContextType,
+  'mediaAdapters'
+> {
   /**
    * Base URL for API requests
    */

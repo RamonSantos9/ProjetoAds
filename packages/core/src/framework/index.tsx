@@ -62,7 +62,9 @@ export function createSafeContext<T>(name: string, v?: T) {
     },
     use: (errorMessage?: string): Exclude<T, undefined | null> => {
       if (!Context) {
-        throw new Error('You are trying to use context on the server, which is not supported.');
+        throw new Error(
+          'You are trying to use context on the server, which is not supported.',
+        );
       }
       const value = React.useContext(Context);
 

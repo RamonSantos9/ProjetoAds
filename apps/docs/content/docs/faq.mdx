@@ -10,15 +10,18 @@ Este documento serve para sanar dúvidas imediatas de desenvolvedores, ouvintes 
 ## 🛠️ Para Desenvolvedores
 
 ### Posso rodar o Portal sem o Turborepo?
+
 **Não.** O projeto é estruturado em Monorepo, o que significa que o App (`apps/docs`) depende diretamente dos pacotes locais (`packages/ui` e `packages/core`). O Turbo garante que essas dependências sejam resolvidas e cacheadas corretamente.
 
 ### Como adiciono um novo componente ao @xispedocs/ui?
+
 1. Crie o componente na pasta `packages/ui/src/components`.
 2. Exporte-o no arquivo `index.ts` (ou o export correspondente no `packages/ui/package.json`).
 3. Rode `pnpm build --filter=@xispedocs/ui` para atualizar o `dist`.
 4. O Next.js (`apps/docs`) reconhecerá a mudança automaticamente.
 
 ### Por que meu link no MDX dá 404?
+
 Sempre prefira **caminhos absolutos** (ex: `/docs/arquitetura`) ao invés de caminhos relativos (`./arquitetura`). Fumadocs e Next.js roteiam de forma mais estável com caminhos canônicos no Markdown.
 
 ---
@@ -26,9 +29,11 @@ Sempre prefira **caminhos absolutos** (ex: `/docs/arquitetura`) ao invés de cam
 ## 🎧 Para Ouvintes
 
 ### Preciso de uma conta para ouvir os episódios?
+
 **Não.** Os episódios publicados no Portal Público são de acesso livre. No entanto, funcionalidades de personalização e Dashboard do Ouvinte podem exigir login acadêmico.
 
 ### O player sincroniza entre dispositivos?
+
 Atualmente, o estado do player é mantido localmente na sessão. Estamos trabalhando para integrar a sincronização de progresso via perfil de usuário em versões futuras.
 
 ---
@@ -36,13 +41,16 @@ Atualmente, o estado do player é mantido localmente na sessão. Estamos trabalh
 ## 📂 Para Gestores de Conteúdo
 
 ### Posso agendar a publicação de um episódio?
+
 Sim. Ao configurar um episódio no `/admin/episodios`, você pode definir a data de lançamento. O sistema filtrará automaticamente episódios cuja data de publicação seja futura, mantendo-os ocultos até o momento certo.
 
 ### Existe um limite de tamanho para os arquivos de áudio?
+
 O limite padrão é de **50MB** por arquivo no upload direto via CMS. Para arquivos maiores, recomendamos o uso de URLs externas (como S3 ou SoundCloud) vinculadas ao campo de mídia.
 
 ---
 
 <Callout type="info">
-Se sua dúvida não foi respondida aqui, entre em contato com a equipe de TI da Faculdade Serra Dourada ou abra uma Issue em nosso repositório.
+  Se sua dúvida não foi respondida aqui, entre em contato com a equipe de TI da
+  Faculdade Serra Dourada ou abra uma Issue em nosso repositório.
 </Callout>

@@ -27,7 +27,9 @@ export function RecordingPopover({
   const [devices, setDevices] = useState<AudioDevice[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState('default');
   const [isSelectOpen, setIsSelectOpen] = useState(false);
-  const [recordingStatus, setRecordingStatus] = useState<'idle' | 'countdown' | 'recording'>('idle');
+  const [recordingStatus, setRecordingStatus] = useState<
+    'idle' | 'countdown' | 'recording'
+  >('idle');
   const recordingStatusRef = useRef(recordingStatus);
   useEffect(() => {
     recordingStatusRef.current = recordingStatus;
@@ -36,7 +38,11 @@ export function RecordingPopover({
   const [countdown, setCountdown] = useState(3);
   const [elapsed, setElapsed] = useState(0);
   const [bars, setBars] = useState<number[]>(new Array(BAR_COUNT).fill(2));
-  const [position, setPosition] = useState({ top: 0, left: 0, calculated: false });
+  const [position, setPosition] = useState({
+    top: 0,
+    left: 0,
+    calculated: false,
+  });
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -48,21 +54,23 @@ export function RecordingPopover({
   /* ── Position relative to anchor ── */
   useEffect(() => {
     if (!isOpen || !anchorEl) {
-      if (position.calculated) setPosition(p => ({ ...p, calculated: false }));
+      if (position.calculated)
+        setPosition((p) => ({ ...p, calculated: false }));
       return;
     }
-    
+
     requestAnimationFrame(() => {
       const rect = anchorEl.getBoundingClientRect();
       if (rect.width === 0 && rect.height === 0) return;
-      
-      let calcLeft = rect.left + rect.width / 2 - 160; 
-      if (calcLeft < 10) calcLeft = 10;
-      if (calcLeft + 320 > window.innerWidth) calcLeft = window.innerWidth - 330;
 
-      const popoverHeight = 240; 
+      let calcLeft = rect.left + rect.width / 2 - 160;
+      if (calcLeft < 10) calcLeft = 10;
+      if (calcLeft + 320 > window.innerWidth)
+        calcLeft = window.innerWidth - 330;
+
+      const popoverHeight = 240;
       let calcTop = rect.bottom + 8;
-      
+
       // If no space below, flip to top
       if (calcTop + popoverHeight > window.innerHeight) {
         calcTop = rect.top - popoverHeight - 8;
@@ -77,7 +85,11 @@ export function RecordingPopover({
     if (!isOpen) return;
     const handler = (e: MouseEvent) => {
       // Allow closing select dropdown instead of full popover if clicking outside select
-      if (isSelectOpen && selectRef.current && !selectRef.current.contains(e.target as Node)) {
+      if (
+        isSelectOpen &&
+        selectRef.current &&
+        !selectRef.current.contains(e.target as Node)
+      ) {
         setIsSelectOpen(false);
         // Do not close popover yet, wait for another click
         return;
@@ -112,8 +124,8 @@ export function RecordingPopover({
         await navigator.mediaDevices.getUserMedia({ audio: true });
         const list = await navigator.mediaDevices.enumerateDevices();
         const inputs = list
-          .filter(d => d.kind === 'audioinput')
-          .map(d => ({
+          .filter((d) => d.kind === 'audioinput')
+          .map((d) => ({
             deviceId: d.deviceId,
             label: d.label || `Microfone ${d.deviceId.slice(0, 8)}`,
           }));
@@ -128,13 +140,14 @@ export function RecordingPopover({
 
         // Se o dispositivo foi selecionado, inicia a stream para ele
         const constraints: MediaStreamConstraints = {
-          audio: selectedDeviceId === 'default'
-            ? true
-            : { deviceId: { exact: selectedDeviceId } },
+          audio:
+            selectedDeviceId === 'default'
+              ? true
+              : { deviceId: { exact: selectedDeviceId } },
         };
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         if (isCancelled) {
-          stream.getTracks().forEach(t => t.stop());
+          stream.getTracks().forEach((t) => t.stop());
           return;
         }
 
@@ -174,7 +187,7 @@ export function RecordingPopover({
       isCancelled = true;
       cancelAnimationFrame(animFrame);
       if (activeStream) {
-        activeStream.getTracks().forEach(t => t.stop());
+        activeStream.getTracks().forEach((t) => t.stop());
       }
       if (audioCtx) {
         audioCtx.close().catch(() => {});
@@ -186,7 +199,7 @@ export function RecordingPopover({
   const handleStartProcess = () => {
     setRecordingStatus('countdown');
     setCountdown(3);
-    
+
     let count = 3;
     const interval = setInterval(() => {
       count -= 1;
@@ -205,16 +218,24 @@ export function RecordingPopover({
       if (!streamRef.current) return;
       const stream = streamRef.current;
 
-      const recorder = new MediaRecorder(stream, { mimeType: getSupportedMime() });
+      const recorder = new MediaRecorder(stream, {
+        mimeType: getSupportedMime(),
+      });
       mediaRecorderRef.current = recorder;
       chunksRef.current = [];
 
-      recorder.ondataavailable = e => {
+      recorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
       recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: chunksRef.current[0]?.type || recorder.mimeType });
-        const ext = recorder.mimeType.includes('ogg') ? 'ogg' : recorder.mimeType.includes('mp4') ? 'mp4' : 'webm';
+        const blob = new Blob(chunksRef.current, {
+          type: chunksRef.current[0]?.type || recorder.mimeType,
+        });
+        const ext = recorder.mimeType.includes('ogg')
+          ? 'ogg'
+          : recorder.mimeType.includes('mp4')
+            ? 'mp4'
+            : 'webm';
         const name = `recording-${new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-')}.${ext}`;
         onRecordingComplete?.(blob, name);
       };
@@ -223,7 +244,7 @@ export function RecordingPopover({
       setRecordingStatus('recording');
       setElapsed(0);
 
-      timerRef.current = setInterval(() => setElapsed(p => p + 1), 1000);
+      timerRef.current = setInterval(() => setElapsed((p) => p + 1), 1000);
     } catch (err) {
       console.error('Erro ao iniciar gravação:', err);
     }
@@ -250,14 +271,21 @@ export function RecordingPopover({
 
   if (!isOpen || !position.calculated) return null;
 
-  const currentDeviceLabel = devices.find(d => d.deviceId === selectedDeviceId)?.label || 'Microfone padrão';
+  const currentDeviceLabel =
+    devices.find((d) => d.deviceId === selectedDeviceId)?.label ||
+    'Microfone padrão';
 
   return (
     <div
       ref={popoverRef}
       role="dialog"
       onMouseDown={(e) => e.stopPropagation()}
-      style={{ position: 'fixed', top: position.top, left: position.left, zIndex: 50 }}
+      style={{
+        position: 'fixed',
+        top: position.top,
+        left: position.left,
+        zIndex: 50,
+      }}
       className="w-[320px] rounded-[10px] bg-white dark:bg-black border shadow-xl text-foreground outline-none animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-100"
     >
       <div className="flex items-center justify-center relative h-32 pb-10 px-4">
@@ -269,14 +297,19 @@ export function RecordingPopover({
               <div className="relative" ref={selectRef}>
                 <button
                   type="button"
-                  onClick={() => setIsSelectOpen(prev => !prev)}
+                  onClick={() => setIsSelectOpen((prev) => !prev)}
                   className="flex gap-0.5 items-center justify-between whitespace-nowrap transition-colors border hover:bg-fd-accent/50 text-foreground pl-3 pr-2 py-2 text-sm rounded-[10px] w-48 h-10 bg-white dark:bg-black disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Mic className="text-gray-500 w-[18px] h-[18px] shrink-0 -ml-1 mr-0.5" />
                   <span className="inline-block truncate mr-auto">
                     {currentDeviceLabel}
                   </span>
-                  <div className={cn("flex h-4 w-4 items-center justify-center opacity-50 transition-transform duration-200", isSelectOpen ? "rotate-180" : "rotate-0")}>
+                  <div
+                    className={cn(
+                      'flex h-4 w-4 items-center justify-center opacity-50 transition-transform duration-200',
+                      isSelectOpen ? 'rotate-180' : 'rotate-0',
+                    )}
+                  >
                     <ChevronDown className="h-4 w-4 min-w-fit" />
                   </div>
                 </button>
@@ -284,16 +317,16 @@ export function RecordingPopover({
                 {/* Dropdown Menu */}
                 {isSelectOpen && (
                   <div className="absolute top-full left-0 mt-1.5 w-[300px] z-[60] bg-white dark:bg-black border rounded-lg shadow-xl overflow-hidden p-1 flex flex-col gap-0.5 animate-in fade-in zoom-in-95 duration-100 text-sm">
-                    {devices.map(d => {
+                    {devices.map((d) => {
                       const isSelected = d.deviceId === selectedDeviceId;
                       return (
                         <button
                           key={d.deviceId}
                           className={cn(
-                            "flex items-center justify-between px-2 py-1.5 text-sm rounded-sm text-left transition-colors w-full outline-none",
+                            'flex items-center justify-between px-2 py-1.5 text-sm rounded-sm text-left transition-colors w-full outline-none',
                             isSelected
-                              ? "bg-fd-accent text-foreground"
-                              : "hover:bg-fd-accent focus-visible:bg-fd-accent text-foreground"
+                              ? 'bg-fd-accent text-foreground'
+                              : 'hover:bg-fd-accent focus-visible:bg-fd-accent text-foreground',
                           )}
                           onClick={() => {
                             setSelectedDeviceId(d.deviceId);
@@ -301,7 +334,9 @@ export function RecordingPopover({
                           }}
                         >
                           <span className="truncate pr-4">{d.label}</span>
-                          {isSelected && <Check className="w-4 h-4 shrink-0 opacity-70" />}
+                          {isSelected && (
+                            <Check className="w-4 h-4 shrink-0 opacity-70" />
+                          )}
                         </button>
                       );
                     })}
@@ -322,7 +357,10 @@ export function RecordingPopover({
 
           {/* Countdown State */}
           {recordingStatus === 'countdown' && (
-            <div key={countdown} className="flex items-center justify-center animate-in zoom-in-50 fade-in duration-300">
+            <div
+              key={countdown}
+              className="flex items-center justify-center animate-in zoom-in-50 fade-in duration-300"
+            >
               <span className="text-5xl font-bold text-foreground tabular-nums tracking-tighter">
                 {countdown}
               </span>
@@ -352,7 +390,9 @@ export function RecordingPopover({
                 key={i}
                 className={cn(
                   'w-0.5 bg-black dark:bg-white rounded-full',
-                  recordingStatus === 'recording' ? 'transition-none' : 'transition-all duration-75'
+                  recordingStatus === 'recording'
+                    ? 'transition-none'
+                    : 'transition-all duration-75',
                 )}
                 style={{ height: `${h}px`, maxHeight: '36px' }}
               />
@@ -364,10 +404,21 @@ export function RecordingPopover({
             {recordingStatus === 'recording' && (
               <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="inline-flex items-center text-xs px-2.5 h-6 rounded-full font-medium transition-colors whitespace-nowrap border border-transparent text-[#B52620] bg-[#FDE4E3]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-circle-alert w-3 h-3 mr-1">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="12" x2="12" y1="8" y2="12"/>
-                    <line x1="12" x2="12.01" y1="16" y2="16"/>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="lucide lucide-circle-alert w-3 h-3 mr-1"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" x2="12" y1="8" y2="12" />
+                    <line x1="12" x2="12.01" y1="16" y2="16" />
                   </svg>
                   Background noise detected
                 </div>
@@ -388,6 +439,11 @@ export function RecordingPopover({
 }
 
 function getSupportedMime() {
-  const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
-  return types.find(t => MediaRecorder.isTypeSupported(t)) ?? '';
+  const types = [
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/ogg;codecs=opus',
+    'audio/mp4',
+  ];
+  return types.find((t) => MediaRecorder.isTypeSupported(t)) ?? '';
 }

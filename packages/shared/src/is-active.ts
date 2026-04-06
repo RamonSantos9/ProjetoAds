@@ -4,8 +4,6 @@ export function isActive(
   nested = true,
 ): boolean {
   if (url === '/') return pathname === '/';
-  
-  return nested
-    ? pathname.startsWith(url)
-    : pathname === url;
+
+  return nested ? pathname.startsWith(url) : pathname === url;
 }

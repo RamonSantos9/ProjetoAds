@@ -1,9 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  type ComponentProps,
-} from 'react';
+import { type ComponentProps } from 'react';
 import * as Primitive from '@radix-ui/react-tabs';
 import { mergeRefs } from '@/utils/merge-refs';
 
@@ -114,14 +112,19 @@ export function Tabs({
       }}
       {...props}
     >
-      <TabsContext value={React.useMemo(() => ({ valueToIdMap }), [valueToIdMap])}>
+      <TabsContext
+        value={React.useMemo(() => ({ valueToIdMap }), [valueToIdMap])}
+      >
         {props.children}
       </TabsContext>
     </Primitive.Tabs>
   );
 }
 
-export function TabsContent({ value, ...props }: ComponentProps<typeof Primitive.TabsContent>) {
+export function TabsContent({
+  value,
+  ...props
+}: ComponentProps<typeof Primitive.TabsContent>) {
   const { valueToIdMap } = useTabContext();
 
   if (props.id) {

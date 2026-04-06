@@ -22,7 +22,10 @@ export interface TranscriptionResponse {
  * Sends an audio file to ElevenLabs for transcription.
  * Note: ElevenLabs recently added Speech-to-Text/Dubbing capabilities.
  */
-export async function createTranscription({ file, language = 'pt-BR' }: TranscriptionRequest): Promise<TranscriptionResponse> {
+export async function createTranscription({
+  file,
+  language = 'pt-BR',
+}: TranscriptionRequest): Promise<TranscriptionResponse> {
   if (!ELEVENLABS_API_KEY) {
     console.warn('ElevenLabs API Key not found. Transcription will be mocked.');
     return mockTranscription();
@@ -31,9 +34,9 @@ export async function createTranscription({ file, language = 'pt-BR' }: Transcri
   const formData = new FormData();
   formData.append('file', file);
   formData.append('language', language);
-  // Example model for speech-to-text if available on ElevenLabs, 
+  // Example model for speech-to-text if available on ElevenLabs,
   // otherwise this might use their Dubbing API or similar for extraction.
-  formData.append('model_id', 'eleven_multilingual_v2'); 
+  formData.append('model_id', 'eleven_multilingual_v2');
 
   try {
     // This is a placeholder for the actual ElevenLabs Speech-to-Text endpoint
@@ -74,7 +77,9 @@ async function mockTranscription(): Promise<TranscriptionResponse> {
 /**
  * Checks the status of a transcription.
  */
-export async function getTranscriptionStatus(id: string): Promise<TranscriptionResponse> {
+export async function getTranscriptionStatus(
+  id: string,
+): Promise<TranscriptionResponse> {
   if (id.startsWith('mock-')) {
     return {
       transcription_id: id,

@@ -35,7 +35,11 @@ export function createLinkItemRenderer({
       return (
         <SidebarFolder {...props}>
           {item.url ? (
-            <SidebarFolderLink href={item.url} active={active} external={item.external}>
+            <SidebarFolderLink
+              href={item.url}
+              active={active}
+              external={item.external}
+            >
               {item.icon}
               {item.text}
             </SidebarFolderLink>

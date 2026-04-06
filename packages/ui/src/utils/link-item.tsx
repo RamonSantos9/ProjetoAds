@@ -102,7 +102,13 @@ export function LinkItem({
   const active = useLinkItemActive(item);
 
   return (
-    <Link ref={ref} href={item.url} external={item.external} {...props} data-active={active}>
+    <Link
+      ref={ref}
+      href={item.url}
+      external={item.external}
+      {...props}
+      data-active={active}
+    >
       {props.children}
     </Link>
   );

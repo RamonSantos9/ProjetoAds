@@ -103,17 +103,17 @@ export async function sync(
     const orama = client as OramaCloud;
     const ds = orama.dataSource(options.index);
     const tempDs = await ds.createTemporaryIndex();
-    
+
     // Insert documents into temporary index
     const indexedDocs = options.documents.flatMap(toIndex);
-    
+
     // Orama Cloud has a limit on batch size, but insertDocuments handles it or we should chunk?
     // Based on SDK, it seems to handle it or we can pass the whole array.
     await tempDs.insertDocuments(indexedDocs as any[]);
-    
+
     // Swap temporary index with the production one
     if (autoDeploy) {
-        await tempDs.swap();
+      await tempDs.swap();
     }
   }
 }

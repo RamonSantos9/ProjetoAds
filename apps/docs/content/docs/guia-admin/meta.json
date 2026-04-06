@@ -1,9 +1,4 @@
 {
   "title": "Guia do Administrador",
-  "pages": [
-    "index",
-    "estudio",
-    "episodios",
-    "relatorios"
-  ]
+  "pages": ["index", "estudio", "episodios", "relatorios"]
 }

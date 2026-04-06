@@ -6,10 +6,10 @@ import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
 import { cn } from '@/lib/cn';
 import { usePathname } from 'next/navigation';
 
-import { 
-  Users, 
-  Search, 
-  ChevronRight, 
+import {
+  Users,
+  Search,
+  ChevronRight,
   Download,
   MoreVertical,
   User,
@@ -18,32 +18,28 @@ import {
   ExternalLink,
   HelpCircle,
   Bell,
-  Sparkles
+  Sparkles,
 } from 'lucide-react';
-import { CreateEpisodeModal, EpisodeFormData } from '@/components/dashboard/CreateEpisodeModal';
+import {
+  CreateEpisodeModal,
+  EpisodeFormData,
+} from '@/components/dashboard/CreateEpisodeModal';
 import { EditEpisodeModal } from '@/components/dashboard/EditEpisodeModal';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Episode, Guest } from '@/lib/db';
-import { 
-  ActionButtonRefined, 
-  TooltipRefined 
+import {
+  ActionButtonRefined,
+  TooltipRefined,
 } from '@/components/ui/RefinedComponents';
 import DashboardToolbar from '@/components/dashboard/DashboardToolbar';
-
-
-
 
 // --- Types ---
 
 interface ReportRecord extends Episode {
-  guest: string; 
-  origin: string; 
+  guest: string;
+  origin: string;
 }
-
-
-
-
 
 const toast = { success: (msg: string) => console.log('[toast]', msg) };
 
@@ -54,16 +50,15 @@ export default function RelatoriosPage() {
 
   const [reports, setReports] = useState<ReportRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  
+  const [search, setSearch] = useState('');
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<ReportRecord | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<ReportRecord | null>(
+    null,
+  );
 
-  const [originFilter, setOriginFilter] = useState("Todas Origens");
-
-
-
+  const [originFilter, setOriginFilter] = useState('Todas Origens');
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -72,14 +67,17 @@ export default function RelatoriosPage() {
         const res = await fetch('/api/episodes');
         if (!res.ok) throw new Error('Failed to fetch API');
         const data = await res.json();
-        
+
         const mapped: ReportRecord[] = data.map((ep: any) => ({
           ...ep,
-          guest: typeof ep.guests?.[0] === 'object' ? ep.guests[0].name : ep.guests?.[0] || 'Sem Convidado',
+          guest:
+            typeof ep.guests?.[0] === 'object'
+              ? ep.guests[0].name
+              : ep.guests?.[0] || 'Sem Convidado',
           creator: 'Sistema',
-          origin: ep.origin || 'Manual'
+          origin: ep.origin || 'Manual',
         }));
-        
+
         setReports(mapped);
       } catch (error) {
         console.error(error);
@@ -90,16 +88,21 @@ export default function RelatoriosPage() {
     fetchReports();
   }, []);
 
-  const filtered = reports.filter(r => {
+  const filtered = reports.filter((r) => {
     const searchLower = search.toLowerCase();
-    const matchesSearch = 
-      String(r.guest || '').toLowerCase().includes(searchLower) || 
-      String(r.title || '').toLowerCase().includes(searchLower) ||
-      String(r.id || '').toLowerCase().includes(searchLower);
-    
-    const matchesOrigin = 
-      originFilter === "Todas Origens" || 
-      r.origin === originFilter;
+    const matchesSearch =
+      String(r.guest || '')
+        .toLowerCase()
+        .includes(searchLower) ||
+      String(r.title || '')
+        .toLowerCase()
+        .includes(searchLower) ||
+      String(r.id || '')
+        .toLowerCase()
+        .includes(searchLower);
+
+    const matchesOrigin =
+      originFilter === 'Todas Origens' || r.origin === originFilter;
 
     return matchesSearch && matchesOrigin;
   });
@@ -115,20 +118,32 @@ export default function RelatoriosPage() {
       duration: '00:00',
       guests: newEp.guests,
       platforms: newEp.platforms,
-      guest: typeof newEp.guests[0] === 'object' ? newEp.guests[0].name : newEp.guests[0] || 'Sem Convidado',
+      guest:
+        typeof newEp.guests[0] === 'object'
+          ? newEp.guests[0].name
+          : newEp.guests[0] || 'Sem Convidado',
       status: (newEp.status === 'Released' ? 'Publicado' : newEp.status) as any,
       createdAt: new Date().toISOString(),
-      origin: 'Manual'
+      origin: 'Manual',
     } as ReportRecord;
-    setReports(prev => [newRecord, ...prev]);
+    setReports((prev) => [newRecord, ...prev]);
   };
 
   const handleEditSave = (updated: Episode) => {
-    setReports(prev => prev.map(r => r.id === updated.id ? ({
-      ...r,
-      ...updated,
-      guest: typeof updated.guests[0] === 'object' ? updated.guests[0].name : updated.guests[0] || 'Sem Convidado'
-    } as ReportRecord) : r));
+    setReports((prev) =>
+      prev.map((r) =>
+        r.id === updated.id
+          ? ({
+              ...r,
+              ...updated,
+              guest:
+                typeof updated.guests[0] === 'object'
+                  ? updated.guests[0].name
+                  : updated.guests[0] || 'Sem Convidado',
+            } as ReportRecord)
+          : r,
+      ),
+    );
   };
 
   const handleExport = (format: string) => {
@@ -142,16 +157,23 @@ export default function RelatoriosPage() {
       filename += '.json';
       mimeType = 'application/json';
     } else if (format === 'CSV') {
-      const headers = ['ID', 'Convidado', 'Episódio', 'Status', 'Origem', 'Data Criação'];
-      const rows = dataToExport.map(r => [
-        r.id, 
-        `"${r.guest}"`, 
-        `"${r.title}"`, 
-        r.status, 
-        r.origin, 
-        r.createdAt
+      const headers = [
+        'ID',
+        'Convidado',
+        'Episódio',
+        'Status',
+        'Origem',
+        'Data Criação',
+      ];
+      const rows = dataToExport.map((r) => [
+        r.id,
+        `"${r.guest}"`,
+        `"${r.title}"`,
+        r.status,
+        r.origin,
+        r.createdAt,
       ]);
-      content = [headers, ...rows].map(e => e.join(',')).join('\n');
+      content = [headers, ...rows].map((e) => e.join(',')).join('\n');
       filename += '.csv';
       mimeType = 'text/csv';
     }
@@ -165,181 +187,285 @@ export default function RelatoriosPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     toast.success(`Exportação ${format} concluída!`);
   };
 
-
   const stats = {
-    totalGuests: Array.from(new Set(reports.map(r => r.guest))).length,
-    pending: reports.filter(r => r.status === 'Produção' || r.status === 'Agendado').length,
-    published: reports.filter(r => r.status === 'Publicado').length
+    totalGuests: Array.from(new Set(reports.map((r) => r.guest))).length,
+    pending: reports.filter(
+      (r) => r.status === 'Produção' || r.status === 'Agendado',
+    ).length,
+    published: reports.filter((r) => r.status === 'Publicado').length,
   };
 
   return (
     <div className="rebrand-body flex min-h-screen flex-col bg-[#FFFFFF] dark:bg-fd-background px-4 md:px-8 py-8 text-fd-foreground">
       <main className="relative flex-[1_1_0] mx-auto w-full max-w-6xl pb-8 flex flex-col">
-          <div className="flex justify-between items-end mb-4 md:mb-8 w-full">
-            <div className="stack">
-              <p className="truncate text-sm">Análise de Dados</p>
-              <h1 className="text-2xl md:text-3xl mt-1">Relatórios Detalhados</h1>
-            </div>
-            <ThemeToggle mode="light-dark" />
+        <div className="flex justify-between items-end mb-4 md:mb-8 w-full">
+          <div className="stack">
+            <p className="truncate text-sm">Análise de Dados</p>
+            <h1 className="text-2xl md:text-3xl mt-1">Relatórios Detalhados</h1>
           </div>
+          <ThemeToggle mode="light-dark" />
+        </div>
 
-          <div className="bg-white dark:bg-fd-background w-full flex flex-col flex-1">
-             <div className="flex-1 flex flex-col gap-6">
-               {/* Stats Grid */}
-              <div className="flex flex-col lg:flex-row items-stretch lg:items-center p-4 border rounded-xl">
-                <div className="flex-auto flex flex-col gap-4 px-4 lg:px-0" style={{ minWidth: "240px" }}>
-                  <div className="flex items-center gap-2 w-full justify-between text-background tracking-tight">
-                    <p className="text-[16px]">Total Convidados</p>
-                    <TooltipRefined text="Número total de convidados únicos que já participaram do seu podcast.">
-                      <button className="cursor-help text-fd-foreground"><Info className="size-5" /></button>
-                    </TooltipRefined>
-                  </div>
-                  <div className="flex items-center gap-2 w-full justify-between">
-                    {loading ? <Skeleton className="w-20 h-8" /> : <h2 className="text-[32px] font-bold text-fd-foreground">{stats.totalGuests}</h2>}
-                  </div>
+        <div className="bg-white dark:bg-fd-background w-full flex flex-col flex-1">
+          <div className="flex-1 flex flex-col gap-6">
+            {/* Stats Grid */}
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center p-4 border rounded-xl">
+              <div
+                className="flex-auto flex flex-col gap-4 px-4 lg:px-0"
+                style={{ minWidth: '240px' }}
+              >
+                <div className="flex items-center gap-2 w-full justify-between text-background tracking-tight">
+                  <p className="text-[16px]">Total Convidados</p>
+                  <TooltipRefined text="Número total de convidados únicos que já participaram do seu podcast.">
+                    <button className="cursor-help text-fd-foreground">
+                      <Info className="size-5" />
+                    </button>
+                  </TooltipRefined>
                 </div>
-
-                <div className="w-px h-auto bg-[#ECECEE] dark:bg-fd-border my-0 mx-4 hidden lg:block" />
-                <div className="w-full h-px bg-[#ECECEE] dark:bg-fd-border my-4 lg:hidden" />
-
-                <div className="flex-auto flex flex-col gap-4 px-4 lg:px-0" style={{ minWidth: "240px" }}>
-                  <div className="flex items-center gap-2 w-full justify-between text-fd-foreground tracking-tight">
-                    <p className="text-[16px]">Produção</p>
-                    <TooltipRefined text="Conteúdos que estão sendo editados ou aguardando gravação final.">
-                      <button className="cursor-help text-fd-foreground"><Info className="size-5" /></button>
-                    </TooltipRefined>
-                  </div>
-                  <div className="flex items-center gap-2 w-full justify-between">
-                    {loading ? <Skeleton className="w-20 h-8" /> : <h2 className="text-[32px] text-fd-foreground">{stats.pending}</h2>}
-                  </div>
-                </div>
-
-                <div className="w-px h-auto bg-[#ECECEE] dark:bg-fd-border my-0 mx-4 hidden lg:block" />
-                <div className="w-full h-px bg-[#ECECEE] dark:bg-fd-border my-4 lg:hidden" />
-
-                <div className="flex-auto flex flex-col gap-4 px-4 lg:px-0" style={{ minWidth: "240px" }}>
-                  <div className="flex items-center gap-2 w-full justify-between text-fd-foreground tracking-tight">
-                    <p className="text-[16px]">Publicados</p>
-                    <TooltipRefined text="Total de episódios que já estão ao vivo nas plataformas de áudio e vídeo.">
-                      <button className="cursor-help text-fd-foreground"><Info className="size-5" /></button>
-                    </TooltipRefined>
-                  </div>
-                  <div className="flex items-center gap-2 w-full justify-between">
-                     {loading ? <Skeleton className="w-20 h-8" /> : <h2 className="text-[32px] text-fd-foreground">{stats.published}</h2>}
-                  </div>
+                <div className="flex items-center gap-2 w-full justify-between">
+                  {loading ? (
+                    <Skeleton className="w-20 h-8" />
+                  ) : (
+                    <h2 className="text-[32px] font-bold text-fd-foreground">
+                      {stats.totalGuests}
+                    </h2>
+                  )}
                 </div>
               </div>
 
-              {/* Toolbar Modulado */}
-              <div className="mt-2">
-                <DashboardToolbar 
-                  search={search}
-                  onSearchChange={setSearch}
-                  filterValue={originFilter}
-                  onFilterChange={setOriginFilter}
-                  onExport={handleExport}
-                  showAction={isAdmin}
-                  actionLabel="Novo Episódio"
-                  onActionClick={() => setIsCreateModalOpen(true)}
-                />
+              <div className="w-px h-auto bg-[#ECECEE] dark:bg-fd-border my-0 mx-4 hidden lg:block" />
+              <div className="w-full h-px bg-[#ECECEE] dark:bg-fd-border my-4 lg:hidden" />
+
+              <div
+                className="flex-auto flex flex-col gap-4 px-4 lg:px-0"
+                style={{ minWidth: '240px' }}
+              >
+                <div className="flex items-center gap-2 w-full justify-between text-fd-foreground tracking-tight">
+                  <p className="text-[16px]">Produção</p>
+                  <TooltipRefined text="Conteúdos que estão sendo editados ou aguardando gravação final.">
+                    <button className="cursor-help text-fd-foreground">
+                      <Info className="size-5" />
+                    </button>
+                  </TooltipRefined>
+                </div>
+                <div className="flex items-center gap-2 w-full justify-between">
+                  {loading ? (
+                    <Skeleton className="w-20 h-8" />
+                  ) : (
+                    <h2 className="text-[32px] text-fd-foreground">
+                      {stats.pending}
+                    </h2>
+                  )}
+                </div>
               </div>
 
-              {/* Table Section */}
-              <div className="overflow-x-auto mt-2">
-                <table className="w-full border-separate border-spacing-0 leading-[12px]">
-                  <thead>
-                    <tr>
-                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:rounded-s-xl first:border-s p-5 text-left whitespace-nowrap text-xs">Convidado</th>
-                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap text-xs">Episódio</th>
-                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap text-xs">Status</th>
-                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap text-xs">Origem</th>
-                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap text-xs">Criação</th>
-                      <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap text-xs">ID</th>
-                      {isAdmin && (
-                        <th className="bg-background border-y first:border-s last:rounded-e-xl last:border-e p-5 text-right whitespace-nowrap text-xs">Ações</th>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="h-4" />
-                    {loading ? (
-                      Array.from({ length: 5 }).map((_, i) => (
-                        <tr key={i} className="animate-pulse">
-                          <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-full h-4" /></td>
-                          <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-full h-4" /></td>
-                          <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-20 h-6" /></td>
-                          <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-16 h-4" /></td>
-                          <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-24 h-4" /></td>
-                          <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5"><Skeleton className="w-16 h-4" /></td>
-                          {isAdmin && (
-                            <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5 text-right"><Skeleton className="w-10 h-10 ml-auto" /></td>
-                          )}
-                        </tr>
-                      ))
-                    ) : filtered.length === 0 ? (
-                      <tr>
-                        <td colSpan={isAdmin ? 7 : 6} className="text-center py-20 text-fd-foreground">Nenhum registro encontrado.</td>
-                      </tr>
-                    ) : (
-                      filtered.map(item => (
-                        <tr key={item.id} className="hover:bg-fd-accent transition-colors">
-                          <td className="border-b p-5 text-fd-foreground text-xs truncate">
-                            {item.guest}
-                          </td>
-                          <td className="border-b p-5 text-fd-foreground text-xs truncate max-w-[200px]">
-                            {item.title}
-                          </td>
-                          <td className="border-b p-5">
-                            <Badge variant={item.status === 'Publicado' ? 'success' : item.status === 'Agendado' ? 'info' : 'warning'}>
-                              {item.status === 'Publicado' ? 'Ativo' : item.status}
-                            </Badge>
-                          </td>
+              <div className="w-px h-auto bg-[#ECECEE] dark:bg-fd-border my-0 mx-4 hidden lg:block" />
+              <div className="w-full h-px bg-[#ECECEE] dark:bg-fd-border my-4 lg:hidden" />
 
-                          <td className="border-b p-5 text-fd-foreground text-xs">
-                            {item.origin}
-                          </td>
-                          <td className="border-b p-5 text-fd-foreground text-xs">
-                            {new Date(item.createdAt || Date.now()).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
-                          </td>
-                          <td className="border-b p-5">
-                            <div className="flex items-center gap-2">
-                               <TooltipRefined text={item.id}>
-                                 <span 
-                                   className="text-fd-foreground text-xs cursor-pointer hover:opacity-70 transition-opacity"
-                                   onClick={() => { navigator.clipboard.writeText(item.id); toast.success('ID copiado!'); }}
-                                 >
-                                   {item.id.substring(0, 8)}...
-                                 </span>
-                               </TooltipRefined>
-                               <ExternalLink className="size-3 text-fd-foreground cursor-pointer" />
-                            </div>
-                           </td>
-                           {isAdmin && (
-                            <td className="border-b p-5 text-right">
-                               <button 
-                                 onClick={() => { setSelectedRecord(item); setIsEditModalOpen(true); }}
-                                 className="p-2 rounded-lg hover:bg-fd-accent transition-colors"
-                               >
-                                 <MoreVertical className="size-4 text-fd-foreground" />
-                               </button>
-                            </td>
-                           )}
-                         </tr>
-                      ))
+              <div
+                className="flex-auto flex flex-col gap-4 px-4 lg:px-0"
+                style={{ minWidth: '240px' }}
+              >
+                <div className="flex items-center gap-2 w-full justify-between text-fd-foreground tracking-tight">
+                  <p className="text-[16px]">Publicados</p>
+                  <TooltipRefined text="Total de episódios que já estão ao vivo nas plataformas de áudio e vídeo.">
+                    <button className="cursor-help text-fd-foreground">
+                      <Info className="size-5" />
+                    </button>
+                  </TooltipRefined>
+                </div>
+                <div className="flex items-center gap-2 w-full justify-between">
+                  {loading ? (
+                    <Skeleton className="w-20 h-8" />
+                  ) : (
+                    <h2 className="text-[32px] text-fd-foreground">
+                      {stats.published}
+                    </h2>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Toolbar Modulado */}
+            <div className="mt-2">
+              <DashboardToolbar
+                search={search}
+                onSearchChange={setSearch}
+                filterValue={originFilter}
+                onFilterChange={setOriginFilter}
+                onExport={handleExport}
+                showAction={isAdmin}
+                actionLabel="Novo Episódio"
+                onActionClick={() => setIsCreateModalOpen(true)}
+              />
+            </div>
+
+            {/* Table Section */}
+            <div className="overflow-x-auto mt-2">
+              <table className="w-full border-separate border-spacing-0 leading-[12px]">
+                <thead>
+                  <tr>
+                    <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:rounded-s-xl first:border-s p-5 text-left whitespace-nowrap text-xs">
+                      Convidado
+                    </th>
+                    <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap text-xs">
+                      Episódio
+                    </th>
+                    <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap text-xs">
+                      Status
+                    </th>
+                    <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap text-xs">
+                      Origem
+                    </th>
+                    <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s p-5 text-left whitespace-nowrap text-xs">
+                      Criação
+                    </th>
+                    <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap text-xs">
+                      ID
+                    </th>
+                    {isAdmin && (
+                      <th className="bg-background border-y first:border-s last:rounded-e-xl last:border-e p-5 text-right whitespace-nowrap text-xs">
+                        Ações
+                      </th>
                     )}
-                  </tbody>
-                </table>
-              </div>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="h-4" />
+                  {loading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <tr key={i} className="animate-pulse">
+                        <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5">
+                          <Skeleton className="w-full h-4" />
+                        </td>
+                        <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5">
+                          <Skeleton className="w-full h-4" />
+                        </td>
+                        <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5">
+                          <Skeleton className="w-20 h-6" />
+                        </td>
+                        <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5">
+                          <Skeleton className="w-16 h-4" />
+                        </td>
+                        <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5">
+                          <Skeleton className="w-24 h-4" />
+                        </td>
+                        <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5">
+                          <Skeleton className="w-16 h-4" />
+                        </td>
+                        {isAdmin && (
+                          <td className="border-b border-[#E2E7F1] dark:border-fd-border p-5 text-right">
+                            <Skeleton className="w-10 h-10 ml-auto" />
+                          </td>
+                        )}
+                      </tr>
+                    ))
+                  ) : filtered.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={isAdmin ? 7 : 6}
+                        className="text-center py-20 text-fd-foreground"
+                      >
+                        Nenhum registro encontrado.
+                      </td>
+                    </tr>
+                  ) : (
+                    filtered.map((item) => (
+                      <tr
+                        key={item.id}
+                        className="hover:bg-fd-accent transition-colors"
+                      >
+                        <td className="border-b p-5 text-fd-foreground text-xs truncate">
+                          {item.guest}
+                        </td>
+                        <td className="border-b p-5 text-fd-foreground text-xs truncate max-w-[200px]">
+                          {item.title}
+                        </td>
+                        <td className="border-b p-5">
+                          <Badge
+                            variant={
+                              item.status === 'Publicado'
+                                ? 'success'
+                                : item.status === 'Agendado'
+                                  ? 'info'
+                                  : 'warning'
+                            }
+                          >
+                            {item.status === 'Publicado'
+                              ? 'Ativo'
+                              : item.status}
+                          </Badge>
+                        </td>
+
+                        <td className="border-b p-5 text-fd-foreground text-xs">
+                          {item.origin}
+                        </td>
+                        <td className="border-b p-5 text-fd-foreground text-xs">
+                          {new Date(
+                            item.createdAt || Date.now(),
+                          ).toLocaleDateString('pt-BR', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </td>
+                        <td className="border-b p-5">
+                          <div className="flex items-center gap-2">
+                            <TooltipRefined text={item.id}>
+                              <span
+                                className="text-fd-foreground text-xs cursor-pointer hover:opacity-70 transition-opacity"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(item.id);
+                                  toast.success('ID copiado!');
+                                }}
+                              >
+                                {item.id.substring(0, 8)}...
+                              </span>
+                            </TooltipRefined>
+                            <ExternalLink className="size-3 text-fd-foreground cursor-pointer" />
+                          </div>
+                        </td>
+                        {isAdmin && (
+                          <td className="border-b p-5 text-right">
+                            <button
+                              onClick={() => {
+                                setSelectedRecord(item);
+                                setIsEditModalOpen(true);
+                              }}
+                              className="p-2 rounded-lg hover:bg-fd-accent transition-colors"
+                            >
+                              <MoreVertical className="size-4 text-fd-foreground" />
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
+        </div>
       </main>
 
-      <CreateEpisodeModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onSave={handleCreateSave} />
-      <EditEpisodeModal isOpen={isEditModalOpen} onClose={() => { setIsEditModalOpen(false); setSelectedRecord(null); }} episode={selectedRecord} onSave={handleEditSave} />
+      <CreateEpisodeModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSave={handleCreateSave}
+      />
+      <EditEpisodeModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedRecord(null);
+        }}
+        episode={selectedRecord}
+        onSave={handleEditSave}
+      />
     </div>
   );
 }

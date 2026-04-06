@@ -3,7 +3,11 @@ import { type ComponentProps, useMemo, useState } from 'react';
 import { Check, ChevronDown, Copy, ExternalLink, Text } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useCopyButton } from '@/utils/use-copy-button';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '@/components/ui/popover';
 import { buttonVariants } from '@/components/ui/button';
 
 const cache = new Map<string, Promise<string>>();
@@ -79,7 +83,8 @@ export function ViewOptionsPopover({
   githubUrl: string;
 }) {
   const items = useMemo(() => {
-    const pageUrl = typeof window !== 'undefined' ? window.location.href : 'loading';
+    const pageUrl =
+      typeof window !== 'undefined' ? window.location.href : 'loading';
     const q = `Read ${pageUrl}, I want to ask questions about it.`;
 
     return [

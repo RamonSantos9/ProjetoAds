@@ -33,12 +33,7 @@ import {
 import { TreeContextProvider } from '../../contexts/tree';
 import { cn } from '../../utils/cn';
 import { buttonVariants } from '../../components/ui/button';
-import {
-  ChevronDown,
-  Languages,
-  Sidebar as SidebarIcon,
-  X,
-} from '@/icons';
+import { ChevronDown, Languages, Sidebar as SidebarIcon, X } from '@/icons';
 import { LanguageToggle } from '../../components/layout/language-toggle';
 import { ThemeToggle } from '../../components/layout/theme-toggle';
 import {
@@ -79,7 +74,8 @@ export interface DocsLayoutProps extends BaseLayoutProps {
 }
 
 interface SidebarOptions
-  extends ComponentProps<'aside'>,
+  extends
+    ComponentProps<'aside'>,
     Pick<SidebarProps, 'defaultOpenLevel' | 'prefetch'> {
   components?: Partial<SidebarComponents>;
 
@@ -109,7 +105,10 @@ export function DocsLayout(props: DocsLayoutProps) {
   } = props;
 
   const navMode = nav.mode ?? 'auto';
-  const links = resolveLinkItems({ links: props.links ?? [], githubUrl: props.githubUrl });
+  const links = resolveLinkItems({
+    links: props.links ?? [],
+    githubUrl: props.githubUrl,
+  });
   const tabs = useMemo(() => {
     if (Array.isArray(tabOptions)) {
       return tabOptions;
@@ -484,7 +483,11 @@ function NavbarLinkItem({
           )}
         >
           {item.url ? (
-            <LinkItem item={item as any} target={item.external ? '_blank' : undefined} rel={item.external ? 'noreferrer noopener' : undefined}>
+            <LinkItem
+              item={item as any}
+              target={item.external ? '_blank' : undefined}
+              rel={item.external ? 'noreferrer noopener' : undefined}
+            >
               {item.text}
             </LinkItem>
           ) : (

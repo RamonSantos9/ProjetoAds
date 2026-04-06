@@ -321,7 +321,8 @@ export function SidebarItem({
 }) {
   const pathname = usePathname();
   const active =
-    activeProp ?? (props.href !== undefined && isActive(props.href, pathname, false));
+    activeProp ??
+    (props.href !== undefined && isActive(props.href, pathname, false));
   const { prefetch } = useInternalContext();
 
   return (
@@ -391,7 +392,8 @@ export function SidebarFolderLink({
 
   const pathname = usePathname();
   const active =
-    activeProp ?? (props.href !== undefined && isActive(props.href, pathname, false));
+    activeProp ??
+    (props.href !== undefined && isActive(props.href, pathname, false));
 
   return (
     <Link

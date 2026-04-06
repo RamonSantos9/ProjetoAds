@@ -1,7 +1,13 @@
 'use client';
 import * as Base from '@/components/sidebar/base';
 import { cn } from '../../utils/cn';
-import { type ComponentProps, useEffect, useEffectEvent, useRef, useState } from 'react';
+import {
+  type ComponentProps,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+} from 'react';
 import { cva } from 'class-variance-authority';
 import { createPageTreeRenderer } from '@/components/sidebar/page-tree';
 import { createLinkItemRenderer } from '@/components/sidebar/link-item';
@@ -38,15 +44,21 @@ export function Sidebar(props: ComponentProps<typeof Base.SidebarProvider>) {
   return <Base.SidebarProvider {...props} />;
 }
 
-export function SidebarFolder(props: ComponentProps<typeof Base.SidebarFolder>) {
+export function SidebarFolder(
+  props: ComponentProps<typeof Base.SidebarFolder>,
+) {
   return <Base.SidebarFolder {...props} />;
 }
 
-export function SidebarCollapseTrigger(props: ComponentProps<typeof Base.SidebarCollapseTrigger>) {
+export function SidebarCollapseTrigger(
+  props: ComponentProps<typeof Base.SidebarCollapseTrigger>,
+) {
   return <Base.SidebarCollapseTrigger {...props} />;
 }
 
-export function SidebarTrigger(props: ComponentProps<typeof Base.SidebarTrigger>) {
+export function SidebarTrigger(
+  props: ComponentProps<typeof Base.SidebarTrigger>,
+) {
   return <Base.SidebarTrigger {...props} />;
 }
 
@@ -132,7 +144,12 @@ export function SidebarContent({
   );
 }
 
-export function SidebarSeparator({ className, style, children, ...props }: ComponentProps<'p'>) {
+export function SidebarSeparator({
+  className,
+  style,
+  children,
+  ...props
+}: ComponentProps<'p'>) {
   const depth = Base.useFolderDepth();
 
   return (
@@ -163,7 +180,10 @@ export function SidebarItem({
 
   return (
     <MotionSidebarItem
-      className={cn(itemVariants({ variant: 'link', highlight: depth >= 1 }), className)}
+      className={cn(
+        itemVariants({ variant: 'link', highlight: depth >= 1 }),
+        className,
+      )}
       style={{
         paddingInlineStart: getItemOffset(depth),
         ...style,
@@ -184,7 +204,11 @@ export function SidebarFolderTrigger({
 
   return (
     <MotionSidebarFolderTrigger
-      className={cn(itemVariants({ variant: collapsible ? 'button' : null }), 'w-full', className)}
+      className={cn(
+        itemVariants({ variant: collapsible ? 'button' : null }),
+        'w-full',
+        className,
+      )}
       style={{
         paddingInlineStart: getItemOffset(depth - 1),
         ...style,
@@ -205,7 +229,11 @@ export function SidebarFolderLink({
 
   return (
     <MotionSidebarFolderLink
-      className={cn(itemVariants({ variant: 'link', highlight: depth > 1 }), 'w-full', className)}
+      className={cn(
+        itemVariants({ variant: 'link', highlight: depth > 1 }),
+        'w-full',
+        className,
+      )}
       style={{
         paddingInlineStart: getItemOffset(depth - 1),
         ...style,

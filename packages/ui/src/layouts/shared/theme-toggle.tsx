@@ -14,7 +14,11 @@ const itemVariants = cva('size-6.5 p-1.5 text-fd-muted-foreground', {
   },
 });
 
-const full = [['light', Sun] as const, ['dark', Moon] as const, ['system', Airplay] as const];
+const full = [
+  ['light', Sun] as const,
+  ['dark', Moon] as const,
+  ['system', Airplay] as const,
+];
 
 export function ThemeToggle({
   className,

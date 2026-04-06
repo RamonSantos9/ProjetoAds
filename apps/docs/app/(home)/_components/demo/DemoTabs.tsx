@@ -8,7 +8,10 @@ interface DemoTabsProps {
   onCategorySelect: (category: string) => void;
 }
 
-export function DemoTabs({ selectedCategory, onCategorySelect }: DemoTabsProps) {
+export function DemoTabs({
+  selectedCategory,
+  onCategorySelect,
+}: DemoTabsProps) {
   return (
     <>
       <div className="z-50 col-start-1 row-start-1 mb-4 h-11 md:col-start-1 md:row-start-1 md:mb-6">
@@ -19,7 +22,11 @@ export function DemoTabs({ selectedCategory, onCategorySelect }: DemoTabsProps) 
         >
           <div
             className="relative isolate flex cursor-pointer items-center justify-center rounded-full outline-none transition-all"
-            style={{ paddingLeft: '1.125rem', paddingRight: '1.1875rem', gridColumnStart: 1 }}
+            style={{
+              paddingLeft: '1.125rem',
+              paddingRight: '1.1875rem',
+              gridColumnStart: 1,
+            }}
             role="tab"
             aria-selected="true"
           >
@@ -39,7 +46,11 @@ export function DemoTabs({ selectedCategory, onCategorySelect }: DemoTabsProps) 
 
           <div
             className="relative isolate flex cursor-pointer items-center justify-center rounded-full outline-none transition-all"
-            style={{ paddingLeft: '1.1875rem', paddingRight: '1.125rem', gridColumnStart: 2 }}
+            style={{
+              paddingLeft: '1.1875rem',
+              paddingRight: '1.125rem',
+              gridColumnStart: 2,
+            }}
             role="tab"
             aria-selected="false"
           >

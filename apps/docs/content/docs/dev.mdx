@@ -17,7 +17,7 @@ graph TD
     PNPM --> Deps[pnpm install]
     Deps --> Dev[pnpm dev:docs]
     Dev --> Portals[http://localhost:3000]
-    
+
     style Dev fill:#00ff00,stroke:#333,stroke-width:2px
     style Portals fill:#00ffff,stroke:#333,stroke-width:2px
 ```
@@ -37,6 +37,7 @@ Para operar o ecossistema sem atritos, sua máquina deve atender aos padrões m�
 ## Operações do Ciclo de Desenvolvimento
 
 ### 1. Preparação do Monorepo
+
 Na raiz do projeto (onde reside o arquivo `pnpm-workspace.yaml`), execute a instalação das dependências:
 
 ```bash
@@ -44,6 +45,7 @@ pnpm install
 ```
 
 ### 2. Execução do Servidor de Desenvolvimento
+
 A arquitetura utiliza o **Turborepo** para gerenciar a execução simultânea dos pacotes de UI, Core e o aplicativo de Documentação. Execute o comando centralizado:
 
 ```bash
@@ -51,10 +53,13 @@ pnpm dev:docs
 ```
 
 <Callout type="warn">
-O comando acima inicia o Next.js no modo `dev` e ativa o HMR (Hot Module Replacement) para Markdown e componentes React de forma granular através dos pacotes `@xispedocs`.
+  O comando acima inicia o Next.js no modo `dev` e ativa o HMR (Hot Module
+  Replacement) para Markdown e componentes React de forma granular através dos
+  pacotes `@xispedocs`.
 </Callout>
 
 ### 3. Build de Produção e Validação
+
 Para validar que seu código está pronto para deploy (visto pela Vercel), execute a rotina de build completa:
 
 ```bash
@@ -70,5 +75,6 @@ pnpm build
 - **Lógica (Core)**: Scripts de utilidade e interfaces de tipos residem em `packages/core`.
 
 <Callout type="info">
-Use a CLI interna (se disponível via `pnpm xispe`) para acelerar a criação de novas pautas e validação de slugs de episódios antes de comitá-los ao Git.
+  Use a CLI interna (se disponível via `pnpm xispe`) para acelerar a criação de
+  novas pautas e validação de slugs de episódios antes de comitá-los ao Git.
 </Callout>

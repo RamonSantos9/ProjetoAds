@@ -14,24 +14,25 @@ graph TD
     Root[Monorepo Root]
     Apps(apps/)
     Pkgs(packages/)
-    
+
     Root --> Apps
     Root --> Pkgs
-    
+
     Apps --> Docs[docs - Portal & Admin]
-    
+
     Pkgs --> UI[@xispedocs/ui - Design System]
     Pkgs --> Core[@xispedocs/core - Logic & Types]
     Pkgs --> MDX[@xispedocs/mdx - Content Engine]
-    
+
     Docs -.-> UI
     Docs -.-> Core
     Docs -.-> MDX
-    
+
     UI -.-> Core
 ```
 
 ### Por que Turborepo?
+
 Para suportar iterações em larga escala, o Turbo coordena a execução de scripts. Quando alteramos um componente no pacote `@xispedocs/ui`, apenas as aplicações que dependem dele são invalidadas, garantindo que o ambiente de desenvolvimento permaneça ágil (HMR sub-segundo).
 
 ## O Ecossistema App Router

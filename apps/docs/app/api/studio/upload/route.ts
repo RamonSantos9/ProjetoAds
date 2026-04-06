@@ -9,7 +9,10 @@ export async function POST(request: Request) {
     const projectId = formData.get('projectId') as string;
 
     if (!file || !projectId) {
-      return NextResponse.json({ error: 'Missing file or projectId' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Missing file or projectId' },
+        { status: 400 },
+      );
     }
 
     // Save to disk
@@ -21,7 +24,7 @@ export async function POST(request: Request) {
       name: file.name,
       size: file.size,
       type: file.type,
-      url: url
+      url: url,
     };
 
     // Save to DB
@@ -30,7 +33,10 @@ export async function POST(request: Request) {
     return NextResponse.json(asset);
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Failed to upload asset' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to upload asset' },
+      { status: 500 },
+    );
   }
 }
 
@@ -41,14 +47,20 @@ export async function DELETE(request: Request) {
     const assetId = searchParams.get('assetId');
 
     if (!projectId || !assetId) {
-      return NextResponse.json({ error: 'Missing projectId or assetId' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Missing projectId or assetId' },
+        { status: 400 },
+      );
     }
 
     // Delete from DB first
     const deletedAsset = await deleteAsset(projectId, assetId);
 
     if (!deletedAsset) {
-      return NextResponse.json({ error: 'Asset not found in DB' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Asset not found in DB' },
+        { status: 404 },
+      );
     }
 
     // Delete physically from disk if URL exists
@@ -56,9 +68,15 @@ export async function DELETE(request: Request) {
       await deleteProjectAsset(deletedAsset.url);
     }
 
-    return NextResponse.json({ success: true, message: 'Asset deleted successfully' });
+    return NextResponse.json({
+      success: true,
+      message: 'Asset deleted successfully',
+    });
   } catch (error) {
     console.error('Delete error:', error);
-    return NextResponse.json({ error: 'Failed to delete asset' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to delete asset' },
+      { status: 500 },
+    );
   }
 }

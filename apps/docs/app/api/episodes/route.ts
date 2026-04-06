@@ -16,6 +16,9 @@ export async function POST(request: Request) {
     await addEpisode(body);
     return NextResponse.json({ success: true, episode: body });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to save episode' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to save episode' },
+      { status: 500 },
+    );
   }
 }

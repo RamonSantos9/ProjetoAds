@@ -1,9 +1,6 @@
 'use client';
 import * as React from 'react';
-import {
-  type ComponentType,
-  type ReactNode,
-} from 'react';
+import { type ComponentType, type ReactNode } from 'react';
 import { createSafeContext } from '@xispedocs/core/framework';
 
 interface HotKey {

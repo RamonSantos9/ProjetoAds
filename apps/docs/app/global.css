@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @import '@xispedocs/ui/css/neutral.css';
 @import '@xispedocs/ui/css/preset.css';
 
@@ -124,14 +124,17 @@ body {
     transition-duration: 200ms;
     transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
   }
-  
+
   .lg-studio-pb {
     padding-bottom: var(--podcastads-player-height, 0);
   }
 }
 
 .pt-studio-calc {
-  padding-top: calc(var(--podcastads-header-height, 0rem) + var(--podcastads-banner-height, 0rem));
+  padding-top: calc(
+    var(--podcastads-header-height, 0rem) +
+      var(--podcastads-banner-height, 0rem)
+  );
 }
 
 .min-h-100advh {
@@ -170,5 +173,7 @@ body {
 @utility no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }

@@ -19,10 +19,10 @@ export const dynamic = 'force-dynamic';
 
 /**
  * Componente principal da Landing Page do PodcastAds.
- * 
- * Organiza as seções modulares em uma estrutura vertical com 
+ *
+ * Organiza as seções modulares em uma estrutura vertical com
  * gradientes de fundo e bordas estilizadas.
- * 
+ *
  * @returns {JSX.Element} Estrutura da página inicial.
  */
 export default function Page() {

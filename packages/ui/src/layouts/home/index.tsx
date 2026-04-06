@@ -233,7 +233,11 @@ function NavbarLinkItem({
       <NavbarMenu>
         <NavbarMenuTrigger {...props}>
           {item.url ? (
-            <a href={item.url} target={item.external ? '_blank' : undefined} rel={item.external ? 'noreferrer noopener' : undefined}>
+            <a
+              href={item.url}
+              target={item.external ? '_blank' : undefined}
+              rel={item.external ? 'noreferrer noopener' : undefined}
+            >
               {item.text}
             </a>
           ) : (

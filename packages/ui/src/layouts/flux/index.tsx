@@ -2,13 +2,26 @@
 import type * as PageTree from '@xispedocs/core/page-tree';
 import type { BaseLayoutProps } from '@/layouts/shared';
 import { TreeContextProvider } from '@/contexts/tree';
-import { getSidebarTabs, type GetSidebarTabsOptions } from '@/components/sidebar/tabs';
+import {
+  getSidebarTabs,
+  type GetSidebarTabsOptions,
+} from '@/components/sidebar/tabs';
 import type { SidebarPageTreeComponents } from '@/components/sidebar/page-tree';
-import { type ComponentProps, HTMLAttributes, type ReactNode, useMemo } from 'react';
+import {
+  type ComponentProps,
+  HTMLAttributes,
+  type ReactNode,
+  useMemo,
+} from 'react';
 import { cn } from '../../utils/cn';
 import { useSidebar } from '@/components/sidebar/base';
 import { SidebarTabsDropdown, type SidebarTabWithProps } from './tab-dropdown';
-import { Sidebar, SidebarContent, SidebarLinkItem, SidebarPageTree } from './sidebar';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarLinkItem,
+  SidebarPageTree,
+} from './sidebar';
 import { buttonVariants } from '@/components/ui/button';
 import { Languages, Sidebar as SidebarIcon, X as XIcon } from '@/icons';
 import { renderTitleNav, useLinkItems } from '../shared';
@@ -90,7 +103,9 @@ export function DocsLayout({
 
     return (
       <SidebarContent {...rest}>
-        <div className="flex flex-col gap-3 p-4 pb-2 empty:hidden">{banner}</div>
+        <div className="flex flex-col gap-3 p-4 pb-2 empty:hidden">
+          {banner}
+        </div>
         <ScrollArea className="min-h-0 flex-1">
           <ScrollViewport
             className="p-4 overscroll-contain"
@@ -136,7 +151,9 @@ export function DocsLayout({
           head: renderTitleNav(nav, {
             className: 'inline-flex items-center gap-2.5 text-sm font-semibold',
           }),
-          tabDropdown: tabs.length > 0 && <SidebarTabsDropdown className="flex-1" options={tabs} />,
+          tabDropdown: tabs.length > 0 && (
+            <SidebarTabsDropdown className="flex-1" options={tabs} />
+          ),
           tool: (
             <>
               {i18n && (
@@ -164,7 +181,9 @@ export function DocsLayout({
             <LinkItem
               key={i}
               item={item}
-              className={cn(buttonVariants({ size: 'icon-sm', color: 'ghost' }))}
+              className={cn(
+                buttonVariants({ size: 'icon-sm', color: 'ghost' }),
+              )}
               aria-label={item.label}
             >
               {item.icon}
@@ -258,7 +277,9 @@ export function NavigationPanel({
           </div>
 
           <div className="flex flex-row gap-1.5 overflow-x-auto overflow-y-hidden p-2 sm:p-1">
-            <div className="flex flex-row items-center gap-2 min-w-0 flex-1">{tabDropdown}</div>
+            <div className="flex flex-row items-center gap-2 min-w-0 flex-1">
+              {tabDropdown}
+            </div>
 
             <div className="flex flex-row items-center text-fd-muted-foreground border-x px-0.5 empty:hidden">
               {link}

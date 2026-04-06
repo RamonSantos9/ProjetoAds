@@ -68,7 +68,8 @@ export interface DocsLayoutProps extends BaseLayoutProps {
 }
 
 interface SidebarOptions
-  extends ComponentProps<'aside'>,
+  extends
+    ComponentProps<'aside'>,
     Pick<SidebarProps, 'defaultOpenLevel' | 'prefetch'> {
   enabled?: boolean;
   component?: ReactNode;
@@ -116,7 +117,10 @@ export function DocsLayout({
     }
     return [];
   }, [sidebarTabs, props.tree]);
-  const links = resolveLinkItems({ links: props.links ?? [], githubUrl: props.githubUrl });
+  const links = resolveLinkItems({
+    links: props.links ?? [],
+    githubUrl: props.githubUrl,
+  });
   const sidebarVariables = cn(
     'md:[--fd-sidebar-width:268px] lg:[--fd-sidebar-width:286px]',
   );
@@ -210,7 +214,8 @@ export function DocsLayout({
         <SidebarHeader>
           <div className="flex">
             {renderTitleNav(nav, {
-              className: 'inline-flex text-[15px] items-center gap-2.5 font-medium me-auto',
+              className:
+                'inline-flex text-[15px] items-center gap-2.5 font-medium me-auto',
             })}
             {nav.children}
             {collapsible && (
@@ -287,7 +292,7 @@ export function DocsLayout({
         {nav.enabled !== false &&
           (nav.component ?? (
             <Navbar className="h-(--fd-nav-height) on-root:[--fd-nav-height:56px] md:on-root:[--fd-nav-height:0px] md:hidden">
-               {renderTitleNav(nav, {
+              {renderTitleNav(nav, {
                 className: 'inline-flex items-center gap-2.5 font-semibold',
               })}
               <div className="flex-1">{nav.children}</div>
@@ -331,6 +336,5 @@ export function DocsLayout({
     </TreeContextProvider>
   );
 }
-
 
 export { CollapsibleControl, Navbar, SidebarTrigger, type LinkItemType };
