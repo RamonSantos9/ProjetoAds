@@ -25,6 +25,10 @@ import { EditEpisodeModal } from '@/components/dashboard/EditEpisodeModal';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Episode, Guest } from '@/lib/db';
+import { 
+  ActionButtonRefined, 
+  TooltipRefined 
+} from '@/components/ui/RefinedComponents';
 import DashboardToolbar from '@/components/dashboard/DashboardToolbar';
 
 
@@ -37,58 +41,6 @@ interface ReportRecord extends Episode {
   origin: string; 
 }
 
-// --- Local components synced with Design System ---
-
-const ActionButtonRefined = ({
-  label,
-  onClick,
-  icon,
-  showIcon = true,
-  variant = 'primary',
-  className = '',
-  disabled = false,
-  type = 'button',
-}: {
-  label: string;
-  onClick?: () => void;
-  icon?: React.ReactNode;
-  showIcon?: boolean;
-  variant?: 'primary' | 'secondary';
-  className?: string;
-  disabled?: boolean;
-  type?: 'button' | 'submit' | 'reset';
-}) => {
-  const variantStyles =
-    variant === 'primary' 
-      ? "bg-background text-background"
-      : "bg-background text-background border-background"; 
-
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      className={cn(
-        "leading-[24px] relative group cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:shrink-0 [&_svg]:size-5 border flex items-center justify-center gap-2 transition-all duration-200 rounded-lg h-8 px-3 w-full lg:w-auto text-sm",
-        variantStyles,
-        className
-      )}
-    >
-      {showIcon && (icon || <Plus className="size-5" />)}
-      {label}
-    </button>
-  );
-};
-
-const TooltipRefined = ({ text, children }: { text: string; children: React.ReactNode }) => (
-  <div className="relative inline-block group">
-    {children}
-    <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-[100] opacity-0 group-hover:opacity-100 transition-all duration-200 bg-white text-[#0A1B39] text-[11px] font-bold rounded-lg px-2 py-1.5 whitespace-nowrap shadow-lg border border-[#E2E7F1] text-center scale-95 group-hover:scale-100 origin-bottom">
-      {text}
-      <div className="absolute top-full left-1/2 -translate-x-1/2 border-x-4 border-x-transparent border-t-4 border-t-white" />
-    </div>
-  </div>
-);
 
 
 
@@ -243,11 +195,11 @@ export default function RelatoriosPage() {
                   <div className="flex items-center gap-2 w-full justify-between text-background tracking-tight">
                     <p className="text-[16px]">Total Convidados</p>
                     <TooltipRefined text="Número total de convidados únicos que já participaram do seu podcast.">
-                      <button className="cursor-help text-background"><Info className="size-5" /></button>
+                      <button className="cursor-help text-fd-foreground"><Info className="size-5" /></button>
                     </TooltipRefined>
                   </div>
                   <div className="flex items-center gap-2 w-full justify-between">
-                    {loading ? <Skeleton className="w-20 h-8" /> : <h2 className="text-[32px] font-bold text-background">{stats.totalGuests}</h2>}
+                    {loading ? <Skeleton className="w-20 h-8" /> : <h2 className="text-[32px] font-bold text-fd-foreground">{stats.totalGuests}</h2>}
                   </div>
                 </div>
 
@@ -255,14 +207,14 @@ export default function RelatoriosPage() {
                 <div className="w-full h-px bg-[#ECECEE] dark:bg-fd-border my-4 lg:hidden" />
 
                 <div className="flex-auto flex flex-col gap-4 px-4 lg:px-0" style={{ minWidth: "240px" }}>
-                  <div className="flex items-center gap-2 w-full justify-between text-background tracking-tight">
+                  <div className="flex items-center gap-2 w-full justify-between text-fd-foreground tracking-tight">
                     <p className="text-[16px]">Produção</p>
                     <TooltipRefined text="Conteúdos que estão sendo editados ou aguardando gravação final.">
-                      <button className="cursor-help text-background"><Info className="size-5" /></button>
+                      <button className="cursor-help text-fd-foreground"><Info className="size-5" /></button>
                     </TooltipRefined>
                   </div>
                   <div className="flex items-center gap-2 w-full justify-between">
-                    {loading ? <Skeleton className="w-20 h-8" /> : <h2 className="text-[32px] text-background">{stats.pending}</h2>}
+                    {loading ? <Skeleton className="w-20 h-8" /> : <h2 className="text-[32px] text-fd-foreground">{stats.pending}</h2>}
                   </div>
                 </div>
 
@@ -270,14 +222,14 @@ export default function RelatoriosPage() {
                 <div className="w-full h-px bg-[#ECECEE] dark:bg-fd-border my-4 lg:hidden" />
 
                 <div className="flex-auto flex flex-col gap-4 px-4 lg:px-0" style={{ minWidth: "240px" }}>
-                  <div className="flex items-center gap-2 w-full justify-between text-background tracking-tight">
+                  <div className="flex items-center gap-2 w-full justify-between text-fd-foreground tracking-tight">
                     <p className="text-[16px]">Publicados</p>
                     <TooltipRefined text="Total de episódios que já estão ao vivo nas plataformas de áudio e vídeo.">
-                      <button className="cursor-help text-background"><Info className="size-5" /></button>
+                      <button className="cursor-help text-fd-foreground"><Info className="size-5" /></button>
                     </TooltipRefined>
                   </div>
                   <div className="flex items-center gap-2 w-full justify-between">
-                     {loading ? <Skeleton className="w-20 h-8" /> : <h2 className="text-[32px] text-background">{stats.published}</h2>}
+                     {loading ? <Skeleton className="w-20 h-8" /> : <h2 className="text-[32px] text-fd-foreground">{stats.published}</h2>}
                   </div>
                 </div>
               </div>
@@ -330,15 +282,15 @@ export default function RelatoriosPage() {
                       ))
                     ) : filtered.length === 0 ? (
                       <tr>
-                        <td colSpan={isAdmin ? 7 : 6} className="text-center py-20 text-background">Nenhum registro encontrado.</td>
+                        <td colSpan={isAdmin ? 7 : 6} className="text-center py-20 text-fd-foreground">Nenhum registro encontrado.</td>
                       </tr>
                     ) : (
                       filtered.map(item => (
-                        <tr key={item.id} className="hover:bg-background transition-colors">
-                          <td className="border-b p-5 text-background text-xs truncate">
+                        <tr key={item.id} className="hover:bg-fd-accent transition-colors">
+                          <td className="border-b p-5 text-fd-foreground text-xs truncate">
                             {item.guest}
                           </td>
-                          <td className="border-b p-5 text-background text-xs truncate max-w-[200px]">
+                          <td className="border-b p-5 text-fd-foreground text-xs truncate max-w-[200px]">
                             {item.title}
                           </td>
                           <td className="border-b p-5">
@@ -347,32 +299,32 @@ export default function RelatoriosPage() {
                             </Badge>
                           </td>
 
-                          <td className="border-b p-5 text-background text-xs">
+                          <td className="border-b p-5 text-fd-foreground text-xs">
                             {item.origin}
                           </td>
-                          <td className="border-b p-5 text-background text-xs">
+                          <td className="border-b p-5 text-fd-foreground text-xs">
                             {new Date(item.createdAt || Date.now()).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
                           </td>
                           <td className="border-b p-5">
                             <div className="flex items-center gap-2">
                                <TooltipRefined text={item.id}>
                                  <span 
-                                   className="text-background text-xs cursor-pointer hover:opacity-70 transition-opacity"
+                                   className="text-fd-foreground text-xs cursor-pointer hover:opacity-70 transition-opacity"
                                    onClick={() => { navigator.clipboard.writeText(item.id); toast.success('ID copiado!'); }}
                                  >
                                    {item.id.substring(0, 8)}...
                                  </span>
                                </TooltipRefined>
-                               <ExternalLink className="size-3 text-background cursor-pointer" />
+                               <ExternalLink className="size-3 text-fd-foreground cursor-pointer" />
                             </div>
                            </td>
                            {isAdmin && (
                             <td className="border-b p-5 text-right">
                                <button 
                                  onClick={() => { setSelectedRecord(item); setIsEditModalOpen(true); }}
-                                 className="p-2 rounded-lg bg-background"
+                                 className="p-2 rounded-lg hover:bg-fd-accent transition-colors"
                                >
-                                 <MoreVertical className="size-4 text-background" />
+                                 <MoreVertical className="size-4 text-fd-foreground" />
                                </button>
                             </td>
                            )}

@@ -530,6 +530,41 @@ export function TimelineSection({
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'copy';
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const data = e.dataTransfer.getData('application/json');
+                  if (!data || !timelineRef.current) return;
+                  
+                  try {
+                    const file = JSON.parse(data);
+                    const rect = timelineRef.current.getBoundingClientRect();
+                    const dropX = e.clientX - rect.left - 12; // Compensate for sidebar
+                    const dropY = e.clientY - rect.top - 20; // Compensate for ruler
+                    
+                    const dropTime = Math.max(0, dropX / 135.6);
+                    const dropLayer = Math.max(0, Math.floor(dropY / 45));
+                    
+                    const newTrack: TimelineTrack = {
+                      id: Math.random().toString(36).substr(2, 9),
+                      name: file.name,
+                      duration: file.type?.startsWith('audio/') ? 10 : 5,
+                      startTime: dropTime,
+                      color: 'bg-blue-100',
+                      type: file.type,
+                      url: file.url,
+                      layerIndex: dropLayer
+                    };
+                    
+                    onAddTracks?.([newTrack]);
+                    setSelectedTrackIds([newTrack.id]);
+                  } catch (err) {
+                    console.error("Failed to drop file:", err);
+                  }
+                }}
               >
                 {/* Ruler */}
                 <div className="sticky top-0 bg-background z-[17]" style={{ marginBottom: '6px' }}>

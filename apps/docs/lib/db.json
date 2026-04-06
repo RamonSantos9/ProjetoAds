@@ -179,5 +179,39 @@
         }
       ]
     }
+  ],
+  "guests": [
+    {
+      "id": "guest-anderson",
+      "name": "Prof. Anderson",
+      "bio": "Coordenador do curso de ADS com vasta experiência em gestão acadêmica e tecnologia.",
+      "social": "https://linkedin.com/in/anderson",
+      "avatar": "https://avatars.githubusercontent.com/u/1"
+    },
+    {
+      "id": "guest-julia",
+      "name": "Júlia Santos",
+      "bio": "Aluna destaque do 4º período, entusiasta de desenvolvimento web e UX Design.",
+      "social": "https://instagram.com/juliasantos",
+      "avatar": "https://avatars.githubusercontent.com/u/35677084"
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset-1",
+      "episodeId": "ep-1",
+      "title": "Thumbnail Oficial - Ep 01",
+      "type": "Thumbnail",
+      "url": "https://picsum.photos/seed/ep1/800/450",
+      "createdAt": "2026-04-06T01:03:56.947Z"
+    },
+    {
+      "id": "asset-2",
+      "episodeId": "ep-1",
+      "title": "Post Instagram - Ep 01",
+      "type": "Social Post",
+      "url": "https://picsum.photos/seed/ep1-insta/1080/1080",
+      "createdAt": "2026-04-06T01:03:56.947Z"
+    }
   ]
 }

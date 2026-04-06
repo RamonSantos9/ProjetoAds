@@ -15,7 +15,7 @@ function GridLayout({ children }: { children: ReactNode }) {
 
   if (isStudio) {
     return (
-      <main className="relative flex flex-col min-h-screen bg-[#FFFFFF] dark:bg-fd-background">
+      <main className="relative flex flex-col min-h-screen bg-[#FFFFFF] dark:bg-[#121212]">
         {children}
       </main>
     );
@@ -24,7 +24,7 @@ function GridLayout({ children }: { children: ReactNode }) {
   return (
     <div 
       data-sidebar-collapsed={collapsed}
-      className="grid min-h-screen overflow-x-clip bg-[#FFFFFF] dark:bg-fd-background text-fd-foreground transition-[grid-template-columns] duration-300 ease-in-out"
+      className="grid min-h-screen overflow-x-clip bg-[#FFFFFF] dark:bg-[#121212] text-fd-foreground transition-[grid-template-columns] duration-300 ease-in-out"
       style={{
         '--fd-sidebar-width': '16rem',
         gridTemplate: '"sidebar main" 1fr / var(--fd-sidebar-col, 0px) minmax(0, 1fr)',

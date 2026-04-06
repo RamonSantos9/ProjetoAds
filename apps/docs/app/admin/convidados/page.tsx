@@ -31,6 +31,7 @@ import { cn } from '@/lib/cn';
 import { usePathname } from 'next/navigation';
 import { Episode, Guest } from '@/lib/db';
 import { createPortal } from 'react-dom';
+import { CreateGuestModal } from '@/components/dashboard/CreateGuestModal';
 
 /**
  * Interface estendida para exibição na tabela
@@ -45,60 +46,54 @@ export default function ConvidadosAdminPage() {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith('/admin');
   const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [guests, setGuests] = useState<Guest[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
   const [menuOpen, setMenuOpen] = useState<{ id: string; rect: DOMRect } | null>(null);
   const exportRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const res = await fetch('/api/episodes');
-        if (res.ok) {
-          const data = await res.json();
-          setEpisodes(data);
-        }
-      } catch (error) {
-        console.error('Failed to load data:', error);
-      } finally {
-        setLoading(false);
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [epRes, guestRes] = await Promise.all([
+        fetch('/api/episodes'),
+        fetch('/api/guests')
+      ]);
+      
+      if (epRes.ok && guestRes.ok) {
+        const epData = await epRes.json();
+        const guestData = await guestRes.json();
+        setEpisodes(epData);
+        setGuests(guestData);
       }
+    } catch (error) {
+      console.error('Failed to load data:', error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadData();
   }, []);
 
-  // Extrair convidados únicos dos episódios
+  // Correlacionar convidados com episódios
   const guestsList = useMemo(() => {
-    const guestMap = new Map<string, ExtendedGuest>();
-
-    episodes.forEach(ep => {
-      if (Array.isArray(ep.guests)) {
-        ep.guests.forEach(g => {
-          const name = typeof g === 'string' ? g : g.name;
-          if (!name) return;
-
-          if (guestMap.has(name)) {
-            const existing = guestMap.get(name)!;
-            existing.episodeCount += 1;
-            existing.episodes.push(ep.title);
-          } else {
-            guestMap.set(name, {
-              id: `guest-${name.toLowerCase().replace(/\s+/g, '-')}`,
-              name,
-              bio: typeof g === 'object' ? g.bio : '',
-              social: typeof g === 'object' ? g.social : '',
-              avatar: typeof g === 'object' ? g.avatar : '',
-              episodeCount: 1,
-              episodes: [ep.title]
-            });
-          }
-        });
-      }
+    return guests.map(g => {
+      const relatedEpisodes = episodes.filter(ep => 
+        ep.guests?.some(eg => eg.id === g.id || eg.name === g.name)
+      );
+      
+      return {
+        ...g,
+        episodeCount: relatedEpisodes.length,
+        episodes: relatedEpisodes.map(ep => ep.title)
+      } as ExtendedGuest;
     });
-
-    return Array.from(guestMap.values());
-  }, [episodes]);
+  }, [guests, episodes]);
 
   const filtered = guestsList.filter(g => 
     g.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -106,9 +101,28 @@ export default function ConvidadosAdminPage() {
   );
 
   const handleExport = (format: 'json' | 'csv') => {
-    // Implementação simplificada de exportação
     console.log(`Exportando em ${format}...`);
     setIsExportOpen(false);
+  };
+
+  const handleSave = () => {
+    loadData();
+    setIsModalOpen(false);
+    setEditingGuest(null);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir este convidado?')) return;
+    
+    try {
+      const res = await fetch(`/api/guests?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        loadData();
+        setMenuOpen(null);
+      }
+    } catch (error) {
+      console.error('Error deleting guest:', error);
+    }
   };
 
   return (
@@ -137,7 +151,10 @@ export default function ConvidadosAdminPage() {
               <ActionButtonRefined 
                 label="Novo Convidado" 
                 icon={<Plus className="size-5" />}
-                onClick={() => alert('Em breve: Cadastro manual de convidados.')}
+                onClick={() => {
+                  setEditingGuest(null);
+                  setIsModalOpen(true);
+                }}
               />
             </div>
 
@@ -262,15 +279,38 @@ export default function ConvidadosAdminPage() {
                   left: menuOpen.rect.right - 160,
                 }}
               >
-                <button className="px-4 py-2.5 hover:bg-fd-accent flex items-center gap-2 text-sm font-medium text-fd-foreground border-b border-fd-border text-left" onClick={() => setMenuOpen(null)}>
+                <button 
+                  className="px-4 py-2.5 hover:bg-fd-accent flex items-center gap-2 text-sm font-medium text-fd-foreground border-b border-fd-border text-left" 
+                  onClick={() => {
+                    const guest = guests.find(g => g.id === menuOpen.id);
+                    if (guest) {
+                      setEditingGuest(guest);
+                      setIsModalOpen(true);
+                    }
+                    setMenuOpen(null);
+                  }}
+                >
                   <Edit2 className="size-4 opacity-70" /> Editar Perfil
                 </button>
-                <button className="px-4 py-2.5 hover:bg-fd-accent flex items-center gap-2 text-sm font-medium text-red-600 text-left" onClick={() => setMenuOpen(null)}>
+                <button 
+                  className="px-4 py-2.5 hover:bg-fd-accent flex items-center gap-2 text-sm font-medium text-red-600 text-left" 
+                  onClick={() => handleDelete(menuOpen.id)}
+                >
                   <Trash2 className="size-4 opacity-70" /> Excluir Registro
                 </button>
               </div>,
               document.body
             )}
+
+            <CreateGuestModal 
+              isOpen={isModalOpen} 
+              onClose={() => {
+                setIsModalOpen(false);
+                setEditingGuest(null);
+              }} 
+              onSave={handleSave} 
+              initialData={editingGuest}
+            />
           </section>
         </div>
       </main>

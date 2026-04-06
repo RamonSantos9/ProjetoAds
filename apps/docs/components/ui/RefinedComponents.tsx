@@ -33,8 +33,8 @@ export const ActionButtonRefined = ({
 }) => {
   const variantStyles =
     variant === 'primary' 
-      ? "bg-background text-background"
-      : "bg-background text-background border-background"; 
+      ? "bg-fd-primary text-fd-primary-foreground hover:opacity-90"
+      : "bg-transparent text-fd-foreground border-fd-border hover:bg-fd-accent"; 
 
   return (
     <button
