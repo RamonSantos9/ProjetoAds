@@ -138,8 +138,49 @@ export default function EstatisticasAdminPage() {
   }, [])
 
   const handleExport = (format: 'JSON' | 'CSV') => {
-    console.log(`Exportando dados em formato ${format} para ${episodes.length} episódios...`)
+    try {
+      let dataStr = '';
+      let mimeType = '';
+      let extension = '';
+
+      if (format === 'JSON') {
+        dataStr = JSON.stringify(episodes, null, 2);
+        mimeType = 'application/json';
+        extension = 'json';
+      } else if (format === 'CSV') {
+        const headers = ['ID', 'Titulo', 'Categoria', 'Status', 'Duracao', 'Plataformas', 'Criado_Em'].join(';');
+        const rows = episodes.map(ep => {
+          const title = `"${(ep.title || '').replace(/"/g, '""')}"`;
+          const platforms = `"${(ep.platforms || []).join(' | ')}"`;
+          let formattedDate = ep.createdAt || '';
+          if (formattedDate) {
+             const d = new Date(formattedDate);
+             if (!isNaN(d.getTime())) {
+                formattedDate = `${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+             }
+          }
+          return `${ep.id};${title};${ep.category || ''};${ep.status};${ep.duration};${platforms};${formattedDate}`;
+        });
+        
+        dataStr = '\uFEFF' + [headers, ...rows].join('\n');
+        mimeType = 'text/csv;charset=utf-8;';
+        extension = 'csv';
+      }
+
+      // Constrói e injeta o objeto de download instantâneo no browser do User
+      const blob = new Blob([dataStr], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `podcast_estatisticas_${new Date().toISOString().split('T')[0]}.${extension}`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Erro ao exportar arquivo:', err);
+    }
   }
+
 
   const handleCreateSave = (data: any) => {
     setEpisodes(prev => [data, ...prev])
