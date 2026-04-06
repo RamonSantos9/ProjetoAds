@@ -20,8 +20,10 @@ import {
 } from '../contexts/i18n';
 import { usePathname, useRouter } from '@xispedocs/core/framework';
 
-interface SearchOptions
-  extends Omit<SearchProviderProps, 'options' | 'children'> {
+interface SearchOptions extends Omit<
+  SearchProviderProps,
+  'options' | 'children'
+> {
   options?: Partial<DefaultSearchDialogProps>;
 
   /**

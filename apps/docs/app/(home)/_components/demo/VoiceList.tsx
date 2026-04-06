@@ -65,7 +65,10 @@ export function VoiceList({
               className="group relative w-full snap-start"
               onClick={() => onVoiceSelect(voice.id)}
             >
-              <label className="block cursor-pointer px-3" style={{ paddingTop: '0.6875rem' }}>
+              <label
+                className="block cursor-pointer px-3"
+                style={{ paddingTop: '0.6875rem' }}
+              >
                 <span className="sr-only">
                   <input
                     type="radio"
@@ -79,7 +82,9 @@ export function VoiceList({
                   <div
                     className={cn(
                       'absolute inset-x-0 inset-y-0 -z-10 rounded-xl bg-fd-muted transition-opacity',
-                      isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+                      isSelected
+                        ? 'opacity-100'
+                        : 'opacity-0 group-hover:opacity-100',
                     )}
                   />
                   <div className="relative flex-none">
@@ -91,7 +96,12 @@ export function VoiceList({
                     />
                     {isSelected ? (
                       <div className="absolute -bottom-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-fd-foreground ring-2 ring-fd-card">
-                        <svg fill="none" viewBox="0 0 12 12" className="h-2.5 w-2.5" aria-hidden="true">
+                        <svg
+                          fill="none"
+                          viewBox="0 0 12 12"
+                          className="h-2.5 w-2.5"
+                          aria-hidden="true"
+                        >
                           <path
                             stroke="#fff"
                             strokeLinecap="round"
@@ -107,7 +117,9 @@ export function VoiceList({
                     <div
                       className={cn(
                         'truncate text-sm font-medium transition-colors',
-                        isSelected ? 'text-fd-foreground' : 'text-fd-muted-foreground',
+                        isSelected
+                          ? 'text-fd-foreground'
+                          : 'text-fd-muted-foreground',
                       )}
                     >
                       {voice.name}
@@ -142,7 +154,11 @@ export function VoiceList({
                 {currentPreviewingId === voice.id ? (
                   <div className="h-2.5 w-2.5 animate-pulse rounded-sm bg-fd-foreground" />
                 ) : (
-                  <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5">
+                  <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    className="h-3.5 w-3.5"
+                  >
                     <path
                       fill="currentColor"
                       d="M9.244 2.368C7.414 1.184 5 2.497 5 4.676v14.648c0 2.18 2.414 3.493 4.244 2.309l11.318-7.324c1.675-1.084 1.675-3.534 0-4.618z"

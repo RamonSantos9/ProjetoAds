@@ -1,6 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useRef,
+  useEffect,
+} from 'react';
 
 interface Voice {
   name: string;
@@ -49,9 +55,11 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [isMuted, setIsMuted] = useState(false);
   const [playbackRate, setPlaybackRateState] = useState(1.0);
   const [isInlinePlayerVisible, setIsInlinePlayerVisible] = useState(false);
-  
+
   // Store the actual audio element
-  const [audio] = useState(() => typeof Audio !== 'undefined' ? new Audio() : null);
+  const [audio] = useState(() =>
+    typeof Audio !== 'undefined' ? new Audio() : null,
+  );
 
   const setInlinePlayerVisible = (visible: boolean) => {
     setIsInlinePlayerVisible(visible);
@@ -120,7 +128,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     setCurrentVoice(voice);
     setIsVisible(true);
     setIsMinimized(false);
-    
+
     audio.src = url;
     playPromiseRef.current = audio.play();
     playPromiseRef.current.catch((e) => {
@@ -130,7 +138,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
   const pauseTrack = () => {
     if (!audio) return;
-    
+
     if (playPromiseRef.current !== null) {
       playPromiseRef.current
         .then(() => {
@@ -180,13 +188,31 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const expandPlayer = () => setIsMinimized(false);
 
   return (
-    <AudioContext.Provider value={{
-      currentVoice, isPlaying, currentTime, duration,
-      playTrack, pauseTrack, resumeTrack, seek, rewind, fastForward,
-      isVisible, hidePlayer, isMinimized, minimizePlayer, expandPlayer,
-      isMuted, toggleMute, playbackRate, setPlaybackRate,
-      isInlinePlayerVisible, setInlinePlayerVisible
-    }}>
+    <AudioContext.Provider
+      value={{
+        currentVoice,
+        isPlaying,
+        currentTime,
+        duration,
+        playTrack,
+        pauseTrack,
+        resumeTrack,
+        seek,
+        rewind,
+        fastForward,
+        isVisible,
+        hidePlayer,
+        isMinimized,
+        minimizePlayer,
+        expandPlayer,
+        isMuted,
+        toggleMute,
+        playbackRate,
+        setPlaybackRate,
+        isInlinePlayerVisible,
+        setInlinePlayerVisible,
+      }}
+    >
       {children}
     </AudioContext.Provider>
   );
@@ -199,4 +225,3 @@ export function useAudioPlayer() {
   }
   return context;
 }
-

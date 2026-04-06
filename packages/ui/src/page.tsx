@@ -21,8 +21,10 @@ import {
 } from './layouts/docs/page';
 import type { AnchorProviderProps, TOCItemType } from '@xispedocs/core/toc';
 
-interface EditOnGitHubOptions
-  extends Omit<ComponentProps<'a'>, 'href' | 'children'> {
+interface EditOnGitHubOptions extends Omit<
+  ComponentProps<'a'>,
+  'href' | 'children'
+> {
   owner: string;
   repo: string;
 

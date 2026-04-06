@@ -2,7 +2,17 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/cn';
-import { Check, ChevronDown, Circle, PlayCircle, FileText, Calendar, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import {
+  Check,
+  ChevronDown,
+  Circle,
+  PlayCircle,
+  FileText,
+  Calendar,
+  Clock,
+  AlertCircle,
+  CheckCircle2,
+} from 'lucide-react';
 
 export type StatusOption = {
   id: string;
@@ -30,7 +40,10 @@ export function StatusSelector({ value, onChange }: StatusSelectorProps) {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -59,7 +72,12 @@ export function StatusSelector({ value, onChange }: StatusSelectorProps) {
             </span>
           )}
         </div>
-        <ChevronDown className={cn("size-4 text-fd-muted-foreground transition-transform", isOpen && "rotate-180")} />
+        <ChevronDown
+          className={cn(
+            'size-4 text-fd-muted-foreground transition-transform',
+            isOpen && 'rotate-180',
+          )}
+        />
       </button>
 
       {isOpen && (
@@ -74,8 +92,10 @@ export function StatusSelector({ value, onChange }: StatusSelectorProps) {
                   type="button"
                   onClick={() => toggleStatus(opt.id)}
                   className={cn(
-                    "flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors",
-                    isSelected ? "bg-fd-primary/10 text-fd-primary" : "hover:bg-fd-muted text-fd-foreground"
+                    'flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors',
+                    isSelected
+                      ? 'bg-fd-primary/10 text-fd-primary'
+                      : 'hover:bg-fd-muted text-fd-foreground',
                   )}
                 >
                   <div className="flex items-center gap-2">

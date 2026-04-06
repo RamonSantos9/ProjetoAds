@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React from "react";
-import { cn } from "@/lib/cn";
+import React from 'react';
+import { cn } from '@/lib/cn';
 
-type BadgeVariant = "success" | "warning" | "error" | "info" | "neutral";
+type BadgeVariant = 'success' | 'warning' | 'error' | 'info' | 'neutral';
 
 interface BadgeProps {
   children: React.ReactNode;
@@ -82,16 +82,20 @@ const InfoIcon = () => (
 
 export function Badge({
   children,
-  variant = "neutral",
+  variant = 'neutral',
   icon,
-  className = "",
+  className = '',
 }: BadgeProps) {
   const variantStyles = {
-    success: "border-[#BBF7D0] dark:border-[#166534] text-[#16A34A] bg-[#ECFDF5] dark:bg-[#064e3b]/20",
-    warning: "border-[#F9F69D] dark:border-[#713f12] text-[#877300] dark:text-[#ca8a04] bg-[#F7FEE7] dark:bg-[#422006]/20",
-    error: "border-[#FECACA] dark:border-[#7f1d1d] text-[#DC2626] bg-[#FEF2F2] dark:bg-[#450a0a]/20",
-    info: "border-[#BFDBFE] dark:border-[#1e3a8a] text-[#2563EB] bg-[#EFF6FF] dark:bg-[#172554]/20",
-    neutral: "border-[#E2E7F1] dark:border-[#2A2A38] text-[#64748B] dark:text-[#8A8AA3] bg-[#F8FAFC] dark:bg-[#1A1A24]/50",
+    success:
+      'border-[#BBF7D0] dark:border-[#166534] text-[#16A34A] bg-[#ECFDF5] dark:bg-[#064e3b]/20',
+    warning:
+      'border-[#F9F69D] dark:border-[#713f12] text-[#877300] dark:text-[#ca8a04] bg-[#F7FEE7] dark:bg-[#422006]/20',
+    error:
+      'border-[#FECACA] dark:border-[#7f1d1d] text-[#DC2626] bg-[#FEF2F2] dark:bg-[#450a0a]/20',
+    info: 'border-[#BFDBFE] dark:border-[#1e3a8a] text-[#2563EB] bg-[#EFF6FF] dark:bg-[#172554]/20',
+    neutral:
+      'border-[#E2E7F1] dark:border-[#2A2A38] text-[#64748B] dark:text-[#8A8AA3] bg-[#F8FAFC] dark:bg-[#1A1A24]/50',
   };
 
   const defaultIcons = {
@@ -105,9 +109,9 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center justify-center gap-1 text-[12px] px-2 py-1 rounded-full border tracking-wider whitespace-nowrap leading-none",
+        'inline-flex items-center justify-center gap-1 text-[12px] px-2 py-1 rounded-full border tracking-wider whitespace-nowrap leading-none',
         variantStyles[variant],
-        className
+        className,
       )}
     >
       {icon || defaultIcons[variant]}

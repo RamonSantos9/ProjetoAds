@@ -17,9 +17,9 @@ export function Architecture() {
           Um espaço para crescer e aprender.
         </h2>
         <p className="text-fd-muted-foreground mb-6">
-          Nossa missão é fortalecer o ecossistema de tecnologia da Serra Dourada,
-          trazendo vozes que inspiram e educam futuros profissionais de Análise e
-          Desenvolvimento de Sistemas.
+          Nossa missão é fortalecer o ecossistema de tecnologia da Serra
+          Dourada, trazendo vozes que inspiram e educam futuros profissionais de
+          Análise e Desenvolvimento de Sistemas.
         </p>
       </div>
       {/* Imagem da arquitetura com efeito de inversão dependendo do tema (claro/escuro) */}

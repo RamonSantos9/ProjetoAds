@@ -7,15 +7,18 @@ import { PodcastHeader } from '@/app/(home)/_components/podcast-dashboard/Podcas
 
 function GridLayout({ children }: { children: ReactNode }) {
   const { collapsed } = useSidebar();
-  
+
   return (
-    <div 
+    <div
       data-sidebar-collapsed={collapsed}
       className="grid min-h-screen overflow-x-clip bg-[#FFFFFF] dark:bg-[#121212] text-fd-foreground transition-[grid-template-columns] duration-300 ease-in-out"
-      style={{
-        '--fd-sidebar-width': '16rem',
-        gridTemplate: '"sidebar main" 1fr / var(--fd-sidebar-col, 0px) minmax(0, 1fr)',
-      } as CSSProperties}
+      style={
+        {
+          '--fd-sidebar-width': '16rem',
+          gridTemplate:
+            '"sidebar main" 1fr / var(--fd-sidebar-col, 0px) minmax(0, 1fr)',
+        } as CSSProperties
+      }
     >
       <PodcastSidebar />
       <PodcastHeader />

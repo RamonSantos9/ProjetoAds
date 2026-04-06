@@ -25,7 +25,11 @@ export function TOCProvider({
   );
 }
 
-export function TOCScrollArea({ ref, className, ...props }: React.ComponentProps<'div'>) {
+export function TOCScrollArea({
+  ref,
+  className,
+  ...props
+}: React.ComponentProps<'div'>) {
   const viewRef = React.useRef<HTMLDivElement>(null);
 
   return (
@@ -37,14 +41,21 @@ export function TOCScrollArea({ ref, className, ...props }: React.ComponentProps
       )}
       {...props}
     >
-      <Primitive.ScrollProvider containerRef={viewRef}>{props.children}</Primitive.ScrollProvider>
+      <Primitive.ScrollProvider containerRef={viewRef}>
+        {props.children}
+      </Primitive.ScrollProvider>
     </div>
   );
 }
 
 type TocThumbType = [top: number, height: number];
 
-export function TocThumb({ containerRef, ...props }: React.ComponentProps<'div'> & { containerRef: React.RefObject<HTMLElement | null> }) {
+export function TocThumb({
+  containerRef,
+  ...props
+}: React.ComponentProps<'div'> & {
+  containerRef: React.RefObject<HTMLElement | null>;
+}) {
   const thumbRef = React.useRef<HTMLDivElement>(null);
   const active = Primitive.useActiveAnchors();
   function update(info: TocThumbType): void {
@@ -97,7 +108,9 @@ function calc(container: HTMLElement, active: string[]): TocThumbType {
     upper = Math.min(upper, element.offsetTop + parseFloat(styles.paddingTop));
     lower = Math.max(
       lower,
-      element.offsetTop + element.clientHeight - parseFloat(styles.paddingBottom),
+      element.offsetTop +
+        element.clientHeight -
+        parseFloat(styles.paddingBottom),
     );
   }
 

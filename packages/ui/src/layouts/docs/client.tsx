@@ -32,8 +32,10 @@ export function LayoutBody(props: ComponentProps<'main'>) {
         "sidebar sidebar toc-popover toc toc"
         "sidebar sidebar main toc toc" 1fr / minmax(min-content, 1fr) var(--fd-sidebar-col) minmax(0, calc(var(--fd-layout-width,97rem) - var(--fd-sidebar-width) - var(--fd-toc-width))) var(--fd-toc-width) minmax(min-content, 1fr)`,
           '--fd-docs-row-1': 'var(--fd-banner-height, 0px)',
-          '--fd-docs-row-2': 'calc(var(--fd-docs-row-1) + var(--fd-header-height))',
-          '--fd-docs-row-3': 'calc(var(--fd-docs-row-2) + var(--fd-toc-popover-height))',
+          '--fd-docs-row-2':
+            'calc(var(--fd-docs-row-1) + var(--fd-header-height))',
+          '--fd-docs-row-3':
+            'calc(var(--fd-docs-row-2) + var(--fd-toc-popover-height))',
           '--fd-sidebar-col': collapsed ? '0px' : 'var(--fd-sidebar-width)',
           ...props.style,
         } as object

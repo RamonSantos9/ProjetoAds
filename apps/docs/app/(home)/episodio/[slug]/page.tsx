@@ -7,8 +7,6 @@ import { ChevronLeft } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EpisodeInlinePlayer } from '../../_components/EpisodeInlinePlayer';
 
-
-
 export default function PublicEpisodePage() {
   const { slug } = useParams();
   const [episode, setEpisode] = useState<any | null>(null);
@@ -21,9 +19,9 @@ export default function PublicEpisodePage() {
         const res = await fetch(`/api/episodes/${slug}`);
         const data = await res.json();
         if (res.ok) {
-           setEpisode(data);
+          setEpisode(data);
         } else {
-           setEpisode(null);
+          setEpisode(null);
         }
       } catch (err) {
         console.error(err);
@@ -47,9 +45,16 @@ export default function PublicEpisodePage() {
   if (!episode) {
     return (
       <div className="min-h-screen bg-[#FFFFFF] dark:bg-fd-background p-8 flex flex-col items-center justify-center text-center">
-        <h1 className="text-4xl font-bold text-fd-foreground mb-4">Episódio não encontrado</h1>
-        <p className="text-fd-muted-foreground mb-8">O link que você acessou pode estar expirado ou incorreto.</p>
-        <Link href="/" className="text-fd-primary hover:underline flex items-center gap-2">
+        <h1 className="text-4xl font-bold text-fd-foreground mb-4">
+          Episódio não encontrado
+        </h1>
+        <p className="text-fd-muted-foreground mb-8">
+          O link que você acessou pode estar expirado ou incorreto.
+        </p>
+        <Link
+          href="/"
+          className="text-fd-primary hover:underline flex items-center gap-2"
+        >
           <ChevronLeft className="size-4" /> Voltar para o início
         </Link>
       </div>
@@ -69,13 +74,13 @@ export default function PublicEpisodePage() {
         <div className="max-w-3xl mx-auto w-full">
           {/* Episode Header Section */}
           <section className="relative overflow-hidden px-6 py-12 md:px-10">
-            <div className="absolute inset-0 z-[-1]"/>
-            
-            <Link 
+            <div className="absolute inset-0 z-[-1]" />
+
+            <Link
               href="/episodios"
               className="inline-flex items-center gap-2 text-sm text-fd-muted-foreground hover:text-fd-primary transition-colors mb-6 group"
             >
-              <ChevronLeft className="size-4 group-hover:-translate-x-1 transition-transform" /> 
+              <ChevronLeft className="size-4 group-hover:-translate-x-1 transition-transform" />
               Voltar para Episódios
             </Link>
 
@@ -90,7 +95,6 @@ export default function PublicEpisodePage() {
 
               {/* Integrated Audio Player (Componentized) */}
               <EpisodeInlinePlayer episode={episode} />
-
             </div>
           </section>
           {/* Transcription Section */}
@@ -103,23 +107,30 @@ export default function PublicEpisodePage() {
               </div>
 
               <div className="max-w-2xl space-y-8 leading-[1.8] text-xl">
-                {episode?.transcriptionText ? episode.transcriptionText.trim().split(/\n|\\n/).map((line: string, i: number) => {
-                  const parts = line.split(' ');
-                  const time = parts[0];
-                  const text = parts.slice(1).join(' ');
-                  
-                  if (!time || !text) return null;
+                {episode?.transcriptionText ? (
+                  episode.transcriptionText
+                    .trim()
+                    .split(/\n|\\n/)
+                    .map((line: string, i: number) => {
+                      const parts = line.split(' ');
+                      const time = parts[0];
+                      const text = parts.slice(1).join(' ');
 
-                  return (
-                    <div key={i} className="mb-1">
-                      <p className="selection:bg-fd-primary/10 text-fd-foreground hover:text-fd-primary transition-colors cursor-default">
-                        {text}
-                      </p>
-                    </div>
-                  );
-                }) : (
+                      if (!time || !text) return null;
+
+                      return (
+                        <div key={i} className="mb-1">
+                          <p className="selection:bg-fd-primary/10 text-fd-foreground hover:text-fd-primary transition-colors cursor-default">
+                            {text}
+                          </p>
+                        </div>
+                      );
+                    })
+                ) : (
                   <div className="py-20 text-center border border-dashed border-fd-border">
-                    <p className="text-fd-muted-foreground">Transcrição em fase de processamento...</p>
+                    <p className="text-fd-muted-foreground">
+                      Transcrição em fase de processamento...
+                    </p>
                   </div>
                 )}
               </div>

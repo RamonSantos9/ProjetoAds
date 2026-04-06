@@ -90,7 +90,9 @@ export function findSiblings(
     const parent = findParent(tree, url);
     if (!parent) return [];
 
-    return parent.children.filter((item) => item.type !== 'page' || item.url !== url);
+    return parent.children.filter(
+      (item) => item.type !== 'page' || item.url !== url,
+    );
   }
 
   // Multiple trees case
@@ -150,7 +152,8 @@ export function findPath(
       }
 
       if (node.type === 'folder') {
-        const items = node.index && matcher(node.index) ? [node.index] : run(node.children);
+        const items =
+          node.index && matcher(node.index) ? [node.index] : run(node.children);
 
         if (items) {
           items.unshift(node);

@@ -1,9 +1,6 @@
 'use client';
 import * as React from 'react';
-import {
-  type ReactNode,
-  type RefObject,
-} from 'react';
+import { type ReactNode, type RefObject } from 'react';
 import { createSafeContext, usePathname } from '@xispedocs/core/framework';
 import { useOnChange } from '@xispedocs/core/utils/use-on-change';
 

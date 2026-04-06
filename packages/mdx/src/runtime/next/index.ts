@@ -1,4 +1,3 @@
-
 import type { DocOut, MetaOut, Runtime } from './types';
 import type { CompiledMDXProperties } from '@/loaders/mdx/build-mdx';
 import * as fs from 'node:fs/promises';
@@ -27,7 +26,8 @@ export const _runtime: Runtime = {
             return (await fs.readFile(filePath)).toString();
           }
 
-          if (typeof data._markdown !== 'string') shared.missingProcessedMarkdown();
+          if (typeof data._markdown !== 'string')
+            shared.missingProcessedMarkdown();
           return data._markdown;
         },
       } satisfies DocOut;
@@ -54,7 +54,5 @@ export const _runtime: Runtime = {
     } as any;
   },
 };
-
-
 
 export * from './types';

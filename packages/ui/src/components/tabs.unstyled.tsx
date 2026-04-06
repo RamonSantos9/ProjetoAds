@@ -1,9 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  type ComponentProps,
-} from 'react';
+import { type ComponentProps } from 'react';
 import * as Primitive from '@radix-ui/react-tabs';
 import { mergeRefs } from '../utils/merge-refs';
 import { useEffectEvent } from '@xispedocs/core/utils/use-effect-event';

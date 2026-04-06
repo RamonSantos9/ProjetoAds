@@ -57,7 +57,8 @@ export function createPageTreeRenderer({
     if (node.type === 'folder') {
       // eslint-disable-next-line react-hooks/rules-of-hooks -- assume node type unchanged
       const path = useTreePath();
-      if (Folder) return <Folder item={node}>{renderList(node.children)}</Folder>;
+      if (Folder)
+        return <Folder item={node}>{renderList(node.children)}</Folder>;
 
       return (
         <SidebarFolder
@@ -80,7 +81,9 @@ export function createPageTreeRenderer({
               {node.name}
             </SidebarFolderTrigger>
           )}
-          <SidebarFolderContent>{renderList(node.children)}</SidebarFolderContent>
+          <SidebarFolderContent>
+            {renderList(node.children)}
+          </SidebarFolderContent>
         </SidebarFolder>
       );
     }
@@ -101,7 +104,9 @@ export function createPageTreeRenderer({
   /**
    * Render sidebar items from page tree
    */
-  return function SidebarPageTree(components: Partial<SidebarPageTreeComponents>) {
+  return function SidebarPageTree(
+    components: Partial<SidebarPageTreeComponents>,
+  ) {
     const { Folder, Item, Separator } = components;
     const { root } = useTreeContext();
     const pathname = usePathname();
@@ -113,7 +118,9 @@ export function createPageTreeRenderer({
           [Folder, Item, Separator, pathname],
         )}
       >
-        <React.Fragment key={root.$id}>{renderList(root.children)}</React.Fragment>
+        <React.Fragment key={root.$id}>
+          {renderList(root.children)}
+        </React.Fragment>
       </RendererContext>
     );
   };

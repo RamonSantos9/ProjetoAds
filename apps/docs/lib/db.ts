@@ -4,7 +4,11 @@ import path from 'node:path';
 const getDbPath = () => {
   const cwd = process.cwd();
   // Detect if we're in the monorepo root or already in the app docs folder
-  if (cwd.endsWith('apps/docs') || cwd.includes('apps\\docs') || cwd.includes('apps/docs')) {
+  if (
+    cwd.endsWith('apps/docs') ||
+    cwd.includes('apps\\docs') ||
+    cwd.includes('apps/docs')
+  ) {
     return path.resolve(cwd, 'lib', 'db.json');
   }
   // Assume monorepo root
@@ -12,8 +16,22 @@ const getDbPath = () => {
 };
 const DB_PATH = getDbPath();
 
-export type EpisodeStatus = 'Publicado' | 'Em gravação' | 'Em pauta' | 'Processando' | 'Concluído' | 'Erro' | 'Produção' | 'Rascunho' | 'Agendado';
-export type EpisodeCategory = 'Institucional' | 'Carreira' | 'Formação' | 'Entrevista' | 'Geral';
+export type EpisodeStatus =
+  | 'Publicado'
+  | 'Em gravação'
+  | 'Em pauta'
+  | 'Processando'
+  | 'Concluído'
+  | 'Erro'
+  | 'Produção'
+  | 'Rascunho'
+  | 'Agendado';
+export type EpisodeCategory =
+  | 'Institucional'
+  | 'Carreira'
+  | 'Formação'
+  | 'Entrevista'
+  | 'Geral';
 
 export interface Guest {
   id: string;
@@ -25,9 +43,9 @@ export interface Guest {
 }
 
 export interface Episode {
-  id: string;             // unique identifier
+  id: string; // unique identifier
   slug: string;
-  title: string;          // Maps from "episodeTitle" and "title"
+  title: string; // Maps from "episodeTitle" and "title"
   summary: string;
   category: EpisodeCategory;
   status: EpisodeStatus;
@@ -42,8 +60,8 @@ export interface Episode {
   transcriptionText?: string;
   language?: string;
   confidence?: number;
-  image?: string;       // URL for persisted image
-  imageFile?: any;      // Local File object for optimistic UI
+  image?: string; // URL for persisted image
+  imageFile?: any; // Local File object for optimistic UI
 }
 
 export interface TimelineTrack {
@@ -121,7 +139,8 @@ const initialFeedbacks: Feedback[] = [
     avatar: 'https://avatars.githubusercontent.com/u/3',
     user: 'Tech Inovação',
     role: 'Empresa Parceira',
-    message: 'Uma iniciativa incrível da Serra Dourada. Talentos são formados quando há essa troca de experiências que o podcast proporciona.',
+    message:
+      'Uma iniciativa incrível da Serra Dourada. Talentos são formados quando há essa troca de experiências que o podcast proporciona.',
   },
   {
     avatar: 'https://avatars.githubusercontent.com/u/10645823',
@@ -139,7 +158,8 @@ const initialEpisodes: Episode[] = [
     category: 'Institucional',
     duration: '18 min',
     status: 'Publicado',
-    summary: 'Apresentação oficial do projeto, da proposta de extensão e da conexão entre o curso de ADS, a faculdade e a comunidade.',
+    summary:
+      'Apresentação oficial do projeto, da proposta de extensão e da conexão entre o curso de ADS, a faculdade e a comunidade.',
     guests: [{ id: 'guest-equipe', name: 'Equipe PodcastAds' }],
     platforms: ['Spotify', 'YouTube'],
     createdAt: new Date().toISOString(),
@@ -151,8 +171,12 @@ const initialEpisodes: Episode[] = [
     category: 'Carreira',
     duration: '26 min',
     status: 'Em gravação',
-    summary: 'Conversa com empreendedores e profissionais da região sobre empregabilidade, portfólio e primeiros passos na tecnologia.',
-    guests: [{ id: 'guest-empreendedor', name: 'Empreendedor local' }, { id: 'guest-professor', name: 'Professor convidado' }],
+    summary:
+      'Conversa com empreendedores e profissionais da região sobre empregabilidade, portfólio e primeiros passos na tecnologia.',
+    guests: [
+      { id: 'guest-empreendedor', name: 'Empreendedor local' },
+      { id: 'guest-professor', name: 'Professor convidado' },
+    ],
     platforms: ['Spotify', 'Instagram'],
     createdAt: new Date(Date.now() - 86400 * 1000).toISOString(),
   },
@@ -163,8 +187,12 @@ const initialEpisodes: Episode[] = [
     category: 'Formação',
     duration: '22 min',
     status: 'Em pauta',
-    summary: 'Debate sobre comunicação, trabalho em equipe e postura profissional para estudantes e futuros desenvolvedores.',
-    guests: [{ id: 'guest-docente', name: 'Docente ADS' }, { id: 'guest-aluno-lider', name: 'Aluno líder' }],
+    summary:
+      'Debate sobre comunicação, trabalho em equipe e postura profissional para estudantes e futuros desenvolvedores.',
+    guests: [
+      { id: 'guest-docente', name: 'Docente ADS' },
+      { id: 'guest-aluno-lider', name: 'Aluno líder' },
+    ],
     platforms: ['Spotify', 'YouTube', 'Instagram'],
     createdAt: new Date(Date.now() - 86400 * 2000).toISOString(),
   },
@@ -177,7 +205,7 @@ const initialAssets: VisualAsset[] = [
     title: 'Thumbnail Oficial - Ep 01',
     type: 'Thumbnail',
     url: 'https://picsum.photos/seed/ep1/800/450',
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'asset-2',
@@ -185,8 +213,8 @@ const initialAssets: VisualAsset[] = [
     title: 'Post Instagram - Ep 01',
     type: 'Social Post',
     url: 'https://picsum.photos/seed/ep1-insta/1080/1080',
-    createdAt: new Date().toISOString()
-  }
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 const initialGuests: Guest[] = [
@@ -195,15 +223,15 @@ const initialGuests: Guest[] = [
     name: 'Prof. Anderson',
     bio: 'Coordenador do curso de ADS com vasta experiência em gestão acadêmica e tecnologia.',
     social: 'https://linkedin.com/in/anderson',
-    avatar: 'https://avatars.githubusercontent.com/u/1'
+    avatar: 'https://avatars.githubusercontent.com/u/1',
   },
   {
     id: 'guest-julia',
     name: 'Júlia Santos',
     bio: 'Aluna destaque do 4º período, entusiasta de desenvolvimento web e UX Design.',
     social: 'https://instagram.com/juliasantos',
-    avatar: 'https://avatars.githubusercontent.com/u/35677084'
-  }
+    avatar: 'https://avatars.githubusercontent.com/u/35677084',
+  },
 ];
 
 /**
@@ -218,27 +246,27 @@ async function initDb(): Promise<void> {
 
     if (!parsed.episodes) {
       if (parsed.transcriptions) {
-         const mergedEpisodes = [...initialEpisodes];
-         for (const tr of parsed.transcriptions) {
-            mergedEpisodes.push({
-               id: tr.id,
-               slug: tr.slug,
-               title: tr.episodeTitle,
-               category: tr.category,
-               summary: tr.summary,
-               status: tr.status,
-               duration: tr.duration,
-               guests: tr.guests || [],
-               platforms: tr.platforms || [],
-               createdAt: tr.createdAt,
-               audioUrl: tr.audioUrl,
-               transcriptionText: tr.transcriptionText,
-               language: tr.language
-            });
-         }
-         parsed.episodes = mergedEpisodes;
+        const mergedEpisodes = [...initialEpisodes];
+        for (const tr of parsed.transcriptions) {
+          mergedEpisodes.push({
+            id: tr.id,
+            slug: tr.slug,
+            title: tr.episodeTitle,
+            category: tr.category,
+            summary: tr.summary,
+            status: tr.status,
+            duration: tr.duration,
+            guests: tr.guests || [],
+            platforms: tr.platforms || [],
+            createdAt: tr.createdAt,
+            audioUrl: tr.audioUrl,
+            transcriptionText: tr.transcriptionText,
+            language: tr.language,
+          });
+        }
+        parsed.episodes = mergedEpisodes;
       } else {
-         parsed.episodes = initialEpisodes;
+        parsed.episodes = initialEpisodes;
       }
       updated = true;
     }
@@ -268,13 +296,20 @@ async function initDb(): Promise<void> {
     }
   } catch (err: any) {
     if (err.code === 'ENOENT') {
-      await fs.writeFile(DB_PATH, JSON.stringify({ 
-        episodes: initialEpisodes, 
-        feedbacks: initialFeedbacks, 
-        projects: [],
-        guests: initialGuests,
-        assets: initialAssets
-      }, null, 2));
+      await fs.writeFile(
+        DB_PATH,
+        JSON.stringify(
+          {
+            episodes: initialEpisodes,
+            feedbacks: initialFeedbacks,
+            projects: [],
+            guests: initialGuests,
+            assets: initialAssets,
+          },
+          null,
+          2,
+        ),
+      );
     }
   }
 }
@@ -300,7 +335,7 @@ export async function addEpisode(record: Episode) {
 
 export async function updateEpisode(id: string, updates: Partial<Episode>) {
   const db = await readDb();
-  const index = db.episodes.findIndex(t => t.id === id);
+  const index = db.episodes.findIndex((t) => t.id === id);
   if (index !== -1) {
     db.episodes[index] = { ...db.episodes[index], ...updates };
     await writeDb(db);
@@ -309,12 +344,12 @@ export async function updateEpisode(id: string, updates: Partial<Episode>) {
 
 export async function getEpisodeBySlug(slug: string): Promise<Episode | null> {
   const db = await readDb();
-  return db.episodes.find(t => t.slug === slug) || null;
+  return db.episodes.find((t) => t.slug === slug) || null;
 }
 
 export async function getEpisodeById(id: string): Promise<Episode | null> {
   const db = await readDb();
-  return db.episodes.find(t => t.id === id) || null;
+  return db.episodes.find((t) => t.id === id) || null;
 }
 
 // ------ STUDIO PROJECT CRUD ------ //
@@ -330,29 +365,34 @@ export async function addProject(project: StudioProject) {
   await writeDb(db);
 }
 
-export async function updateProject(id: string, updates: Partial<StudioProject>) {
+export async function updateProject(
+  id: string,
+  updates: Partial<StudioProject>,
+) {
   const db = await readDb();
-  const index = db.projects.findIndex(p => p.id === id);
+  const index = db.projects.findIndex((p) => p.id === id);
   if (index !== -1) {
     db.projects[index] = { ...db.projects[index], ...updates };
     await writeDb(db);
   }
 }
 
-export async function getProjectById(id: string): Promise<StudioProject | null> {
+export async function getProjectById(
+  id: string,
+): Promise<StudioProject | null> {
   const db = await readDb();
-  return db.projects.find(p => p.id === id) || null;
+  return db.projects.find((p) => p.id === id) || null;
 }
 
 export async function deleteProject(id: string) {
   const db = await readDb();
-  db.projects = db.projects.filter(p => p.id !== id);
+  db.projects = db.projects.filter((p) => p.id !== id);
   await writeDb(db);
 }
 
 export async function addAsset(projectId: string, asset: UploadedFile) {
   const db = await readDb();
-  const index = db.projects.findIndex(p => p.id === projectId);
+  const index = db.projects.findIndex((p) => p.id === projectId);
   if (index !== -1) {
     if (!db.projects[index].assets) db.projects[index].assets = [];
     db.projects[index].assets!.push(asset);
@@ -360,13 +400,16 @@ export async function addAsset(projectId: string, asset: UploadedFile) {
   }
 }
 
-export async function deleteAsset(projectId: string, assetId: string): Promise<UploadedFile | null> {
+export async function deleteAsset(
+  projectId: string,
+  assetId: string,
+): Promise<UploadedFile | null> {
   const db = await readDb();
-  const index = db.projects.findIndex(p => p.id === projectId);
+  const index = db.projects.findIndex((p) => p.id === projectId);
   if (index !== -1) {
     const project = db.projects[index];
     if (!project.assets) return null;
-    const assetIndex = project.assets.findIndex(a => a.id === assetId);
+    const assetIndex = project.assets.findIndex((a) => a.id === assetId);
     if (assetIndex !== -1) {
       const [deletedAsset] = project.assets.splice(assetIndex, 1);
       await writeDb(db);
@@ -392,7 +435,7 @@ export async function addGuest(record: Guest) {
 
 export async function updateGuest(id: string, updates: Partial<Guest>) {
   const db = await readDb();
-  const index = db.guests.findIndex(g => g.id === id);
+  const index = db.guests.findIndex((g) => g.id === id);
   if (index !== -1) {
     db.guests[index] = { ...db.guests[index], ...updates };
     await writeDb(db);
@@ -401,7 +444,7 @@ export async function updateGuest(id: string, updates: Partial<Guest>) {
 
 export async function deleteGuest(id: string) {
   const db = await readDb();
-  db.guests = db.guests.filter(g => g.id !== id);
+  db.guests = db.guests.filter((g) => g.id !== id);
   await writeDb(db);
 }
 
@@ -421,6 +464,6 @@ export async function addVisualAsset(record: VisualAsset) {
 
 export async function deleteVisualAsset(id: string) {
   const db = await readDb();
-  db.assets = db.assets.filter(a => a.id !== id);
+  db.assets = db.assets.filter((a) => a.id !== id);
   await writeDb(db);
 }

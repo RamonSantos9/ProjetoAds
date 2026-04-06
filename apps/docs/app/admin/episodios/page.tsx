@@ -14,8 +14,10 @@ import { Episode } from '@/lib/db';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
-import { EpisodeCard, EpisodeListItem } from '@/components/episodes/EpisodeCard';
-
+import {
+  EpisodeCard,
+  EpisodeListItem,
+} from '@/components/episodes/EpisodeCard';
 
 export default function EpisodesDashboardPage() {
   const pathname = usePathname();
@@ -25,7 +27,7 @@ export default function EpisodesDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [search, setSearch] = useState('');
-  
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(null);
@@ -48,36 +50,51 @@ export default function EpisodesDashboardPage() {
     fetchEpisodes();
   }, []);
 
-  const filtered = episodes.filter((p) =>
-    p.title.toLowerCase().includes(search.toLowerCase()) || 
-    p.summary.toLowerCase().includes(search.toLowerCase())
+  const filtered = episodes.filter(
+    (p) =>
+      p.title.toLowerCase().includes(search.toLowerCase()) ||
+      p.summary.toLowerCase().includes(search.toLowerCase()),
   );
 
   const handleCreateSave = (data: any) => {
     // If the data comes from the API result (it has an id)
     if (data.id || data.slug) {
-      setEpisodes(prev => [data, ...prev]);
+      setEpisodes((prev) => [data, ...prev]);
     } else {
       // Fallback for manual local creation (rare now)
-      setEpisodes(prev => [{
-        id: Math.random().toString(36).substring(7),
-        ...data,
-        guests: typeof data.guests === 'string' ? data.guests.split(',').filter(Boolean) : data.guests,
-        platforms: typeof data.platforms === 'string' ? data.platforms.split(',').filter(Boolean) : data.platforms,
-      }, ...prev]);
+      setEpisodes((prev) => [
+        {
+          id: Math.random().toString(36).substring(7),
+          ...data,
+          guests:
+            typeof data.guests === 'string'
+              ? data.guests.split(',').filter(Boolean)
+              : data.guests,
+          platforms:
+            typeof data.platforms === 'string'
+              ? data.platforms.split(',').filter(Boolean)
+              : data.platforms,
+        },
+        ...prev,
+      ]);
     }
   };
 
   const handleEditSave = (updated: Episode) => {
-    setEpisodes(prev => prev.map(ep => ep.id === updated.id ? updated : ep));
+    setEpisodes((prev) =>
+      prev.map((ep) => (ep.id === updated.id ? updated : ep)),
+    );
   };
 
   return (
     <div className="rebrand-body flex min-h-[calc(100vh-64px)] flex-col bg-[#FFFFFF] dark:bg-fd-background px-4 sm:px-8 py-8 text-fd-foreground">
       <main className="relative flex-[1_1_0] mx-auto w-full max-w-6xl pb-8 flex flex-col min-h-0">
         <div className="flex gap-4 mb-4 md:mb-8 justify-between max-w-full shrink-0">
-           <HomeBadge text="Dashboard / Episódios" href={`${isAdmin ? '/admin' : '/dashboard'}/episodios`} />
-           <ThemeToggle mode="light-dark" />
+          <HomeBadge
+            text="Dashboard / Episódios"
+            href={`${isAdmin ? '/admin' : '/dashboard'}/episodios`}
+          />
+          <ThemeToggle mode="light-dark" />
         </div>
 
         {/* Content Card matches modern PodcastAds rounded-[24px] box */}
@@ -118,9 +135,17 @@ export default function EpisodesDashboardPage() {
 
                 {/* Actions */}
                 <nav className="flex items-center gap-2 sm:gap-3 shrink-0 self-end sm:self-auto">
-                  <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} className="hidden sm:flex" />
+                  <ViewToggle
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
+                    className="hidden sm:flex"
+                  />
                   {isAdmin && (
-                    <ActionButton label="Novo Episódio" onClick={() => setIsCreateModalOpen(true)} className="rounded-xl px-4" />
+                    <ActionButton
+                      label="Novo Episódio"
+                      onClick={() => setIsCreateModalOpen(true)}
+                      className="rounded-xl px-4"
+                    />
                   )}
                 </nav>
               </header>
@@ -133,15 +158,18 @@ export default function EpisodesDashboardPage() {
                   viewMode === 'grid' ? (
                     <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                       {Array.from({ length: 9 }).map((_, i) => (
-                        <li key={i} className="bg-background border border-[#E2E7F1] dark:border-[#2A2A38] rounded-2xl flex flex-col min-h-[280px] overflow-hidden">
+                        <li
+                          key={i}
+                          className="bg-background border border-[#E2E7F1] dark:border-[#2A2A38] rounded-2xl flex flex-col min-h-[280px] overflow-hidden"
+                        >
                           <div className="p-[10px] flex flex-col gap-3 flex-1">
                             <Skeleton className="w-full h-[140px] rounded-xl" />
                             <Skeleton className="w-4/5 h-4 ml-1" />
                             <Skeleton className="w-2/3 h-3 ml-1" />
                           </div>
                           <div className="flex justify-between items-center mt-auto p-3 bg-[#F9FAFB] dark:bg-[#1A1A24] border-t border-[#E2E7F1] dark:border-[#2A2A38]">
-                             <Skeleton className="w-16 h-6 rounded-full" />
-                             <Skeleton className="w-8 h-8 rounded-lg" />
+                            <Skeleton className="w-16 h-6 rounded-full" />
+                            <Skeleton className="w-8 h-8 rounded-lg" />
                           </div>
                         </li>
                       ))}
@@ -149,7 +177,10 @@ export default function EpisodesDashboardPage() {
                   ) : (
                     <ul className="flex flex-col gap-2 w-full">
                       {Array.from({ length: 6 }).map((_, i) => (
-                        <li key={i} className="bg-fd-background border border-border rounded-xl p-3 flex items-center gap-4">
+                        <li
+                          key={i}
+                          className="bg-fd-background border border-border rounded-xl p-3 flex items-center gap-4"
+                        >
                           <Skeleton className="w-14 h-14 rounded-lg" />
                           <div className="flex-1 flex flex-col gap-2">
                             <Skeleton className="w-1/3 h-4" />
@@ -163,7 +194,9 @@ export default function EpisodesDashboardPage() {
                 ) : filtered.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-border rounded-2xl gap-3 text-fd-muted-foreground">
                     <Search className="size-8" />
-                    <p className="text-sm font-medium">Nenhum episódio encontrado.</p>
+                    <p className="text-sm font-medium">
+                      Nenhum episódio encontrado.
+                    </p>
                   </div>
                 ) : viewMode === 'grid' ? (
                   <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full content-start">

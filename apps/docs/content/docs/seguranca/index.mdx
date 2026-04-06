@@ -14,13 +14,13 @@ Implementamos um sistema de **Controle de Acesso Baseado em Funções (Role-Base
 O sistema utiliza o `usePathname()` para identificar o ambiente de execução e aplicar as camadas de segurança e visibilidade adequadas:
 
 1.  **Contexto Administrativo (`/admin/*`)**:
-    *   **Público-Alvo**: Equipe de Produção e Direção.
-    *   **Capacidade**: Acesso total (CRUD) aos módulos de Estúdio, Episódios e Relatórios.
-    *   **UI**: Revela controles sensíveis, modais de edição e ferramentas de Business Intelligence.
+    - **Público-Alvo**: Equipe de Produção e Direção.
+    - **Capacidade**: Acesso total (CRUD) aos módulos de Estúdio, Episódios e Relatórios.
+    - **UI**: Revela controles sensíveis, modais de edição e ferramentas de Business Intelligence.
 2.  **Contexto do Ouvinte (`/dashboard/*`)**:
-    *   **Público-Alvo**: Estudantes e Convidados Acadêmicos.
-    *   **Capacidade**: Interação _Read-Only_ ou de engajamento controlado.
-    *   **UI**: Oculta funcionalidades de mutação de dados, mantendo o foco na experiência de áudio e visualização de pautas.
+    - **Público-Alvo**: Estudantes e Convidados Acadêmicos.
+    - **Capacidade**: Interação _Read-Only_ ou de engajamento controlado.
+    - **UI**: Oculta funcionalidades de mutação de dados, mantendo o foco na experiência de áudio e visualização de pautas.
 
 ---
 
@@ -42,13 +42,15 @@ return (
 
 ### Segurança na Camada de Dados
 
-Toda mutação de dados (POST, PUT, DELETE) é validada nos *API Routes* do Next.js. Mesmo que um usuário tente forçar uma ação via console, o servidor verifica a origem da requisição e as credenciais associadas à sessão antes de persistir alterações no `db.json`.
+Toda mutação de dados (POST, PUT, DELETE) é validada nos _API Routes_ do Next.js. Mesmo que um usuário tente forçar uma ação via console, o servidor verifica a origem da requisição e as credenciais associadas à sessão antes de persistir alterações no `db.json`.
 
 <Callout type="error">
-Nenhuma funcionalidade de exclusão ou alteração de pauta é exposta fora do prefixo `/admin`, garantindo que o portal público permaneça uma zona de consumo segura e protegida contra mutações acidentais.
+  Nenhuma funcionalidade de exclusão ou alteração de pauta é exposta fora do
+  prefixo `/admin`, garantindo que o portal público permaneça uma zona de
+  consumo segura e protegida contra mutações acidentais.
 </Callout>
 
 ## Vantagens da Abordagem Única
 
-*   **Manutenção Centralizada**: Correções de bugs na lógica de exibição de novos episódios são aplicadas uma única vez e refletem globalmente.
-*   **Performance**: Como não há duplicação de layout, o bundle do Next.js permanece otimizado e a navegação entre áreas de diferentes níveis de acesso é instantânea (Client-side routing).
+- **Manutenção Centralizada**: Correções de bugs na lógica de exibição de novos episódios são aplicadas uma única vez e refletem globalmente.
+- **Performance**: Como não há duplicação de layout, o bundle do Next.js permanece otimizado e a navegação entre áreas de diferentes níveis de acesso é instantânea (Client-side routing).

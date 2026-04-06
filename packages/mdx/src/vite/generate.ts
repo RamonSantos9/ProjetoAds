@@ -73,7 +73,9 @@ export function entry(
   }
 
   lines.push('');
-  lines.push(`export default { ${Array.from(config.collections.keys()).join(', ')} };`);
+  lines.push(
+    `export default { ${Array.from(config.collections.keys()).join(', ')} };`,
+  );
 
   return lines.join('\n');
 }

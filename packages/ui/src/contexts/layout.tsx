@@ -52,7 +52,9 @@ export function NavProvider({
   transparentMode = 'none',
   children,
 }: NavProviderProps & { children: ReactNode }) {
-  const [transparent, setTransparent] = React.useState(transparentMode !== 'none');
+  const [transparent, setTransparent] = React.useState(
+    transparentMode !== 'none',
+  );
 
   React.useEffect(() => {
     if (transparentMode !== 'top') return;
@@ -70,7 +72,10 @@ export function NavProvider({
 
   return (
     <NavContext.Provider
-      value={React.useMemo(() => ({ isTransparent: transparent }), [transparent])}
+      value={React.useMemo(
+        () => ({ isTransparent: transparent }),
+        [transparent],
+      )}
     >
       {children}
     </NavContext.Provider>

@@ -25,7 +25,7 @@ export function Skeleton({
       className={cn(
         'animate-pulse bg-fd-muted',
         variantClasses[variant],
-        className
+        className,
       )}
       style={{ width, height, ...props.style }}
       {...props}

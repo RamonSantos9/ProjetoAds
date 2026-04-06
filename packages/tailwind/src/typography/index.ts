@@ -18,7 +18,10 @@ interface Context {
   modifier?: string;
 }
 
-function inWhere(selector: string, { className, prefix, modifier }: Options & Context) {
+function inWhere(
+  selector: string,
+  { className, prefix, modifier }: Options & Context,
+) {
   const prefixedNot = prefix(`.not-${className}`).slice(1);
   const selectorPrefix = selector.startsWith('>')
     ? `${modifier === 'DEFAULT' ? `.${className}` : `.${className}-${modifier}`} `
@@ -34,8 +37,14 @@ function inWhere(selector: string, { className, prefix, modifier }: Options & Co
   return `:where(${selectorPrefix}${selector}):not(:where([class~="${prefixedNot}"],[class~="${prefixedNot}"] *))`;
 }
 
-function configToCss(config: Config = {}, { className, modifier, prefix }: Options & Context) {
-  function updateSelector(k: string, v: unknown): [k: string, v: unknown, object?] {
+function configToCss(
+  config: Config = {},
+  { className, modifier, prefix }: Options & Context,
+) {
+  function updateSelector(
+    k: string,
+    v: unknown,
+  ): [k: string, v: unknown, object?] {
     if (Array.isArray(v)) {
       return [k, v];
     }
@@ -46,7 +55,9 @@ function configToCss(config: Config = {}, { className, modifier, prefix }: Optio
         return [
           inWhere(k, { className, modifier, prefix }),
           v,
-          Object.fromEntries(Object.entries(v).map(([k, v]) => updateSelector(k, v))),
+          Object.fromEntries(
+            Object.entries(v).map(([k, v]) => updateSelector(k, v)),
+          ),
         ];
       }
 
@@ -58,8 +69,8 @@ function configToCss(config: Config = {}, { className, modifier, prefix }: Optio
 
   const css = config.css ?? [];
   return Object.fromEntries(
-    Object.entries(merge({}, ...(Array.isArray(css) ? css : [css]))).map(([k, v]) =>
-      updateSelector(k, v),
+    Object.entries(merge({}, ...(Array.isArray(css) ? css : [css]))).map(
+      ([k, v]) => updateSelector(k, v),
     ),
   );
 }
@@ -148,40 +159,45 @@ const SELECTORS = [
 ];
 
 export const typography: ReturnType<typeof plugin.withOptions<Options>> =
-  plugin.withOptions<Options>(({ className = 'prose', ...styleOptions } = {}) => {
-    return ({ addVariant, addComponents, ...rest }) => {
-      const prefix = (rest as unknown as { prefix: Context['prefix'] }).prefix;
+  plugin.withOptions<Options>(
+    ({ className = 'prose', ...styleOptions } = {}) => {
+      return ({ addVariant, addComponents, ...rest }) => {
+        const prefix = (rest as unknown as { prefix: Context['prefix'] })
+          .prefix;
 
-      for (const [name, ...values] of SELECTORS) {
-        const selectors = values.length === 0 ? [name] : values;
-        const selector = selectors.join(', ');
+        for (const [name, ...values] of SELECTORS) {
+          const selectors = values.length === 0 ? [name] : values;
+          const selector = selectors.join(', ');
 
-        addVariant(
-          `${className}-${name}`,
-          `& :is(${inWhere(selector, {
-            prefix,
-            className,
-          })})`,
-        );
-      }
+          addVariant(
+            `${className}-${name}`,
+            `& :is(${inWhere(selector, {
+              prefix,
+              className,
+            })})`,
+          );
+        }
 
-      addComponents({
-        [`.${className}`]: configToCss(
-          {
-            ...styles.DEFAULT,
-            css: [
-              ...(styles.DEFAULT.css ?? []),
-              styleOptions.disableRoundedTable ? styles.normalTable : styles.roundedTable,
-            ],
-          },
-          {
-            className,
-            modifier: 'DEFAULT',
-            prefix,
-          },
-        ),
-      });
-    };
-  });
+        addComponents({
+          [`.${className}`]: configToCss(
+            {
+              ...styles.DEFAULT,
+              css: [
+                ...(styles.DEFAULT.css ?? []),
+                styleOptions.disableRoundedTable
+                  ? styles.normalTable
+                  : styles.roundedTable,
+              ],
+            },
+            {
+              className,
+              modifier: 'DEFAULT',
+              prefix,
+            },
+          ),
+        });
+      };
+    },
+  );
 
 export default typography;

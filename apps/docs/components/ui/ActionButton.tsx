@@ -21,7 +21,11 @@ const PlusIcon = () => (
     aria-hidden="true"
     className="size-5 shrink-0"
   >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 4.5v15m7.5-7.5h-15"
+    />
   </svg>
 );
 
@@ -44,7 +48,7 @@ export function ActionButton({
         isPrimary
           ? 'bg-fd-primary text-fd-primary-foreground'
           : 'bg-transparent text-fd-foreground',
-        className
+        className,
       )}
     >
       {showIcon && (icon || <PlusIcon />)}

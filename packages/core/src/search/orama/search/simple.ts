@@ -1,8 +1,5 @@
 import { type Orama, search, type SearchParams } from '@orama/orama';
-import {
-  type SimpleDocument,
-  type simpleSchema,
-} from '../create-db';
+import { type SimpleDocument, type simpleSchema } from '../create-db';
 import { createContentHighlighter, type SortedResult } from '../../index';
 
 export async function searchSimple(

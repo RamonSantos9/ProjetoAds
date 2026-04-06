@@ -3,7 +3,12 @@ import { cn } from '@/lib/cn';
 import { buttonVariants } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { PaperclipIcon, SearchIcon, FileEditIcon, type LucideIcon } from 'lucide-react';
+import {
+  PaperclipIcon,
+  SearchIcon,
+  FileEditIcon,
+  type LucideIcon,
+} from 'lucide-react';
 import SourceImage from '@/public/source.png';
 import { Search } from './Search';
 

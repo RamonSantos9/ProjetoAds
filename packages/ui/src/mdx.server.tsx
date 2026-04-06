@@ -1,8 +1,4 @@
-import type {
-  LoaderConfig,
-  LoaderOutput,
-  Page,
-} from '@xispedocs/core/source';
+import type { LoaderConfig, LoaderOutput, Page } from '@xispedocs/core/source';
 import type { ComponentProps, FC } from 'react';
 import defaultMdxComponents from './mdx';
 import * as path from 'node:path';

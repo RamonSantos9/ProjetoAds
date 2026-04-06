@@ -79,16 +79,30 @@ interface TableOfContentOptions extends Pick<AnchorProviderProps, 'single'> {
 }
 
 export function DocsPage({
-  breadcrumb: { enabled: breadcrumbEnabled = true, component: breadcrumb, ...breadcrumbProps } = {},
-  footer: { enabled: footerEnabled, component: footerReplace, ...footerProps } = {},
+  breadcrumb: {
+    enabled: breadcrumbEnabled = true,
+    component: breadcrumb,
+    ...breadcrumbProps
+  } = {},
+  footer: {
+    enabled: footerEnabled,
+    component: footerReplace,
+    ...footerProps
+  } = {},
   full = false,
-  tableOfContent: { enabled: tocPopoverEnabled, component: tocPopover, ...tocOptions } = {},
+  tableOfContent: {
+    enabled: tocPopoverEnabled,
+    component: tocPopover,
+    ...tocOptions
+  } = {},
   toc = [],
   children,
   className,
 }: DocsPageProps) {
   tocPopoverEnabled ??=
-    toc.length > 0 || tocOptions.header !== undefined || tocOptions.footer !== undefined;
+    toc.length > 0 ||
+    tocOptions.header !== undefined ||
+    tocOptions.footer !== undefined;
 
   let wrapper = (children: ReactNode) => children;
 
@@ -108,7 +122,11 @@ export function DocsPage({
             <PageTOCPopoverContent>
               {tocOptions.header}
               <TOCScrollArea>
-                {tocOptions.style === 'clerk' ? <TocClerk.TOCItems /> : <TocDefault.TOCItems />}
+                {tocOptions.style === 'clerk' ? (
+                  <TocClerk.TOCItems />
+                ) : (
+                  <TocDefault.TOCItems />
+                )}
               </TOCScrollArea>
               {tocOptions.footer}
             </PageTOCPopoverContent>
@@ -124,9 +142,11 @@ export function DocsPage({
           className,
         )}
       >
-        {breadcrumbEnabled && (breadcrumb ?? <PageBreadcrumb {...breadcrumbProps} />)}
+        {breadcrumbEnabled &&
+          (breadcrumb ?? <PageBreadcrumb {...breadcrumbProps} />)}
         {children}
-        {footerEnabled !== false && (footerReplace ?? <PageFooter {...footerProps} />)}
+        {footerEnabled !== false &&
+          (footerReplace ?? <PageFooter {...footerProps} />)}
       </article>
     </>,
   );
@@ -160,7 +180,11 @@ export function EditOnGitHub(props: ComponentProps<'a'>) {
 /**
  * Add typography styles
  */
-export function DocsBody({ children, className, ...props }: ComponentProps<'div'>) {
+export function DocsBody({
+  children,
+  className,
+  ...props
+}: ComponentProps<'div'>) {
   return (
     <div {...props} className={cn('prose flex-1', className)}>
       {children}
@@ -168,18 +192,29 @@ export function DocsBody({ children, className, ...props }: ComponentProps<'div'
   );
 }
 
-export function DocsDescription({ children, className, ...props }: ComponentProps<'p'>) {
+export function DocsDescription({
+  children,
+  className,
+  ...props
+}: ComponentProps<'p'>) {
   // Don't render if no description provided
   if (children === undefined) return null;
 
   return (
-    <p {...props} className={cn('mb-8 text-lg text-fd-muted-foreground', className)}>
+    <p
+      {...props}
+      className={cn('mb-8 text-lg text-fd-muted-foreground', className)}
+    >
       {children}
     </p>
   );
 }
 
-export function DocsTitle({ children, className, ...props }: ComponentProps<'h1'>) {
+export function DocsTitle({
+  children,
+  className,
+  ...props
+}: ComponentProps<'h1'>) {
   return (
     <h1 {...props} className={cn('text-[1.75em] font-semibold', className)}>
       {children}
@@ -188,4 +223,7 @@ export function DocsTitle({ children, className, ...props }: ComponentProps<'h1'
 }
 
 export { PageLastUpdate, PageBreadcrumb } from './client';
-export { MarkdownCopyButton, ViewOptionsPopover } from '@/layouts/shared/page-actions';
+export {
+  MarkdownCopyButton,
+  ViewOptionsPopover,
+} from '@/layouts/shared/page-actions';

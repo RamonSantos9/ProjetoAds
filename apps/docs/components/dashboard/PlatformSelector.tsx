@@ -28,13 +28,19 @@ interface PlatformSelectorProps {
   onChange: (selected: string[]) => void;
 }
 
-export function PlatformSelector({ selected, onChange }: PlatformSelectorProps) {
+export function PlatformSelector({
+  selected,
+  onChange,
+}: PlatformSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -59,20 +65,30 @@ export function PlatformSelector({ selected, onChange }: PlatformSelectorProps) 
       >
         <div className="flex flex-wrap gap-1 items-center overflow-hidden">
           {selected.length === 0 ? (
-            <span className="text-primary text-[12px] font-bold truncate">Selecione as plataformas</span>
+            <span className="text-primary text-[12px] font-bold truncate">
+              Selecione as plataformas
+            </span>
           ) : (
             selected.map((p) => {
               const opt = PLATFORMS_OPTIONS.find((o) => o.id === p);
               const Icon = opt?.icon || SpotifyIcon;
               return (
-                <span key={p} className="inline-flex items-center text-primary text-[12px] font-bold truncate">
+                <span
+                  key={p}
+                  className="inline-flex items-center text-primary text-[12px] font-bold truncate"
+                >
                   {p},
                 </span>
               );
             })
           )}
         </div>
-        <ChevronDown className={cn("size-4 text-fd-muted-foreground transition-transform", isOpen && "rotate-180")} />
+        <ChevronDown
+          className={cn(
+            'size-4 text-fd-muted-foreground transition-transform',
+            isOpen && 'rotate-180',
+          )}
+        />
       </button>
 
       {isOpen && (
@@ -87,8 +103,10 @@ export function PlatformSelector({ selected, onChange }: PlatformSelectorProps) 
                   type="button"
                   onClick={() => togglePlatform(opt.id)}
                   className={cn(
-                    "flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors",
-                    isSelected ? "bg-fd-primary/10 text-fd-primary" : "hover:bg-fd-muted text-fd-foreground"
+                    'flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors',
+                    isSelected
+                      ? 'bg-fd-primary/10 text-fd-primary'
+                      : 'hover:bg-fd-muted text-fd-foreground',
                   )}
                 >
                   <div className="flex items-center gap-2">

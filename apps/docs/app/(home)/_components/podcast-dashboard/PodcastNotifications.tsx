@@ -59,9 +59,7 @@ export function PodcastNotifications({
 }) {
   return (
     <PopoverPrimitive.Root>
-      <PopoverPrimitive.Trigger asChild>
-        {children}
-      </PopoverPrimitive.Trigger>
+      <PopoverPrimitive.Trigger asChild>{children}</PopoverPrimitive.Trigger>
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content
           align="center"
@@ -96,8 +94,7 @@ export function PodcastNotifications({
                           href={notif.href}
                         >
                           <span className="absolute inset-0 z-10"></span>
-                          {notif.title}
-                          {' '}
+                          {notif.title}{' '}
                           <span className="whitespace-nowrap">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"

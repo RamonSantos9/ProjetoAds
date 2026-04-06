@@ -5,47 +5,73 @@ export async function POST(req: Request) {
     const { text: rawText, voiceId, languageCode } = await req.json();
 
     if (!rawText || !voiceId) {
-      return NextResponse.json({ error: 'Faltando texto ou voiceId' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Faltando texto ou voiceId' },
+        { status: 400 },
+      );
     }
 
     // Strip [emotion_tags] from text — the turbo model reads them as literal words
-    const text = rawText.replace(/\[.*?\]/g, '').replace(/\s{2,}/g, ' ').trim();
+    const text = rawText
+      .replace(/\[.*?\]/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
 
     const apiKey = process.env.ELEVENLABS_API_KEY;
 
     if (!apiKey) {
       console.error('API KEY do PodcastAds não configurada');
-      return NextResponse.json({ error: 'Erro de configuração no servidor' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Erro de configuração no servidor' },
+        { status: 500 },
+      );
     }
 
-    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'xi-api-key': apiKey,
-      },
-      body: JSON.stringify({
-        text,
-        model_id: 'eleven_turbo_v2_5',
-        language_code: languageCode,
-        voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.8,
+    const response = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'xi-api-key': apiKey,
         },
-      }),
-    });
+        body: JSON.stringify({
+          text,
+          model_id: 'eleven_turbo_v2_5',
+          language_code: languageCode,
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.8,
+          },
+        }),
+      },
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Erro na API de Voz do PodcastAds:', errorText);
       try {
         if (response.status === 402) {
-          return NextResponse.json({ error: 'Limite de créditos da API atingido.' }, { status: 402 });
+          return NextResponse.json(
+            { error: 'Limite de créditos da API atingido.' },
+            { status: 402 },
+          );
         }
         const errorData = JSON.parse(errorText);
-        return NextResponse.json({ error: errorData.detail?.status || errorData.detail || 'Erro ao gerar áudio' }, { status: response.status });
+        return NextResponse.json(
+          {
+            error:
+              errorData.detail?.status ||
+              errorData.detail ||
+              'Erro ao gerar áudio',
+          },
+          { status: response.status },
+        );
       } catch {
-        return NextResponse.json({ error: 'Erro ao gerar áudio (Resposta inválida)' }, { status: response.status });
+        return NextResponse.json(
+          { error: 'Erro ao gerar áudio (Resposta inválida)' },
+          { status: response.status },
+        );
       }
     }
 
@@ -56,9 +82,11 @@ export async function POST(req: Request) {
       audioBase64: data.audio_base64,
       alignment: data.alignment,
     });
-
   } catch (error) {
     console.error('Erro na rota TTS:', error);
-    return NextResponse.json({ error: 'Erro interno no servidor' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Erro interno no servidor' },
+      { status: 500 },
+    );
   }
 }

@@ -18,9 +18,16 @@ import { useI18n } from '@/contexts/i18n';
 import { useTreeContext, useTreePath } from '@/contexts/tree';
 import type * as PageTree from '@xispedocs/core/page-tree';
 import { usePathname } from '@xispedocs/core/framework';
-import { type BreadcrumbOptions, getBreadcrumbItemsFromPath } from '@xispedocs/core/breadcrumb';
+import {
+  type BreadcrumbOptions,
+  getBreadcrumbItemsFromPath,
+} from '@xispedocs/core/breadcrumb';
 import { isActive } from '@/utils/urls';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { useTOCItems } from '@/components/toc';
 import { useActiveAnchor } from '@xispedocs/core/toc';
 import { useFooterItems } from '@/utils/use-footer-items';
@@ -45,14 +52,19 @@ export function PageTOCPopover(props: ComponentProps<'div'>) {
   return createPortal(<PageTOCPopoverPhysical {...props} />, container);
 }
 
-function PageTOCPopoverPhysical({ className, children, ...rest }: ComponentProps<'div'>) {
+function PageTOCPopoverPhysical({
+  className,
+  children,
+  ...rest
+}: ComponentProps<'div'>) {
   const ref = useRef<HTMLElement>(null);
   const [open, setOpen] = useState(false);
 
   const onClick = useEffectEvent((e: Event) => {
     if (!open) return;
 
-    if (ref.current && !ref.current.contains(e.target as HTMLElement)) setOpen(false);
+    if (ref.current && !ref.current.contains(e.target as HTMLElement))
+      setOpen(false);
   });
 
   useEffect(() => {
@@ -94,7 +106,10 @@ function PageTOCPopoverPhysical({ className, children, ...rest }: ComponentProps
   );
 }
 
-export function PageTOCPopoverTrigger({ className, ...props }: ComponentProps<'button'>) {
+export function PageTOCPopoverTrigger({
+  className,
+  ...props
+}: ComponentProps<'button'>) {
   const { text } = useI18n();
   const { open } = use(TocPopoverContext)!;
   const items = useTOCItems();
@@ -153,12 +168,20 @@ export function PageTOCPopoverTrigger({ className, ...props }: ComponentProps<'b
         )}
       </AnimatePresence>
 
-      <ChevronDown className={cn('ms-auto shrink-0 transition-transform', open && 'rotate-180')} />
+      <ChevronDown
+        className={cn(
+          'ms-auto shrink-0 transition-transform',
+          open && 'rotate-180',
+        )}
+      />
     </CollapsibleTrigger>
   );
 }
 
-interface ProgressCircleProps extends Omit<React.ComponentProps<'svg'>, 'strokeWidth'> {
+interface ProgressCircleProps extends Omit<
+  React.ComponentProps<'svg'>,
+  'strokeWidth'
+> {
   value: number;
   strokeWidth?: number;
   size?: number;
@@ -240,7 +263,10 @@ export function PageLastUpdate({
   }, [value]);
 
   return (
-    <p {...props} className={cn('text-sm text-fd-muted-foreground', props.className)}>
+    <p
+      {...props}
+      className={cn('text-sm text-fd-muted-foreground', props.className)}
+    >
       {text.lastUpdate} {date}
     </p>
   );
@@ -257,7 +283,12 @@ export interface FooterProps extends ComponentProps<'div'> {
   };
 }
 
-export function PageFooter({ items, children, className, ...props }: FooterProps) {
+export function PageFooter({
+  items,
+  children,
+  className,
+  ...props
+}: FooterProps) {
   const footerList = useFooterItems();
   const pathname = usePathname();
   const { previous, next } = useMemo(() => {
@@ -341,10 +372,16 @@ export function PageBreadcrumb({
   return (
     <div
       {...props}
-      className={cn('flex items-center gap-1.5 text-sm text-fd-muted-foreground', props.className)}
+      className={cn(
+        'flex items-center gap-1.5 text-sm text-fd-muted-foreground',
+        props.className,
+      )}
     >
       {items.map((item, i) => {
-        const className = cn('truncate', i === items.length - 1 && 'text-fd-primary font-medium');
+        const className = cn(
+          'truncate',
+          i === items.length - 1 && 'text-fd-primary font-medium',
+        );
 
         return (
           <Fragment key={i}>

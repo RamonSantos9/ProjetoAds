@@ -10,7 +10,13 @@ import {
 import Link from '@xispedocs/core/link';
 import Image from 'next/image';
 import Preview from '@/public/banner.png';
-import { Book, ComponentIcon, LayoutDashboard, Server, ShieldCheck } from 'lucide-react';
+import {
+  Book,
+  ComponentIcon,
+  LayoutDashboard,
+  Server,
+  ShieldCheck,
+} from 'lucide-react';
 
 export default function Layout({ children }: LayoutProps<'/'>) {
   return (
@@ -29,25 +35,29 @@ export default function Layout({ children }: LayoutProps<'/'>) {
           items: [
             {
               text: 'Documentação',
-              description: 'Acesse o guia técnico, arquitetura e processos do PodcastAds.',
+              description:
+                'Acesse o guia técnico, arquitetura e processos do PodcastAds.',
               url: '/docs',
               icon: <Book />,
             },
             {
               text: 'Podcasts',
-              description: 'Acesse nossa biblioteca completa de episódios gravados.',
+              description:
+                'Acesse nossa biblioteca completa de episódios gravados.',
               url: '/episodios',
               icon: <ComponentIcon />,
             },
             {
               text: 'Painel do Ouvinte',
-              description: 'Visualize estatísticas e acompanhe seus episódios favoritos.',
+              description:
+                'Visualize estatísticas e acompanhe seus episódios favoritos.',
               url: '/dashboard/home',
               icon: <LayoutDashboard />,
             },
             {
               text: 'Dashboard Admin',
-              description: 'Gerencie episódios, pautas e usuários da plataforma.',
+              description:
+                'Gerencie episódios, pautas e usuários da plataforma.',
               url: '/admin/home',
               icon: <ShieldCheck />,
             },
@@ -76,7 +86,8 @@ export default function Layout({ children }: LayoutProps<'/'>) {
                   </div>
                   <p className="font-medium">Documentação</p>
                   <p className="text-fd-muted-foreground text-sm">
-                    Acesse o guia técnico, arquitetura e processos do PodcastAds.
+                    Acesse o guia técnico, arquitetura e processos do
+                    PodcastAds.
                   </p>
                 </NavbarMenuLink>
 
@@ -141,7 +152,9 @@ function Footer() {
     <footer className="mt-auto border-t bg-background py-12 text-foreground">
       <div className="container flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="mb-1 text-sm font-semibold">PodcastAds - Serra Dourada</p>
+          <p className="mb-1 text-sm font-semibold">
+            PodcastAds - Serra Dourada
+          </p>
           <p className="text-xs">
             Construído com carinho pelos alunos de ADS da{' '}
             <a

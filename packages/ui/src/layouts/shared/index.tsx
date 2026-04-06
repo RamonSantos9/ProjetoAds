@@ -99,7 +99,10 @@ export function renderTitleNav(
   );
 }
 
-export function useLinkItems({ githubUrl, links }: Pick<BaseLayoutProps, 'links' | 'githubUrl'>) {
+export function useLinkItems({
+  githubUrl,
+  links,
+}: Pick<BaseLayoutProps, 'links' | 'githubUrl'>) {
   return useMemo(() => {
     const all = resolveLinkItems({ links, githubUrl });
     const navItems: LinkItemType[] = [];

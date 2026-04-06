@@ -1,6 +1,13 @@
 'use client';
 import * as React from 'react';
-import { forwardRef, useMemo, useRef, type AnchorHTMLAttributes, type ReactNode, type RefObject } from 'react';
+import {
+  forwardRef,
+  useMemo,
+  useRef,
+  type AnchorHTMLAttributes,
+  type ReactNode,
+  type RefObject,
+} from 'react';
 import scrollIntoView from 'scroll-into-view-if-needed';
 import { mergeRefs } from './utils/merge-refs';
 import { useOnChange } from './utils/use-on-change';
@@ -89,8 +96,10 @@ export function AnchorProvider({
   );
 }
 
-export interface TOCItemProps
-  extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
+export interface TOCItemProps extends Omit<
+  AnchorHTMLAttributes<HTMLAnchorElement>,
+  'href'
+> {
   href: string;
 
   onActiveChange?: (v: boolean) => void;

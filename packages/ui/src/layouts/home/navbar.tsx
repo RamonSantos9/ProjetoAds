@@ -126,7 +126,10 @@ export function NavbarLink({
         <LinkItem
           {...props}
           item={item as any}
-          className={cn(linkVariants({ variant: variant as any }), props.className)}
+          className={cn(
+            linkVariants({ variant: variant as any }),
+            props.className,
+          )}
         >
           {props.children}
         </LinkItem>

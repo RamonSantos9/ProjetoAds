@@ -22,25 +22,25 @@ export const categories = [
   'Formação',
   'Tecnologia',
   'Inovação',
-  'Mercado'
+  'Mercado',
 ];
 
 export const languages: Language[] = [
   {
     code: 'pt-BR',
     name: 'Português',
-    flagUrl: 'https://flagcdn.com/w40/br.png'
+    flagUrl: 'https://flagcdn.com/w40/br.png',
   },
   {
     code: 'en-US',
     name: 'English',
-    flagUrl: 'https://flagcdn.com/w40/us.png'
+    flagUrl: 'https://flagcdn.com/w40/us.png',
   },
   {
     code: 'es-ES',
     name: 'Español',
-    flagUrl: 'https://flagcdn.com/w40/es.png'
-  }
+    flagUrl: 'https://flagcdn.com/w40/es.png',
+  },
 ];
 
 export const voices: Voice[] = [
@@ -49,20 +49,20 @@ export const voices: Voice[] = [
     name: 'Ramon',
     description: 'Narrativo e profissional',
     image: '/images/home/orb-1.png',
-    previewUrl: '#'
+    previewUrl: '#',
   },
   {
     id: 'v2',
     name: 'Marta',
     description: 'Calma e educativa',
     image: '/images/home/orb-4.png',
-    previewUrl: '#'
+    previewUrl: '#',
   },
   {
     id: 'v3',
     name: 'Tech Bot',
     description: 'Futurista e robótico',
     image: '/images/home/orb-5.png',
-    previewUrl: '#'
-  }
+    previewUrl: '#',
+  },
 ];

@@ -24,7 +24,7 @@ export function ConfirmModal({
   cancelText = 'Cancelar',
   onConfirm,
   onCancel,
-  isDestructive = true
+  isDestructive = true,
 }: ConfirmModalProps) {
   if (!isOpen) return null;
 
@@ -40,7 +40,10 @@ export function ConfirmModal({
           <div className="flex items-center gap-2">
             <h2 className="font-bold text-lg text-foreground">{title}</h2>
           </div>
-          <button onClick={onCancel} className="p-2 rounded-full hover:bg-fd-muted transition-colors text-fd-muted-foreground hover:text-fd-foreground">
+          <button
+            onClick={onCancel}
+            className="p-2 rounded-full hover:bg-fd-muted transition-colors text-fd-muted-foreground hover:text-fd-foreground"
+          >
             <X className="size-5" />
           </button>
         </header>
@@ -52,24 +55,28 @@ export function ConfirmModal({
         </main>
 
         <footer className="px-4 py-4 flex justify-end gap-3">
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={onCancel}
             className="px-5 py-2 text-sm font-semibold text-fd-muted-foreground hover:text-fd-foreground transition-colors"
           >
             {cancelText}
           </button>
-          <ActionButton 
+          <ActionButton
             type="button"
             label={confirmText}
             onClick={onConfirm}
             variant="primary"
             showIcon={false}
-            className={isDestructive ? 'bg-red-500 hover:bg-red-600 text-white border-0' : ''}
+            className={
+              isDestructive
+                ? 'bg-red-500 hover:bg-red-600 text-white border-0'
+                : ''
+            }
           />
         </footer>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }

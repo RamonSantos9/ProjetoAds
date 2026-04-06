@@ -124,7 +124,6 @@ function LaunchAppWindow(
   );
 }
 
-
 function WhyPanel(props: HTMLProps<HTMLDivElement>) {
   return (
     <div

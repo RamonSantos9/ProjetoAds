@@ -4,7 +4,7 @@ import path from 'path';
 const rootDir = process.argv[2] || '.';
 
 function walk(dir, callback) {
-  fs.readdirSync(dir).forEach(file => {
+  fs.readdirSync(dir).forEach((file) => {
     const filename = path.join(dir, file);
     const stat = fs.lstatSync(filename);
     if (stat.isDirectory()) {

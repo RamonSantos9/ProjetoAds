@@ -26,7 +26,7 @@ function calc(container: HTMLElement, active: string[]): TOCThumbInfo {
 
     const styles = getComputedStyle(element);
     const top = element.offsetTop + parseFloat(styles.paddingTop) - 6;
-    
+
     if (top < upper) {
       upper = top;
       const depth = parseInt(element.getAttribute('data-depth') ?? '2');
@@ -37,7 +37,8 @@ function calc(container: HTMLElement, active: string[]): TOCThumbInfo {
       lower,
       element.offsetTop +
         element.clientHeight -
-        parseFloat(styles.paddingBottom) - 6,
+        parseFloat(styles.paddingBottom) -
+        6,
     );
   }
 
@@ -88,27 +89,33 @@ export default function ClerkTOCItems({
           bottom =
             element.offsetTop +
             element.clientHeight -
-            parseFloat(styles.paddingBottom) - 6;
+            parseFloat(styles.paddingBottom) -
+            6;
 
         w = Math.max(offset, w);
         h = Math.max(h, bottom);
 
         const offsetX = offset;
         const offsetY = top;
-        
+
         if (i === 0) {
           d.push(`M ${offsetX} ${offsetY} L ${offsetX} ${bottom}`);
         } else {
           const upperOffsetX = getLineOffset(items[i - 1].depth) + 1;
-          const prevElement = container.querySelector(`a[href="#${items[i - 1].url.slice(1)}"]`) as HTMLElement;
+          const prevElement = container.querySelector(
+            `a[href="#${items[i - 1].url.slice(1)}"]`,
+          ) as HTMLElement;
           let upperOffsetY;
           if (prevElement) {
-              const prevStyles = getComputedStyle(prevElement);
-              upperOffsetY = prevElement.offsetTop + prevElement.clientHeight - parseFloat(prevStyles.paddingBottom);
+            const prevStyles = getComputedStyle(prevElement);
+            upperOffsetY =
+              prevElement.offsetTop +
+              prevElement.clientHeight -
+              parseFloat(prevStyles.paddingBottom);
           } else {
-              upperOffsetY = offsetY - 4;
+            upperOffsetY = offsetY - 4;
           }
-          
+
           d.push(`L ${offsetX} ${offsetY} L ${offsetX} ${bottom}`);
         }
       }
@@ -182,10 +189,7 @@ export default function ClerkTOCItems({
         {...props}
       >
         {items.map((item) => (
-          <TOCItem
-            key={item.url}
-            item={item}
-          />
+          <TOCItem key={item.url} item={item} />
         ))}
       </div>
     </>
@@ -200,11 +204,7 @@ function getLineOffset(depth: number): number {
   return (depth - 1) * 10;
 }
 
-function TOCItem({
-  item,
-}: {
-  item: Primitive.TOCItemType;
-}) {
+function TOCItem({ item }: { item: Primitive.TOCItemType }) {
   return (
     <Primitive.TOCItem
       href={item.url}

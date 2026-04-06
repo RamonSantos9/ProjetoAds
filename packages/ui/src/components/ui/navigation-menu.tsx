@@ -14,7 +14,11 @@ const NavigationMenuItem = React.forwardRef<
   React.ComponentRef<typeof Primitive.NavigationMenuItem>,
   React.ComponentPropsWithoutRef<typeof Primitive.NavigationMenuItem>
 >(({ className, children, ...props }, ref) => (
-  <Primitive.NavigationMenuItem ref={ref} className={cn('list-none', className)} {...props}>
+  <Primitive.NavigationMenuItem
+    ref={ref}
+    className={cn('list-none', className)}
+    {...props}
+  >
     {children}
   </Primitive.NavigationMenuItem>
 ));

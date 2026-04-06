@@ -66,15 +66,21 @@ export default function PodcastSearchDialog(props: SharedProps) {
     return entries
       .filter((entry) => {
         if (normalized.length === 0) return true;
-        return `${entry.title} ${entry.description}`.toLowerCase().includes(normalized);
+        return `${entry.title} ${entry.description}`
+          .toLowerCase()
+          .includes(normalized);
       })
       .map((entry) => ({
         id: entry.id,
         type: 'action',
         node: (
           <div className="flex flex-col">
-            <p className="text-sm font-medium text-fd-foreground">{entry.title}</p>
-            <p className="text-xs text-fd-muted-foreground">{entry.description}</p>
+            <p className="text-sm font-medium text-fd-foreground">
+              {entry.title}
+            </p>
+            <p className="text-xs text-fd-muted-foreground">
+              {entry.description}
+            </p>
           </div>
         ),
         onSelect: () => {

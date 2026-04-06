@@ -25,7 +25,9 @@ export interface FieldInfo {
   unionField?: UnionField;
 }
 
-const SchemaContext = React.createContext<SchemaContextType | undefined>(undefined);
+const SchemaContext = React.createContext<SchemaContextType | undefined>(
+  undefined,
+);
 export const anyFields = {
   type: ['string', 'number', 'boolean', 'array', 'object'],
   items: true,

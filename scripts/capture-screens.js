@@ -11,17 +11,28 @@ const path = require('path');
 const { chromium } = require('playwright');
 
 const screenshotsDir = path.join(
-  __dirname, '..', 'apps', 'docs', 'public', 'docs-screenshots'
+  __dirname,
+  '..',
+  'apps',
+  'docs',
+  'public',
+  'docs-screenshots',
 );
 
 const pages = [
-  { url: 'http://localhost:3000',                  filename: 'home.png' },
-  { url: 'http://localhost:3000/episodios',         filename: 'episodios.png' },
-  { url: 'http://localhost:3000/sign-in',           filename: 'sign-in.png' },
-  { url: 'http://localhost:3000/docs',              filename: 'docs.png' },
-  { url: 'http://localhost:3000/admin/home',        filename: 'app-home.png' },
-  { url: 'http://localhost:3000/admin/episodios',   filename: 'app-episodios.png' },
-  { url: 'http://localhost:3000/admin/relatorios',  filename: 'app-relatorios.png' },
+  { url: 'http://localhost:3000', filename: 'home.png' },
+  { url: 'http://localhost:3000/episodios', filename: 'episodios.png' },
+  { url: 'http://localhost:3000/sign-in', filename: 'sign-in.png' },
+  { url: 'http://localhost:3000/docs', filename: 'docs.png' },
+  { url: 'http://localhost:3000/admin/home', filename: 'app-home.png' },
+  {
+    url: 'http://localhost:3000/admin/episodios',
+    filename: 'app-episodios.png',
+  },
+  {
+    url: 'http://localhost:3000/admin/relatorios',
+    filename: 'app-relatorios.png',
+  },
 ];
 
 (async () => {

@@ -75,11 +75,11 @@ export function MenuLinkItem({
       <LinkItem
         item={item as any}
         className={cn(
-          menuItemVariants({ 
-            variant: item.type === 'icon' ? 'icon' : 'main' 
+          menuItemVariants({
+            variant: item.type === 'icon' ? 'icon' : 'main',
           }),
           props.className,
-          item.type !== 'icon' && 'flex-row items-start gap-3 py-3'
+          item.type !== 'icon' && 'flex-row items-start gap-3 py-3',
         )}
         aria-label={item.type === 'icon' ? item.label : undefined}
       >
