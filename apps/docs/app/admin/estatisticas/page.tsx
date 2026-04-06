@@ -128,14 +128,32 @@ export default function EstatisticasAdminPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  const handleExport = (format: 'JSON' | 'CSV') => {
+  const handleExport = (format: 'JSON' | 'CSV' | 'PDF') => {
+    if (format === 'PDF') {
+      window.print();
+      return;
+    }
+
     try {
       let dataStr = '';
       let mimeType = '';
       let extension = '';
 
+      // Aplica o filtro de tempo selecionado em tela antes de exportar
+      let daysToSubtract = 90;
+      if (timeRange === '30d') daysToSubtract = 30;
+      if (timeRange === '7d') daysToSubtract = 7;
+      
+      const referenceDate = new Date();
+      referenceDate.setDate(referenceDate.getDate() - daysToSubtract);
+
+      const filteredEpisodes = episodes.filter(ep => {
+        if (!ep.createdAt) return true;
+        return new Date(ep.createdAt) >= referenceDate;
+      });
+
       if (format === 'JSON') {
-        dataStr = JSON.stringify(episodes, null, 2);
+        dataStr = JSON.stringify(filteredEpisodes, null, 2);
         mimeType = 'application/json';
         extension = 'json';
       } else if (format === 'CSV') {
@@ -148,7 +166,7 @@ export default function EstatisticasAdminPage() {
           'Plataformas',
           'Criado_Em',
         ].join(';');
-        const rows = episodes.map((ep) => {
+        const rows = filteredEpisodes.map((ep) => {
           const title = `"${(ep.title || '').replace(/"/g, '""')}"`;
           const platforms = `"${(ep.platforms || []).join(' | ')}"`;
           let formattedDate = ep.createdAt || '';
@@ -335,33 +353,37 @@ export default function EstatisticasAdminPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-8 bg-background min-h-screen">
+    <div className="flex flex-col gap-6 p-4 md:p-8 bg-background min-h-screen print:bg-white print:text-black">
       {/* Header Section with ThemeToggle */}
       <header className="flex justify-between items-start w-full">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight text-fd-foreground mt-1">
+          <h1 className="text-3xl font-bold tracking-tight text-fd-foreground mt-1 print:text-black">
             Estatísticas do Podcast
           </h1>
-          <p className="text-fd-muted-foreground">
+          <p className="text-fd-muted-foreground print:text-gray-600">
             Dados reais extraídos dos seus {episodes.length} episódios
             publicados.
           </p>
         </div>
-        <ThemeToggle mode="light-dark" />
+        <div className="print:hidden">
+          <ThemeToggle mode="light-dark" />
+        </div>
       </header>
 
       {/* Reusable Toolbar Component */}
-      <DashboardToolbar
-        search={search}
-        onSearchChange={setSearch}
-        searchPlaceholder="Pesquisar nas estatísticas..."
-        filterValue={originFilter}
-        onFilterChange={setOriginFilter}
-        onExport={handleExport}
-        showAction={true}
-        actionLabel="Novo Episódio"
-        onActionClick={() => setIsCreateModalOpen(true)}
-      />
+      <div className="print:hidden">
+        <DashboardToolbar
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Pesquisar nas estatísticas..."
+          filterValue={originFilter}
+          onFilterChange={setOriginFilter}
+          onExport={handleExport}
+          showAction={true}
+          actionLabel="Novo Episódio"
+          onActionClick={() => setIsCreateModalOpen(true)}
+        />
+      </div>
 
       {/* Stats Cards Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -531,7 +553,7 @@ export default function EstatisticasAdminPage() {
                 Visualização de acesso Desktop vs Mobile nos últimos meses.
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 print:hidden">
               <button
                 onClick={() => setTimeRange('7d')}
                 className={cn(

@@ -17,7 +17,7 @@ interface DashboardToolbarProps {
   filterOptions?: string[];
 
   // Export
-  onExport?: (format: 'JSON' | 'CSV') => void;
+  onExport?: (format: 'JSON' | 'CSV' | 'PDF') => void;
 
   // Action Button
   actionLabel?: string;
@@ -109,7 +109,7 @@ export function ToolbarFilter({
 export function ToolbarExport({
   onExport,
 }: {
-  onExport?: (f: 'JSON' | 'CSV') => void;
+  onExport?: (f: 'JSON' | 'CSV' | 'PDF') => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -151,9 +151,18 @@ export function ToolbarExport({
               onExport?.('CSV');
               setIsOpen(false);
             }}
-            className="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-fd-accent text-fd-foreground"
+            className="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-fd-accent border-b border-fd-border text-fd-foreground"
           >
             CSV
+          </button>
+          <button
+            onClick={() => {
+              onExport?.('PDF');
+              setIsOpen(false);
+            }}
+            className="w-full text-left px-4 py-2.5 text-xs font-semibold text-[#10b981] hover:bg-[#10b981]/10 transition-colors"
+          >
+            Mídia Kit (PDF)
           </button>
         </div>
       )}
