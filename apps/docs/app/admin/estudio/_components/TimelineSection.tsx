@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, memo } from 'react';
 import { ListEnd, Play, Mic, MicOff } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
@@ -39,10 +39,83 @@ interface TimelineSectionProps {
   setClipboardTracks?: (tracks: TimelineTrack[]) => void;
   selectedTrackIds: string[];
   setSelectedTrackIds: React.Dispatch<React.SetStateAction<string[]>>;
+  audioRef?: React.RefObject<HTMLAudioElement | null>;
 }
 
 const TOOLBAR_HEIGHT = 54;
 const MAX_HEIGHT_RATIO = 0.6;
+
+// ── NEW: Real Waveform Analyzer & Renderer ──
+const WaveformRenderer = memo(({ url, color }: { url: string; color: string }) => {
+  const [peaks, setPeaks] = React.useState<number[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!url) return;
+
+    let isMounted = true;
+    const generateWaveform = async () => {
+      try {
+        setIsLoading(true);
+        // 1. Fetch audio
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
+        
+        // 2. Decode at low sample rate for speed
+        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+        
+        // 3. Extract peaks (Sampling)
+        const sampleCount = 200; // Number of bars to show
+        const rawData = audioBuffer.getChannelData(0); // L channel
+        const blockSize = Math.floor(rawData.length / sampleCount);
+        const sampledPeaks = [];
+        
+        for (let i = 0; i < sampleCount; i++) {
+          let sum = 0;
+          for (let j = 0; j < blockSize; j++) {
+            sum += Math.abs(rawData[i * blockSize + j]);
+          }
+          sampledPeaks.push(sum / blockSize);
+        }
+        
+        // Normalize
+        const max = Math.max(...sampledPeaks);
+        const normalized = sampledPeaks.map(p => (p / max) * 0.8 + 0.1); // min 10% height
+
+        if (isMounted) setPeaks(normalized);
+      } catch (err) {
+        console.error('[Studio] Waveform Error:', err);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    generateWaveform();
+    return () => { isMounted = false; };
+  }, [url]);
+
+  if (isLoading) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center opacity-20 bg-blue-500/10 animate-pulse">
+        <span className="text-[10px] font-mono">ANALYZING...</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-between px-1 opacity-60 pointer-events-none w-full">
+      {peaks.map((p, i) => (
+        <div
+          key={i}
+          className={cn("w-[1px] md:w-[2px] rounded-full", color)}
+          style={{ height: `${p * 100}%` }}
+        />
+      ))}
+    </div>
+  );
+});
+WaveformRenderer.displayName = 'WaveformRenderer';
 
 export function TimelineSection({
   tracks,
@@ -68,6 +141,7 @@ export function TimelineSection({
   setClipboardTracks,
   selectedTrackIds,
   setSelectedTrackIds,
+  audioRef,
 }: TimelineSectionProps) {
   const [mutedLayers, setMutedLayers] = React.useState<number[]>([]);
   const [contextMenu, setContextMenu] = React.useState<{
@@ -75,6 +149,42 @@ export function TimelineSection({
     y: number;
     trackId: string;
   } | null>(null);
+
+  const playheadRef = useRef<HTMLDivElement>(null);
+  const timeBadgeRef = useRef<HTMLDivElement>(null);
+
+  // ── High Performance 60FPS Playhead Animation ──
+  React.useEffect(() => {
+    let rafId: number;
+    
+    const updatePlayhead = () => {
+      const audio = audioRef?.current;
+      if (!audio || !playheadRef.current || !timeBadgeRef.current) return;
+      
+      const time = audio.currentTime;
+      const x = time * 135.6;
+      
+      // Update DOM directly for zero-lag smooth glide
+      // Removed the +16 offset to keep it perfectly aligned with track 0:0 origin
+      if (playheadRef.current) playheadRef.current.style.transform = `translateX(${x}px)`;
+      if (timeBadgeRef.current) {
+        timeBadgeRef.current.style.transform = `translateX(${x}px)`;
+        timeBadgeRef.current.innerText = formatTime(time);
+      }
+      
+      if (isPlaying) {
+        rafId = requestAnimationFrame(updatePlayhead);
+      }
+    };
+
+    if (isPlaying) {
+      rafId = requestAnimationFrame(updatePlayhead);
+    }
+    
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [isPlaying, audioRef]);
   const MIN_HEIGHT = TOOLBAR_HEIGHT + 60;
   const isResizingRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -1130,16 +1240,14 @@ export function TimelineSection({
 
                   {/* Time Badge */}
                   <div
+                    ref={timeBadgeRef}
                     className={cn(
                       'z-[50] absolute top-0 flex items-center justify-center backdrop-blur pointer-events-none tabular-nums text-[10px] font-medium py-0.5 px-1.5',
-                      !isPlaying &&
-                        !isDragging &&
-                        'transition-transform duration-300 ease-out',
+                      !isPlaying && !isDragging && 'transition-transform duration-300 ease-out',
                     )}
                     style={{
                       width: '32px',
-                      borderRadius:
-                        currentTime < 0.05 ? '0px 6px 6px 0px' : '6px',
+                      borderRadius: currentTime < 0.05 ? '0px 6px 6px 0px' : '6px',
                       backgroundColor: 'black',
                       color: 'white',
                       transform: `translateX(${currentTime * 135.6}px)`,
@@ -1153,16 +1261,20 @@ export function TimelineSection({
                 <div className="relative flex flex-col grow-0"></div>
                 <div className="relative flex flex-col grow-0"></div>
 
-                {/* Playhead line */}
-                <div
-                  className={cn(
-                    'z-[15] absolute top-0 h-full w-[1px] pointer-events-none transition-transform duration-75 ease-out',
-                  )}
-                  style={{
-                    backgroundColor: 'hsl(var(--foreground))',
-                    transform: `translateX(${currentTime * 135.6 + 16}px)`,
-                  }}
-                ></div>
+                  {/* Playhead line */}
+                  <div
+                    ref={playheadRef}
+                    className={cn(
+                      'z-[15] absolute top-0 h-full w-[1px] pointer-events-none',
+                      !isPlaying && 'transition-transform duration-75 ease-out'
+                    )}
+                    style={{
+                      backgroundColor: 'hsl(var(--foreground))',
+                      transform: `translateX(${currentTime * 135.6}px)`,
+                    }}
+                  >
+                    <div className="absolute top-0 left-[-4px] w-2 h-2 rounded-full bg-foreground" />
+                  </div>
 
                 <div
                   className="h-full bg-background flex-1 relative"
@@ -1487,34 +1599,10 @@ export function TimelineSection({
                                                   </div>
                                                 )
                                               ) : (
-                                                <div className="absolute inset-0 flex items-center justify-center px-1 opacity-30 gap-[1px]">
-                                                  {[
-                                                    ...Array(
-                                                      Math.max(
-                                                        5,
-                                                        Math.floor(
-                                                          pxWidth / 3.5,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ].map((_, i) => {
-                                                    const idSeed =
-                                                      track.id.charCodeAt(0) ||
-                                                      1;
-                                                    const h =
-                                                      ((i * idSeed * 13) % 60) +
-                                                      20;
-                                                    return (
-                                                      <div
-                                                        key={i}
-                                                        className="w-[2px] bg-blue-700/60 dark:bg-blue-900/60 rounded-full"
-                                                        style={{
-                                                          height: `${h}%`,
-                                                        }}
-                                                      />
-                                                    );
-                                                  })}
-                                                </div>
+                                                  <WaveformRenderer 
+                                                    url={track.url || ''} 
+                                                    color={isSelected ? 'bg-blue-800' : 'bg-blue-600'} 
+                                                  />
                                               )}
                                             </div>
                                           </div>

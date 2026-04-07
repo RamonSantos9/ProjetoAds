@@ -37,6 +37,18 @@ export function PodcastAudioPlayer() {
   const { collapsed } = useSidebar();
   const [progress, setProgress] = useState(0);
 
+  // Rastreia evento de play silenciosamente (Desktop vs Mobile)
+  const trackPlayEvent = () => {
+    if (!currentVoice) return;
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    const episodeId = (currentVoice as any).id || (currentVoice as any).episodeId || currentVoice.name;
+    fetch('/api/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ episodeId, device: isMobile ? 'mobile' : 'desktop' }),
+    }).catch(() => {}); // silencioso — nunca quebra o player
+  };
+
   useEffect(() => {
     if (duration > 0) {
       setProgress((currentTime / duration) * 100);
@@ -179,7 +191,10 @@ export function PodcastAudioPlayer() {
                     </button>
 
                     <button
-                      onClick={() => (isPlaying ? pauseTrack() : resumeTrack())}
+                      onClick={() => {
+                        if (!isPlaying) trackPlayEvent();
+                        isPlaying ? pauseTrack() : resumeTrack();
+                      }}
                       data-testid="audio-player-play-button"
                       aria-label="Play"
                       className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors duration-75 focus-ring bg-black text-white shadow-none hover:bg-gray-800 dark:hover:bg-gray-200 active:bg-gray-700 dark:active:bg-gray-300 center h-10 w-10 p-0 rounded-full"
@@ -289,7 +304,10 @@ export function PodcastAudioPlayer() {
 
               <div className="hstack items-center md:hidden ml-2 md:ml-0">
                 <button
-                  onClick={() => (isPlaying ? pauseTrack() : resumeTrack())}
+                  onClick={() => {
+                    if (!isPlaying) trackPlayEvent();
+                    isPlaying ? pauseTrack() : resumeTrack();
+                  }}
                   data-testid="audio-player-play-button"
                   aria-label="Play"
                   className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors duration-75 focus-ring bg-black dark:bg-white text-white dark:text-gray-900 shadow-none hover:bg-gray-800 dark:hover:bg-gray-200 active:bg-gray-700 dark:active:bg-gray-300 center h-10 w-10 p-0 rounded-full"

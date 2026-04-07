@@ -74,6 +74,7 @@ export async function POST(req: NextRequest) {
       audioUrl: audioUrl || undefined,
       externalUrl: externalUrl || undefined,
       transcriptionText: transcriptionResult?.text || '',
+      segments: transcriptionResult?.segments || [],
     };
 
     await addEpisode(newEpisode);

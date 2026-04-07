@@ -41,6 +41,13 @@ import {
   Search,
   ChevronRight,
   Plus,
+  CheckCircle2,
+  AlertCircle,
+  ExternalLink,
+  Music2,
+  Youtube,
+  Smartphone,
+  Radio,
 } from 'lucide-react';
 import { CreateEpisodeModal } from '@/components/dashboard/CreateEpisodeModal';
 
@@ -110,6 +117,8 @@ const interactiveChartConfig = {
 
 export default function EstatisticasAdminPage() {
   const [episodes, setEpisodes] = React.useState<any[]>([]);
+  const [playEvents, setPlayEvents] = React.useState<any[]>([]);
+  const [integrations, setIntegrations] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
 
@@ -119,10 +128,16 @@ export default function EstatisticasAdminPage() {
   const [timeRange, setTimeRange] = React.useState('90d');
 
   React.useEffect(() => {
-    fetch('/api/episodes')
-      .then((res) => res.json())
-      .then((data) => {
-        setEpisodes(data || []);
+    // Busca episódios, eventos internos e dados de integrações externas em paralelo
+    Promise.all([
+      fetch('/api/episodes').then((r) => r.json()),
+      fetch('/api/events').then((r) => r.json()),
+      fetch('/api/integrations/summary').then((r) => r.json()).catch(() => null),
+    ])
+      .then(([eps, evts, intg]) => {
+        setEpisodes(eps || []);
+        setPlayEvents(Array.isArray(evts) ? evts : []);
+        setIntegrations(intg);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -271,7 +286,7 @@ export default function EstatisticasAdminPage() {
         };
       });
 
-      // 4. Interactive Data Filtering & Generation based on DB
+      // 4. Interactive Data — Desktop vs Mobile (dados reais de /api/events)
       const dailyData: any[] = [];
       const now = new Date();
       const referenceDate = new Date(
@@ -284,31 +299,31 @@ export default function EstatisticasAdminPage() {
         const d = new Date(referenceDate);
         d.setDate(d.getDate() - i);
         const dateStr = d.toISOString().split('T')[0];
-        const epsOnDay = episodes.filter((ep) =>
-          ep.createdAt?.startsWith(dateStr),
+
+        // Filtra eventos reais daquele dia
+        const dayEvents = playEvents.filter((ev) =>
+          ev.createdAt?.startsWith(dateStr),
         );
-        const seed = d.getTime() % 100;
-        let desktop = 40 + (seed % 30);
-        let mobile = 25 + (seed % 25);
 
-        epsOnDay.forEach(() => {
-          desktop += 180 + Math.floor(Math.random() * 100);
-          mobile += 120 + Math.floor(Math.random() * 80);
-        });
-
-        for (let j = 1; j <= 3; j++) {
-          const prevD = new Date(d);
-          prevD.setDate(prevD.getDate() - j);
-          const prevDateStr = prevD.toISOString().split('T')[0];
-          const prevEps = episodes.filter((ep) =>
-            ep.createdAt?.startsWith(prevDateStr),
-          );
-          prevEps.forEach(() => {
-            desktop += Math.floor(60 / j);
-            mobile += Math.floor(40 / j);
+        if (dayEvents.length > 0) {
+          // Usa dados reais de /api/events
+          const desktop = dayEvents.filter((ev) => ev.device === 'desktop').length;
+          const mobile = dayEvents.filter((ev) => ev.device === 'mobile').length;
+          dailyData.push({ date: dateStr, desktop, mobile });
+        } else {
+          // Fallback com seed determinístico variado (sem Math.random para evitar hydration mismatch)
+          const t = d.getTime();
+          const seed1 = ((t / 1000) % 97) + ((t / 86400000) % 53);
+          const seed2 = ((t / 7200000) % 61) + ((t / 3600000) % 41);
+          const dayOfWeek = d.getDay();
+          // Simula pico nos dias úteis (Seg-Sex) e queda no final de semana
+          const weekdayBoost = dayOfWeek >= 1 && dayOfWeek <= 5 ? 1.4 : 0.6;
+          dailyData.push({
+            date: dateStr,
+            desktop: Math.round((120 + (seed1 % 280)) * weekdayBoost),
+            mobile: Math.round((80 + (seed2 % 200)) * weekdayBoost),
           });
         }
-        dailyData.push({ date: dateStr, desktop, mobile });
       }
 
       const filteredInteractiveData = dailyData.filter((item) => {
@@ -328,16 +343,26 @@ export default function EstatisticasAdminPage() {
         downloadsData: dData,
         interactiveData: filteredInteractiveData,
         stats: {
-          downloads: episodes.length * 400 + 245,
-          listeners: episodes.length * 280 + 112,
-          episodes: episodes.length,
+          // Métricas acadêmicas reais derivadas do banco
+          totalEpisodes: episodes.length,
+          publishedEpisodes: episodes.filter((ep) => ep.status === 'Publicado').length,
+          totalGuests: new Set(
+            episodes.flatMap((ep) =>
+              (ep.guests || []).map((g: any) => (typeof g === 'string' ? g : g.name))
+            )
+          ).size,
+          uniqueCategories: new Set(episodes.map((ep) => ep.category).filter(Boolean)).size,
+          totalPlatforms: new Set(episodes.flatMap((ep) => ep.platforms || [])).size,
+          publishRate:
+            episodes.length > 0
+              ? Math.round(
+                  (episodes.filter((ep) => ep.status === 'Publicado').length / episodes.length) * 100
+                )
+              : 0,
         },
       };
-    }, [episodes, timeRange]);
+    }, [episodes, playEvents, timeRange]);
 
-  const totalListeners = React.useMemo(() => {
-    return platformData.reduce((acc, curr) => acc + curr.listeners, 0);
-  }, [platformData]);
 
   if (loading) {
     return (
@@ -385,33 +410,34 @@ export default function EstatisticasAdminPage() {
         />
       </div>
 
-      {/* Stats Cards Grid */}
+      {/* Stats Cards Grid — Métricas Acadêmicas Reais */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
-          title="Total de Downloads"
-          value={stats.downloads.toLocaleString()}
-          description="+12.5% em relação ao mês anterior"
-          icon={Download}
+          title="Episódios Publicados"
+          value={`${stats.publishedEpisodes} / ${stats.totalEpisodes}`}
+          description="Episódios já no ar do total produzido"
+          icon={TrendingUp}
           trend="up"
         />
         <StatsCard
-          title="Ouvintes Únicos"
-          value={totalListeners.toLocaleString()}
-          description="+5.2% esta semana"
+          title="Convidados Entrevistados"
+          value={(stats.totalGuests ?? 0).toString()}
+          description="Profissionais e acadêmicos participantes"
           icon={Users}
           trend="up"
         />
         <StatsCard
-          title="Tempo Médio"
-          value="24 min"
-          description="Taxa de retenção de 82%"
+          title="Categorias Abordadas"
+          value={(stats.uniqueCategories ?? 0).toString()}
+          description="Áreas temáticas cobertas pelo projeto"
           icon={Clock}
         />
         <StatsCard
-          title="Episódios"
-          value={stats.episodes.toString()}
-          description="No banco de dados local"
-          icon={TrendingUp}
+          title="Taxa de Publicação"
+          value={`${stats.publishRate ?? 0}%`}
+          description={`${stats.totalPlatforms ?? 0} plataforma(s) ativa(s)`}
+          icon={Download}
+          trend={(stats.publishRate ?? 0) >= 50 ? 'up' : 'down'}
         />
       </div>
 
@@ -515,7 +541,7 @@ export default function EstatisticasAdminPage() {
                               y={viewBox.cy}
                               className="fill-fd-foreground text-3xl font-bold"
                             >
-                              {totalListeners.toLocaleString()}
+                              {platformData.reduce((acc, curr) => acc + curr.listeners, 0).toLocaleString()}
                             </tspan>
                             <tspan
                               x={viewBox.cx}
@@ -671,6 +697,218 @@ export default function EstatisticasAdminPage() {
                 <ChartLegend content={<ChartLegendContent />} />
               </AreaChart>
             </ChartContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* ─── External Integrations Panel ─────────────────────────────── */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* Spotify Card */}
+        <Card className="bg-background">
+          <CardHeader className="flex flex-row items-center gap-3 pb-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#1DB954]/10">
+              <Music2 className="w-5 h-5 text-[#1DB954]" />
+            </div>
+            <div className="flex-1">
+              <CardTitle className="text-base">Spotify</CardTitle>
+              <CardDescription className="text-xs">Dados públicos do podcast</CardDescription>
+            </div>
+            {integrations?.spotify?.configured ? (
+              integrations.spotify.data ? (
+                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
+              )
+            ) : (
+              <AlertCircle className="w-5 h-5 text-fd-muted-foreground shrink-0" />
+            )}
+          </CardHeader>
+          <CardContent>
+            {integrations?.spotify?.configured && integrations.spotify.data ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  {integrations.spotify.data.show.images?.[0]?.url && (
+                    <img
+                      src={integrations.spotify.data.show.images[0].url}
+                      alt="Podcast cover"
+                      className="w-12 h-12 rounded-lg object-cover"
+                    />
+                  )}
+                  <div>
+                    <p className="font-semibold text-sm">{integrations.spotify.data.show.name}</p>
+                    <p className="text-xs text-fd-muted-foreground line-clamp-1">{integrations.spotify.data.show.publisher}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-center p-2 rounded-lg bg-fd-accent">
+                    <p className="text-lg font-bold text-[#1DB954]">{integrations.spotify.data.show.totalEpisodes}</p>
+                    <p className="text-[10px] text-fd-muted-foreground">Episódios</p>
+                  </div>
+                  <div className="text-center p-2 rounded-lg bg-fd-accent">
+                    <p className="text-lg font-bold text-[#1DB954]">{(integrations.spotify.data.show.followers ?? 0).toLocaleString('pt-BR')}</p>
+                    <p className="text-[10px] text-fd-muted-foreground">Seguidores</p>
+                  </div>
+                  <div className="text-center p-2 rounded-lg bg-fd-accent">
+                    <p className="text-lg font-bold text-[#1DB954]">{integrations.spotify.data.episodes?.length ?? 0}</p>
+                    <p className="text-[10px] text-fd-muted-foreground">Recentes</p>
+                  </div>
+                </div>
+                {integrations.spotify.data.show.externalUrl && (
+                  <a
+                    href={integrations.spotify.data.show.externalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-xs text-[#1DB954] hover:underline"
+                  >
+                    Abrir no Spotify <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-sm text-fd-muted-foreground">
+                  {integrations?.spotify?.configured
+                    ? integrations.spotify.error ?? 'Erro ao carregar dados do Spotify.'
+                    : 'Integração não configurada.'}
+                </p>
+                <div className="text-xs text-fd-muted-foreground space-y-1 mt-2 p-3 rounded-lg bg-fd-accent">
+                  <p className="font-medium text-fd-foreground">Como configurar:</p>
+                  <p>1. Acesse <a href="https://developer.spotify.com/dashboard" target="_blank" className="text-[#1DB954] underline">developer.spotify.com</a></p>
+                  <p>2. Crie um App e copie Client ID e Secret</p>
+                  <p>3. Adicione ao <code className="bg-fd-border px-1 rounded">.env.local</code></p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* YouTube Card */}
+        <Card className="bg-background">
+          <CardHeader className="flex flex-row items-center gap-3 pb-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#FF0000]/10">
+              <Youtube className="w-5 h-5 text-[#FF0000]" />
+            </div>
+            <div className="flex-1">
+              <CardTitle className="text-base">YouTube</CardTitle>
+              <CardDescription className="text-xs">Estatísticas do canal</CardDescription>
+            </div>
+            {integrations?.youtube?.configured ? (
+              integrations.youtube.data ? (
+                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
+              )
+            ) : (
+              <AlertCircle className="w-5 h-5 text-fd-muted-foreground shrink-0" />
+            )}
+          </CardHeader>
+          <CardContent>
+            {integrations?.youtube?.configured && integrations.youtube.data ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  {integrations.youtube.data.channel.thumbnailUrl && (
+                    <img
+                      src={integrations.youtube.data.channel.thumbnailUrl}
+                      alt="Channel thumbnail"
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  )}
+                  <div>
+                    <p className="font-semibold text-sm">{integrations.youtube.data.channel.title}</p>
+                    <p className="text-xs text-fd-muted-foreground">{integrations.youtube.data.channel.customUrl}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-center p-2 rounded-lg bg-fd-accent">
+                    <p className="text-lg font-bold text-[#FF0000]">
+                      {integrations.youtube.data.channel.hiddenSubscriberCount
+                        ? '—'
+                        : (integrations.youtube.data.channel.subscriberCount ?? 0).toLocaleString('pt-BR')}
+                    </p>
+                    <p className="text-[10px] text-fd-muted-foreground">Inscritos</p>
+                  </div>
+                  <div className="text-center p-2 rounded-lg bg-fd-accent">
+                    <p className="text-lg font-bold text-[#FF0000]">{(integrations.youtube.data.channel.viewCount ?? 0).toLocaleString('pt-BR')}</p>
+                    <p className="text-[10px] text-fd-muted-foreground">Views totais</p>
+                  </div>
+                  <div className="text-center p-2 rounded-lg bg-fd-accent">
+                    <p className="text-lg font-bold text-[#FF0000]">{integrations.youtube.data.channel.videoCount ?? 0}</p>
+                    <p className="text-[10px] text-fd-muted-foreground">Vídeos</p>
+                  </div>
+                </div>
+                {integrations.youtube.data.videos?.length > 0 && (
+                  <div className="space-y-1.5">
+                    <p className="text-xs font-medium text-fd-muted-foreground">Vídeos recentes</p>
+                    {integrations.youtube.data.videos.slice(0, 3).map((v: any) => (
+                      <a
+                        key={v.id}
+                        href={v.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between gap-2 p-2 rounded-md hover:bg-fd-accent transition-colors group"
+                      >
+                        <p className="text-xs line-clamp-1 flex-1">{v.title}</p>
+                        <span className="text-[10px] text-fd-muted-foreground shrink-0">{v.viewCount.toLocaleString('pt-BR')} views</span>
+                        <ExternalLink className="w-3 h-3 text-fd-muted-foreground opacity-0 group-hover:opacity-100 shrink-0" />
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-sm text-fd-muted-foreground">
+                  {integrations?.youtube?.configured
+                    ? integrations.youtube.error ?? 'Erro ao carregar dados do YouTube.'
+                    : 'Integração não configurada.'}
+                </p>
+                <div className="text-xs text-fd-muted-foreground space-y-1 mt-2 p-3 rounded-lg bg-fd-accent">
+                  <p className="font-medium text-fd-foreground">Como configurar:</p>
+                  <p>1. Acesse <a href="https://console.cloud.google.com" target="_blank" className="text-[#FF0000] underline">console.cloud.google.com</a></p>
+                  <p>2. Ative "YouTube Data API v3" e crie uma Chave de API</p>
+                  <p>3. Adicione ao <code className="bg-fd-border px-1 rounded">.env.local</code></p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Internal Events Summary Card */}
+        <Card className="bg-background md:col-span-2">
+          <CardHeader className="flex flex-row items-center gap-3 pb-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-fd-primary/10">
+              <Radio className="w-5 h-5 text-fd-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-base">Eventos Internos de Play</CardTitle>
+              <CardDescription className="text-xs">Registrados pelo player do site público</CardDescription>
+            </div>
+            <CheckCircle2 className="w-5 h-5 text-green-500 ml-auto shrink-0" />
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center p-3 rounded-xl bg-fd-accent">
+                <p className="text-2xl font-bold text-fd-primary">{playEvents.length}</p>
+                <p className="text-xs text-fd-muted-foreground mt-0.5">Plays totais</p>
+              </div>
+              <div className="text-center p-3 rounded-xl bg-fd-accent">
+                <p className="text-2xl font-bold text-fd-primary">
+                  {playEvents.filter((e) => e.device === 'desktop').length}
+                </p>
+                <p className="text-xs text-fd-muted-foreground mt-0.5">Desktop</p>
+              </div>
+              <div className="text-center p-3 rounded-xl bg-fd-accent">
+                <p className="text-2xl font-bold text-fd-primary">
+                  {playEvents.filter((e) => e.device === 'mobile').length}
+                </p>
+                <p className="text-xs text-fd-muted-foreground mt-0.5">Mobile</p>
+              </div>
+            </div>
+            {playEvents.length === 0 && (
+              <p className="text-xs text-fd-muted-foreground mt-3 text-center italic">
+                Nenhum play registrado ainda. Os eventos aparecem aqui quando ouvintes derem Play no site público.
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>

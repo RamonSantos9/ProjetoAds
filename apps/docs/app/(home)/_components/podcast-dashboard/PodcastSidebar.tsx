@@ -30,32 +30,14 @@ const NAV_ITEMS: Array<{ title?: string; items: NavItem[] }> = [
     title: 'Produção',
     items: [
       {
-        label: 'Editar episódio',
-        path: '/episodios/editar',
-        icon: <VoiceChangerIcon />,
-        adminOnly: true,
+        label: 'Transcrições',
+        path: '/transcricoes',
+        icon: <SpeechToTextIcon />,
       },
-      { label: 'Roteiros', path: '/roteiros', icon: <VoiceIsolatorIcon /> },
       {
         label: 'Vinhetas e trilhas',
         path: '/vinhetas-trilhas',
         icon: <SoundEffectsIcon />,
-      },
-      {
-        label: 'Publicação',
-        path: '/publicacao',
-        icon: <MusicIcon />,
-        adminOnly: true,
-      },
-      {
-        label: 'Mídias visuais',
-        path: '/midias-visuais',
-        icon: <ImageVideoIcon />,
-      },
-      {
-        label: 'Modelos de post',
-        path: '/modelos-post',
-        icon: <TemplatesIcon />,
       },
     ],
   },
@@ -71,11 +53,6 @@ const NAV_ITEMS: Array<{ title?: string; items: NavItem[] }> = [
       { label: 'Cronograma', path: '/cronograma', icon: <FlowsIcon /> },
       { label: 'Convidados', path: '/convidados', icon: <AudiobooksIcon /> },
       { label: 'Entrevistas', path: '/entrevistas', icon: <DubbingIcon /> },
-      {
-        label: 'Transcrições',
-        path: '/transcricoes',
-        icon: <SpeechToTextIcon />,
-      },
       {
         label: 'Estatísticas',
         path: '/estatisticas',

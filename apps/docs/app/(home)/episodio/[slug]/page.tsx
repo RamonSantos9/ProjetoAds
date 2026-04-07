@@ -112,15 +112,26 @@ export default function PublicEpisodePage() {
                     .trim()
                     .split(/\n|\\n/)
                     .map((line: string, i: number) => {
-                      const parts = line.split(' ');
-                      const time = parts[0];
-                      const text = parts.slice(1).join(' ');
+                      // Handle both "[00:00] Text" and "00:00 Text" formats
+                      const timestampMatch = line.match(/^\[?(\d{1,2}:\d{2})\]?\s*(.*)/);
+                      
+                      if (!timestampMatch) {
+                        // Fallback: just show the line if it doesn't match a timestamp pattern
+                        return line.trim() ? (
+                          <div key={i} className="mb-2">
+                            <p className="text-fd-foreground">{line}</p>
+                          </div>
+                        ) : null;
+                      }
 
-                      if (!time || !text) return null;
+                      const [, time, text] = timestampMatch;
 
                       return (
-                        <div key={i} className="mb-1">
-                          <p className="selection:bg-fd-primary/10 text-fd-foreground hover:text-fd-primary transition-colors cursor-default">
+                        <div key={i} className="group/line flex gap-6 items-start mb-6">
+                          <span className="text-sm font-mono text-fd-muted-foreground tabular-nums shrink-0 mt-1 opacity-40 group-hover/line:opacity-100 transition-opacity">
+                            {time}
+                          </span>
+                          <p className="selection:bg-fd-primary/20 text-fd-foreground/90 leading-relaxed hover:text-fd-foreground transition-colors cursor-default flex-1">
                             {text}
                           </p>
                         </div>

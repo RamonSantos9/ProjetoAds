@@ -9,8 +9,11 @@ export interface TranscriptionResult {
   text: string;
   language: string;
   duration: number;
+  segments: TranscriptionSegment[];
   isMock?: boolean;
 }
+
+import { TranscriptionSegment } from './db';
 
 /**
  * Transcribes audio using Deepgram (v1/listen).
@@ -94,10 +97,20 @@ export async function transcribeAudio(
 
     const duration = data.metadata?.duration || 0;
 
+    // Convert Utterances to TranscriptionSegments
+    const segments: TranscriptionSegment[] = utterances.map((u: any, index: number) => ({
+      id: `seg-${index}-${Date.now()}`,
+      start: u.start,
+      end: u.end,
+      speaker: `Speaker ${u.speaker || 0}`,
+      text: u.transcript.trim(),
+    }));
+
     return {
       text: formattedText,
       language: 'pt-BR',
       duration: Math.round(duration),
+      segments,
     };
   } catch (error) {
     console.error('[Deepgram] Falha na transcrição:', error);
@@ -123,10 +136,23 @@ async function generateMockTranscription(
     `[00:22] A transcrição automática em Português-BR aparecerá aqui.`,
   ];
 
+  const segments: TranscriptionSegment[] = lines.map((line, idx) => {
+    const timeMatch = line.match(/\[(\d+):(\d+)\]/);
+    const start = timeMatch ? parseInt(timeMatch[1]) * 60 + parseInt(timeMatch[2]) : idx * 5;
+    return {
+      id: `mock-seg-${idx}`,
+      start,
+      end: start + 4,
+      speaker: idx % 2 === 0 ? 'Mia' : 'Whiskers',
+      text: line.replace(/\[\d+:\d+\]\s*/, ''),
+    };
+  });
+
   return {
     text: lines.join('\n'),
     language: 'pt-BR',
     duration: 30,
+    segments,
     isMock: true,
   };
 }

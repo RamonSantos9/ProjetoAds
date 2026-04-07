@@ -42,6 +42,14 @@ export interface Guest {
   email?: string; // Adicionado para CRM
 }
 
+export interface TranscriptionSegment {
+  id: string;
+  start: number;
+  end: number;
+  speaker: string;
+  text: string;
+}
+
 export interface Episode {
   id: string; // unique identifier
   slug: string;
@@ -54,10 +62,11 @@ export interface Episode {
   platforms: string[];
   createdAt: string;
 
-  // Transcription-specific fields (optional)
+  // Transcription-specific fields
   audioUrl?: string;
   externalUrl?: string; // YouTube, Spotify, etc.
   transcriptionText?: string;
+  segments?: TranscriptionSegment[];
   language?: string;
   confidence?: number;
   image?: string; // URL for persisted image
@@ -114,12 +123,20 @@ export interface VisualAsset {
   createdAt: string;
 }
 
+export interface PlayEvent {
+  id: string;
+  episodeId: string;
+  device: 'desktop' | 'mobile';
+  createdAt: string;
+}
+
 export interface DbSchema {
   episodes: Episode[];
   feedbacks: Feedback[];
   projects: StudioProject[];
   guests: Guest[];
   assets: VisualAsset[];
+  events: PlayEvent[];
 }
 
 const initialFeedbacks: Feedback[] = [
@@ -291,6 +308,11 @@ async function initDb(): Promise<void> {
       updated = true;
     }
 
+    if (!parsed.events) {
+      parsed.events = [];
+      updated = true;
+    }
+
     if (updated) {
       await fs.writeFile(DB_PATH, JSON.stringify(parsed, null, 2));
     }
@@ -305,6 +327,7 @@ async function initDb(): Promise<void> {
             projects: [],
             guests: initialGuests,
             assets: initialAssets,
+            events: [],
           },
           null,
           2,
@@ -349,7 +372,7 @@ export async function getEpisodeBySlug(slug: string): Promise<Episode | null> {
 
 export async function getEpisodeById(id: string): Promise<Episode | null> {
   const db = await readDb();
-  return db.episodes.find((t) => t.id === id) || null;
+  return db.episodes.find((t) => t.id.trim() === id.trim()) || null;
 }
 
 // ------ STUDIO PROJECT CRUD ------ //
@@ -466,4 +489,24 @@ export async function deleteVisualAsset(id: string) {
   const db = await readDb();
   db.assets = db.assets.filter((a) => a.id !== id);
   await writeDb(db);
+}
+
+// ------ PLAY EVENTS ------ //
+
+export async function recordPlayEvent(
+  event: Omit<PlayEvent, 'id' | 'createdAt'>,
+) {
+  const db = await readDb();
+  if (!db.events) db.events = [];
+  db.events.push({
+    id: `evt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    ...event,
+    createdAt: new Date().toISOString(),
+  });
+  await writeDb(db);
+}
+
+export async function getPlayEvents(): Promise<PlayEvent[]> {
+  const db = await readDb();
+  return db.events || [];
 }
