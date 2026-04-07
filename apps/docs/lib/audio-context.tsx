@@ -7,6 +7,8 @@ import React, {
   useRef,
   useEffect,
 } from 'react';
+import { CompositeAudioEngine } from '@/app/_components/CompositeAudioEngine';
+import { TimelineTrack } from './db';
 
 interface Voice {
   name: string;
@@ -17,6 +19,7 @@ interface Voice {
   sampleUrl?: string;
   audioUrl?: string;
   slug?: string;
+  tracks?: TimelineTrack[];
 }
 
 interface AudioContextType {
@@ -81,8 +84,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // ── Single-Track Audio Event Listeners ──
   useEffect(() => {
     if (!audio) return;
+    if (currentVoice?.tracks && currentVoice.tracks.length > 0) return; // Skip in multi-track mode
 
     const onTimeUpdate = () => setCurrentTime(audio.currentTime);
     const onLoadedMetadata = () => setDuration(audio.duration);
@@ -104,15 +109,42 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       audio.removeEventListener('pause', onPause);
       audio.pause();
     };
-  }, [audio]);
+  }, [audio, currentVoice?.tracks]);
+
+  // ── Multi-Track Clock Loop ──
+  useEffect(() => {
+    if (!currentVoice?.tracks || currentVoice.tracks.length === 0) return;
+    
+    let rafId: number;
+    let lastTime = performance.now();
+
+    const loop = (now: number) => {
+      if (isPlaying) {
+        const delta = (now - lastTime) / 1000;
+        setCurrentTime(prev => {
+          const next = prev + delta * playbackRate;
+          if (next >= duration) {
+            setIsPlaying(false);
+            return 0; 
+          }
+          return next;
+        });
+      }
+      lastTime = now;
+      rafId = requestAnimationFrame(loop);
+    };
+
+    rafId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafId);
+  }, [isPlaying, currentVoice?.tracks, duration, playbackRate]);
 
   const playTrack = (voice: Voice) => {
     if (!audio) return;
 
     const url = voice.audioUrl || voice.url || voice.sampleUrl;
 
-    if (!url) {
-      console.warn('No audio URL found for this track');
+    if (!url && (!voice.tracks || voice.tracks.length === 0)) {
+      console.warn('No audio URL or tracks found for this track');
       return;
     }
 
@@ -129,14 +161,25 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     setIsVisible(true);
     setIsMinimized(false);
 
-    audio.src = url;
-    playPromiseRef.current = audio.play();
-    playPromiseRef.current.catch((e) => {
-      if (e.name !== 'AbortError') console.error(e);
-    });
+    if (voice.tracks && voice.tracks.length > 0) {
+      // Multi-track mode
+      const totalDur = Math.max(...voice.tracks.map(t => t.startTime + t.duration));
+      setDuration(totalDur);
+      setCurrentTime(0);
+      setIsPlaying(true);
+      audio.src = ''; // Clear single-track source
+    } else if (url) {
+      // Single-track mode
+      audio.src = url;
+      playPromiseRef.current = audio.play();
+      playPromiseRef.current.catch((e) => {
+        if (e.name !== 'AbortError') console.error(e);
+      });
+    }
   };
 
   const pauseTrack = () => {
+    setIsPlaying(false);
     if (!audio) return;
 
     if (playPromiseRef.current !== null) {
@@ -146,7 +189,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
           playPromiseRef.current = null;
         })
         .catch(() => {
-          // Play was already aborted, safely clear ref
           playPromiseRef.current = null;
         });
     } else {
@@ -155,6 +197,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resumeTrack = () => {
+    setIsPlaying(true);
+    if (currentVoice?.tracks && currentVoice.tracks.length > 0) return;
+
     if (audio) {
       playPromiseRef.current = audio.play();
       playPromiseRef.current.catch(console.error);
@@ -162,25 +207,26 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   };
 
   const seek = (time: number) => {
-    if (audio) {
+    if (currentVoice?.tracks && currentVoice.tracks.length > 0) {
+      setCurrentTime(time);
+    } else if (audio) {
       audio.currentTime = time;
     }
   };
 
   const rewind = () => {
-    if (audio) {
-      audio.currentTime = Math.max(0, audio.currentTime - 10);
-    }
+    const newTime = Math.max(0, currentTime - 10);
+    seek(newTime);
   };
 
   const fastForward = () => {
-    if (audio) {
-      audio.currentTime = Math.min(audio.duration, audio.currentTime + 10);
-    }
+    const newTime = Math.min(duration, currentTime + 10);
+    seek(newTime);
   };
 
   const hidePlayer = () => {
     setIsVisible(false);
+    setIsPlaying(false);
     audio?.pause();
   };
 
@@ -214,6 +260,15 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       }}
     >
       {children}
+      {/* Global Multi-Track Engine */}
+      {currentVoice?.tracks && (
+        <CompositeAudioEngine
+          tracks={currentVoice.tracks}
+          currentTime={currentTime}
+          isPlaying={isPlaying}
+          playbackSpeed={playbackRate}
+        />
+      )}
     </AudioContext.Provider>
   );
 }

@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 import { ProjectPopover } from '../../estudio/_components/ProjectPopover';
+import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
 
 interface TranscriptionHeaderProps {
   canUndo: boolean;
@@ -14,6 +15,7 @@ interface TranscriptionHeaderProps {
   onTitleChange?: (title: string) => void;
   onSave?: (newTitle?: string) => void;
   onOpenShortcuts?: () => void;
+  onOpenShare?: () => void;
 }
 
 export function TranscriptionHeader({
@@ -26,6 +28,7 @@ export function TranscriptionHeader({
   onTitleChange,
   onSave,
   onOpenShortcuts,
+  onOpenShare,
 }: TranscriptionHeaderProps) {
   const [isProjectPopoverOpen, setIsProjectPopoverOpen] = useState(false);
   const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null);
@@ -44,7 +47,7 @@ export function TranscriptionHeader({
   };
 
   return (
-    <header className="grid grid-cols-[1fr_auto_1fr] gap-2 items-center w-full overflow-hidden relative px-2 min-w-0 border-b bg-background shrink-0" style={{ minHeight: '48px' }}>
+    <header className="grid grid-cols-[1fr_auto_1fr] gap-2 items-center w-full overflow-hidden relative px-2 min-w-0 border-b border-[#E2E7F1] dark:border-[#2A2A38] bg-[#FFFFFF] dark:bg-fd-background shrink-0" style={{ minHeight: '48px' }}>
       {/* Left Section */}
       <div className="flex flex-row items-center gap-2 shrink min-w-0 overflow-hidden">
         <button
@@ -155,13 +158,25 @@ export function TranscriptionHeader({
           
         </div>
 
-        <button aria-label="Open comments" className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-transparent text-foreground hover:bg-gray-alpha-100 rounded-lg text-xm center p-0 h-8 w-8" title="Comments">
+        <button 
+          aria-label="Open comments" 
+          className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-transparent text-foreground hover:bg-zinc-100 rounded-lg text-xm center p-0 h-8 w-8" 
+          title="Comments"
+        >
           <svg width="20px" height="20px" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor" className="shrink-0 w-4 h-4">
             <path d="M13.1515 7.03045H6.84848M13.1515 10.8632H6.84848M7.37621 16.1175L9.37872 17.7762C9.73741 18.0733 10.2598 18.0747 10.6203 17.7796L12.655 16.1139C12.8289 15.9715 13.0478 15.8936 13.2736 15.8936H15.0909C16.6976 15.8936 18 14.6067 18 13.0191V4.87455C18 3.28698 16.6976 2 15.0909 2H4.90909C3.30245 2 2 3.28698 2 4.87455V13.0191C2 14.6067 3.30245 15.8936 4.90909 15.8936H6.75328C6.98109 15.8936 7.20163 15.9729 7.37621 16.1175Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
           </svg>
         </button>
         
-        <button className="hidden sm:inline-flex relative items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring bg-transparent text-foreground hover:bg-gray-alpha-100 h-8 px-2.5 rounded-lg text-xm">Share</button>
+        <button 
+          onClick={() => {
+            console.log('[Header] Opening share modal');
+            onOpenShare && onOpenShare();
+          }}
+          className="hidden sm:inline-flex relative items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring bg-transparent text-foreground hover:bg-zinc-100 h-8 px-2.5 rounded-lg text-xm"
+        >
+          Compartilhar
+        </button>
         
         <div className="flex items-center gap-2">
           <button type="button" className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 text-foreground h-8 px-2.5 rounded-lg text-xm">
@@ -178,6 +193,10 @@ export function TranscriptionHeader({
             {isSaving ? 'Salvando...' : 'Publicar'}
           </button>
         </div>
+        
+        <div className="h-4 w-px bg-[#E2E7F1] dark:bg-[#2A2A38] mx-1"></div>
+        
+        <ThemeToggle mode="light-dark" />
       </div>
 
       <ProjectPopover

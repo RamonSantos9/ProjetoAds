@@ -14,12 +14,14 @@ import {
   ChevronLeft,
   Info,
   Mic,
-  Users,
-  Clock,
   Tag,
   FileText,
   ExternalLink,
+  Pause,
+  Clock,
+  Users,
 } from 'lucide-react';
+import { useAudioPlayer } from '@/lib/audio-context';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -87,6 +89,14 @@ export default function EpisodeDetailPage() {
   const [episode, setEpisode] = useState<Episode | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const { 
+    playTrack, 
+    pauseTrack, 
+    resumeTrack, 
+    isPlaying, 
+    currentVoice 
+  } = useAudioPlayer();
 
   const fetchEpisode = useCallback(async () => {
     setLoading(true);
@@ -281,16 +291,45 @@ export default function EpisodeDetailPage() {
                   <h2 className="flex items-center gap-2 text-xl font-semibold text-foreground">
                     Áudio
                   </h2>
-                  {episode.audioUrl ? (
-                    <div className="flex flex-col gap-3 p-4 bg-[#F6F8FA] dark:bg-[#1F2122] border rounded-xl cursor-not-allowed">
-                      <audio
-                        src={episode.audioUrl}
-                        controls
-                        className="w-full h-8"
-                      />
+                  {episode.audioUrl || (episode.tracks && episode.tracks.length > 0) ? (
+                    <div className="flex flex-col gap-3 p-4 bg-[#F6F8FA] dark:bg-[#1F2122] border rounded-xl shadow-sm">
+                      <div className="flex items-center justify-between gap-4">
+                        <ActionButton
+                          label="Preview Audio"
+                          onClick={() => {
+                            const isCurrent = currentVoice?.name === episode.title;
+                            if (isCurrent) {
+                              if (isPlaying) pauseTrack();
+                              else resumeTrack();
+                            } else {
+                              playTrack({
+                                name: episode.title,
+                                desc: episode.category,
+                                img: episode.image || 'default-voice.png',
+                                hue: 140,
+                                url: episode.audioUrl,
+                                tracks: episode.tracks,
+                              });
+                            }
+                          }}
+                          className="w-full justify-center gap-2"
+                        >
+                          {(isPlaying && currentVoice?.name === episode.title) ? (
+                            <>
+                              <Pause className="size-4" />
+                              Pausar Preview
+                            </>
+                          ) : (
+                            <>
+                              <Mic className="size-4" />
+                              Ouvir Timeline Studio
+                            </>
+                          )}
+                        </ActionButton>
+                      </div>
                       <div className="flex items-center gap-2 overflow-hidden">
-                        <p className="text-[10px] text-[#6b7280] flex-1">
-                          {episode.audioUrl}
+                        <p className="text-[10px] text-[#6b7280] flex-1 truncate opacity-70">
+                          {episode.tracks ? `${episode.tracks.length} trilhas sincronizadas` : episode.audioUrl}
                         </p>
                       </div>
                     </div>

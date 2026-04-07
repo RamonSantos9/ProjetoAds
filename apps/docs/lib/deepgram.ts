@@ -10,10 +10,11 @@ export interface TranscriptionResult {
   language: string;
   duration: number;
   segments: TranscriptionSegment[];
+  words?: WordItem[];
   isMock?: boolean;
 }
 
-import { TranscriptionSegment } from './db';
+import { TranscriptionSegment, WordItem } from './db';
 
 /**
  * Transcribes audio using Deepgram (v1/listen).
@@ -96,21 +97,36 @@ export async function transcribeAudio(
     }
 
     const duration = data.metadata?.duration || 0;
+    const allWords: WordItem[] = data.results?.channels[0]?.alternatives[0]?.words || [];
 
-    // Convert Utterances to TranscriptionSegments
-    const segments: TranscriptionSegment[] = utterances.map((u: any, index: number) => ({
-      id: `seg-${index}-${Date.now()}`,
-      start: u.start,
-      end: u.end,
-      speaker: `Speaker ${u.speaker || 0}`,
-      text: u.transcript.trim(),
-    }));
+    // Convert Utterances to TranscriptionSegments and assign words to them
+    const segments: TranscriptionSegment[] = utterances.map((u: any, index: number) => {
+      // Find words that belong to this utterance based on timing
+      const utteranceWords = allWords.filter(w => w.start >= u.start && w.end <= u.end);
+      
+      return {
+        id: `seg-${index}-${Date.now()}`,
+        start: u.start,
+        end: u.end,
+        speaker: `Speaker ${u.speaker || 0}`,
+        text: u.transcript.trim(),
+        words: utteranceWords.map(w => ({
+          word: w.word,
+          start: w.start,
+          end: w.end,
+          confidence: w.confidence,
+          punctuated_word: w.punctuated_word,
+          speaker: u.speaker
+        }))
+      };
+    });
 
     return {
       text: formattedText,
       language: 'pt-BR',
       duration: Math.round(duration),
       segments,
+      words: allWords
     };
   } catch (error) {
     console.error('[Deepgram] Falha na transcrição:', error);

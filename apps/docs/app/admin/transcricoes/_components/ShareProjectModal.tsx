@@ -14,27 +14,44 @@ import { cn } from '@/lib/cn';
 import { toast } from 'sonner';
 import { InviteMembersModal } from './InviteMembersModal';
 import { AccessSelector } from './AccessSelector';
+import { SharingConfig } from '@/lib/db';
 
 interface ShareProjectModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   scriptTitle?: string;
+  projectId?: string;
+  sharingConfig?: SharingConfig | null;
+  onSaveSharing?: (updates: Partial<SharingConfig>) => void;
 }
 
 export function ShareProjectModal({ 
   isOpen, 
   onOpenChange, 
-  scriptTitle = 'Projeto sem título' 
+  scriptTitle = 'Projeto sem título',
+  projectId,
+  sharingConfig,
+  onSaveSharing
 }: ShareProjectModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [workspaceAccess, setWorkspaceAccess] = useState('Restrito');
-  const [publicAccess, setPublicAccess] = useState('Sem acesso');
+
+  const isEnabled = sharingConfig?.isEnabled || false;
+  const publicAccess = sharingConfig?.publicAccess || 'Sem acesso';
 
   const handleCopyLink = () => {
-    const link = `${window.location.origin}/app/share/${scriptTitle.toLowerCase().replace(/ /g, '-')}`;
+    if (!sharingConfig?.token) {
+        toast.error('Ative o compartilhamento primeiro para gerar um link.');
+        return;
+    }
+    const link = `${window.location.origin}/admin/transcricoes/${projectId}?token=${sharingConfig.token}`;
     navigator.clipboard.writeText(link);
     toast.success('Link copiado para a área de transferência!');
+  };
+
+  const handleToggleSharing = () => {
+    const nextState = !isEnabled;
+    onSaveSharing?.({ isEnabled: nextState });
   };
 
   const menuShadow = "shadow-[0_0px_0px_1px_rgba(0,0,0,0.06),0_1px_1px_-0.5px_rgba(0,0,0,0.06),0_3px_3px_-1.5px_rgba(0,0,0,0.06),0_6px_6px_-3px_rgba(0,0,0,0.06),0_12px_12px_-6px_rgba(0,0,0,0.04),0_24px_24px_-12px_rgba(0,0,0,0.04)]";
@@ -101,29 +118,42 @@ export function ShareProjectModal({
               </button>
             </div>
 
-            {/* Workspace Access */}
+            {/* Sharing Toggle */}
             <div className="flex items-center justify-between gap-2 py-1">
               <div>
-                <p className="text-sm text-foreground font-medium">Acesso ao Workspace</p>
-                <p className="text-xs text-[#5b5b64] dark:text-gray-400 font-normal mt-0.5">Apenas admins em Meu Workspace podem acessar seu projeto</p>
+                <p className="text-sm text-foreground font-medium">Ativar Compartilhamento</p>
+                <p className="text-xs text-[#5b5b64] dark:text-gray-400 font-normal mt-0.5">
+                  {isEnabled ? 'O link público está ativo' : 'Apenas você pode acessar este projeto'}
+                </p>
               </div>
-              <AccessSelector 
-                value={workspaceAccess}
-                onChange={setWorkspaceAccess}
-                options={['Restrito', 'Visualizador', 'Comentador', 'Editor', 'Admin']}
-              />
+              <div className="flex items-center h-9">
+                <button
+                  onClick={handleToggleSharing}
+                  className={cn(
+                    "relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
+                    isEnabled ? "bg-black" : "bg-gray-200"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                      isEnabled ? "translate-x-4" : "translate-x-0"
+                    )}
+                  />
+                </button>
+              </div>
             </div>
 
-            {/* Public Access */}
+            {/* Public Access Level */}
             <div className="flex items-center justify-between gap-2 py-1">
               <div>
-                <p className="text-sm text-foreground font-medium">Acesso Público</p>
-                <p className="text-xs text-[#5b5b64] dark:text-gray-400 font-normal mt-0.5">Qualquer pessoa com o link pode visualizar este projeto</p>
+                <p className="text-sm text-foreground font-medium">Permissão do Link</p>
+                <p className="text-xs text-[#5b5b64] dark:text-gray-400 font-normal mt-0.5">Define o que os visitantes podem fazer</p>
               </div>
               <AccessSelector 
                 value={publicAccess}
-                onChange={setPublicAccess}
-                options={['Sem acesso', 'Visualizador', 'Comentador']}
+                onChange={(val) => onSaveSharing?.({ publicAccess: val as any, isEnabled: val !== 'Sem acesso' ? true : isEnabled })}
+                options={['Sem acesso', 'Visualizador', 'Editor']}
               />
             </div>
 
@@ -131,9 +161,10 @@ export function ShareProjectModal({
             <div className="sm:flex-row flex flex-row justify-between sm:justify-between gap-2 items-center mt-2 pt-4 border-t border-gray-alpha-100">
               <button 
                 type="button"
+                disabled={!isEnabled}
                 onClick={handleCopyLink}
                 aria-label="Copiar link" 
-                className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors duration-75 focus-ring bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 active:bg-gray-alpha-100 hover:border-gray-alpha-300 text-foreground shadow-none h-9 px-3 rounded-[10px] gap-2"
+                className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors duration-75 focus-ring bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 active:bg-gray-alpha-100 hover:border-gray-alpha-300 text-foreground shadow-none h-9 px-3 rounded-[10px] gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Link2 className="shrink-0 w-4 h-4 opacity-70" />
                 Copiar link

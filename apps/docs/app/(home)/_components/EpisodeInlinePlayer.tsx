@@ -12,6 +12,7 @@ interface Episode {
   duration: string;
   audioUrl: string;
   category: string;
+  tracks?: import('@/lib/db').TimelineTrack[];
 }
 
 interface EpisodeInlinePlayerProps {
@@ -87,6 +88,7 @@ export function EpisodeInlinePlayer({ episode }: EpisodeInlinePlayerProps) {
         img: 'default-voice.png',
         hue: 140,
         url: episode.audioUrl,
+        tracks: episode.tracks,
       });
     }
   };

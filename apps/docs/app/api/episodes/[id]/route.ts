@@ -35,7 +35,7 @@ export async function PATCH(
     const body = await req.json();
     
     // We only allow updating some fields via this route for now
-    const { title, summary, transcriptionText, segments, status } = body;
+    const { title, summary, transcriptionText, segments, status, tracks, assets } = body;
     
     await updateEpisode(id, {
       ...(title && { title }),
@@ -43,6 +43,8 @@ export async function PATCH(
       ...(transcriptionText && { transcriptionText }),
       ...(segments && { segments }),
       ...(status && { status }),
+      ...(tracks && { tracks }),
+      ...(assets && { assets }),
     });
 
     return NextResponse.json({ success: true });

@@ -64,7 +64,7 @@
     {
       "id": "ep-1775179240128",
       "slug": "teste-de-api",
-      "title": "Teste de api",
+      "title": "Teste de Duplicada",
       "summary": "Um teste apeans",
       "category": "Teste",
       "status": "Publicado",
@@ -72,9 +72,253 @@
       "language": "portuguese",
       "createdAt": "2026-04-03T01:20:40.128Z",
       "audioUrl": "/uploads/audio/teste-de-api-1775179236894.ogg",
-      "transcriptionText": "[00:00] (Simulação por API Sem Saldo (429))\n[00:02] Olá, este é um teste real do sistema de transcrição do PodcastAds.\n[00:08] Estamos processando o episódio: \"Teste de api\".\n[00:14] O resumo captado pela nossa IA foi: \"Um teste apeans...\"\n[00:22] Assim que sua chave da OpenAI tiver fundos, este texto será substituído pela transcrição real do seu áudio.\n[00:28] O sistema de player e sincronização já está 100% funcional!",
+      "transcriptionText": "[0:01] Áudio teste para transcrição,\n[0:03] áudio teste para transcrição.\n[0:05] teste teste \n\n[0:08] Áudio teste para transcrição,\n[0:10] áudio teste para transcrição.\n[0:12] Teste teste ",
       "guests": [],
-      "platforms": []
+      "platforms": [],
+      "segments": [
+        {
+          "id": "scr-4.ogg-seg-0-1775580362017",
+          "start": 1.1999999,
+          "end": 2.82,
+          "speaker": "Speaker 0",
+          "text": "Áudio teste para transcrição,",
+          "words": [
+            {
+              "word": "áudio",
+              "start": 1.1999999,
+              "end": 1.68,
+              "confidence": 0.81225586,
+              "punctuated_word": "Áudio",
+              "speaker": 0
+            },
+            {
+              "word": "teste",
+              "start": 1.68,
+              "end": 2.08,
+              "confidence": 0.94628906,
+              "punctuated_word": "teste",
+              "speaker": 0
+            },
+            {
+              "word": "para",
+              "start": 2.08,
+              "end": 2.32,
+              "confidence": 0.9970703,
+              "punctuated_word": "para",
+              "speaker": 0
+            },
+            {
+              "word": "transcrição",
+              "start": 2.32,
+              "end": 2.82,
+              "confidence": 0.7414551,
+              "punctuated_word": "transcrição,",
+              "speaker": 0
+            }
+          ]
+        },
+        {
+          "id": "scr-4.ogg-seg-1-1775580362017",
+          "start": 3.4399998,
+          "end": 4.8199997,
+          "speaker": "Speaker 0",
+          "text": "áudio teste para transcrição.",
+          "words": [
+            {
+              "word": "áudio",
+              "start": 3.4399998,
+              "end": 3.6799998,
+              "confidence": 0.9970703,
+              "punctuated_word": "áudio",
+              "speaker": 0
+            },
+            {
+              "word": "teste",
+              "start": 3.6799998,
+              "end": 4,
+              "confidence": 0.9980469,
+              "punctuated_word": "teste",
+              "speaker": 0
+            },
+            {
+              "word": "para",
+              "start": 4,
+              "end": 4.3199997,
+              "confidence": 0.98535156,
+              "punctuated_word": "para",
+              "speaker": 0
+            },
+            {
+              "word": "transcrição",
+              "start": 4.3199997,
+              "end": 4.8199997,
+              "confidence": 0.7595215,
+              "punctuated_word": "transcrição.",
+              "speaker": 0
+            }
+          ]
+        },
+        {
+          "id": "scr-4.ogg-seg-2-1775580362017",
+          "start": 5.7599998,
+          "end": 6.74,
+          "speaker": "Speaker 0",
+          "text": "teste teste \n",
+          "words": [
+            {
+              "word": "teste",
+              "start": 5.7599998,
+              "end": 6.24,
+              "confidence": 0.89501953,
+              "punctuated_word": "Teste",
+              "speaker": 0
+            },
+            {
+              "word": "teste",
+              "start": 6.24,
+              "end": 6.74,
+              "confidence": 0.9172363,
+              "punctuated_word": "teste.",
+              "speaker": 0
+            }
+          ]
+        },
+        {
+          "id": "scr-4.ogg-seg-0-1775580363183",
+          "start": 8.02051272051282,
+          "end": 9.64051282051282,
+          "speaker": "Speaker 0",
+          "text": "Áudio teste para transcrição,",
+          "words": [
+            {
+              "word": "áudio",
+              "start": 8.02051272051282,
+              "end": 8.50051282051282,
+              "confidence": 0.81225586,
+              "punctuated_word": "Áudio",
+              "speaker": 0
+            },
+            {
+              "word": "teste",
+              "start": 8.50051282051282,
+              "end": 8.90051282051282,
+              "confidence": 0.94628906,
+              "punctuated_word": "teste",
+              "speaker": 0
+            },
+            {
+              "word": "para",
+              "start": 8.90051282051282,
+              "end": 9.14051282051282,
+              "confidence": 0.9970703,
+              "punctuated_word": "para",
+              "speaker": 0
+            },
+            {
+              "word": "transcrição",
+              "start": 9.14051282051282,
+              "end": 9.64051282051282,
+              "confidence": 0.7414551,
+              "punctuated_word": "transcrição,",
+              "speaker": 0
+            }
+          ]
+        },
+        {
+          "id": "scr-4.ogg-seg-1-1775580363183",
+          "start": 10.26051262051282,
+          "end": 11.640512520512821,
+          "speaker": "Speaker 0",
+          "text": "áudio teste para transcrição.",
+          "words": [
+            {
+              "word": "áudio",
+              "start": 10.26051262051282,
+              "end": 10.50051262051282,
+              "confidence": 0.9970703,
+              "punctuated_word": "áudio",
+              "speaker": 0
+            },
+            {
+              "word": "teste",
+              "start": 10.50051262051282,
+              "end": 10.820512820512821,
+              "confidence": 0.9980469,
+              "punctuated_word": "teste",
+              "speaker": 0
+            },
+            {
+              "word": "para",
+              "start": 10.820512820512821,
+              "end": 11.140512520512821,
+              "confidence": 0.98535156,
+              "punctuated_word": "para",
+              "speaker": 0
+            },
+            {
+              "word": "transcrição",
+              "start": 11.140512520512821,
+              "end": 11.640512520512821,
+              "confidence": 0.7595215,
+              "punctuated_word": "transcrição.",
+              "speaker": 0
+            }
+          ]
+        },
+        {
+          "id": "scr-4.ogg-seg-2-1775580363183",
+          "start": 12.58051262051282,
+          "end": 13.56051282051282,
+          "speaker": "Speaker 0",
+          "text": "Teste teste ",
+          "words": [
+            {
+              "word": "teste",
+              "start": 12.58051262051282,
+              "end": 13.06051282051282,
+              "confidence": 0.89501953,
+              "punctuated_word": "Teste",
+              "speaker": 0
+            },
+            {
+              "word": "teste",
+              "start": 13.06051282051282,
+              "end": 13.56051282051282,
+              "confidence": 0.9172363,
+              "punctuated_word": "teste.",
+              "speaker": 0
+            }
+          ]
+        }
+      ],
+      "tracks": [
+        {
+          "id": "audio-main",
+          "name": "Áudio Principal",
+          "duration": 7.4065,
+          "startTime": 0,
+          "type": "audio/mpeg",
+          "url": "/uploads/audio/teste-de-api-1775179236894.ogg",
+          "layerIndex": 0,
+          "color": "bg-blue-600/20"
+        },
+        {
+          "id": "tkh3188gn",
+          "name": "Áudio Principal",
+          "duration": 7.4065,
+          "startTime": 6.82051282051282,
+          "type": "audio/mpeg",
+          "url": "/uploads/audio/teste-de-api-1775179236894.ogg",
+          "layerIndex": 1,
+          "color": "bg-blue-600/20"
+        }
+      ],
+      "assets": [],
+      "sharingConfig": {
+        "isEnabled": false,
+        "publicAccess": "Restrito",
+        "token": "9QFM4D52"
+      }
     },
     {
       "id": "ep-1",

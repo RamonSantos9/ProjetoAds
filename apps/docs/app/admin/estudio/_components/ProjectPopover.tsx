@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/cn';
 
 interface ProjectPopoverProps {
@@ -16,6 +17,7 @@ export function ProjectPopover({
   onOpenShortcuts,
   triggerRect,
 }: ProjectPopoverProps) {
+  const router = useRouter();
   const popoverRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ top: 0, left: 0 });
 
@@ -48,7 +50,7 @@ export function ProjectPopover({
     <div
       ref={popoverRef}
       className={cn(
-        'fixed z-50 min-w-[7rem] p-0.5 bg-white dark:bg-black text-foreground shadow-sm rounded-lg animate-in fade-in-0 zoom-in-95 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-100',
+        'fixed z-50 min-w-[7rem] p-0.5 bg-white dark:bg-[#1A1A24] text-foreground shadow-sm rounded-lg border border-[#E2E7F1] dark:border-[#2A2A38] animate-in fade-in-0 zoom-in-95 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-100',
       )}
       style={{
         top: position.top,
@@ -62,8 +64,11 @@ export function ProjectPopover({
       <div className="flex flex-col w-full">
         <div
           role="menuitem"
-          className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none focus:bg-gray-alpha-100 data-[state=open]:bg-gray-alpha-100 px-2 py-1 text-sm rounded-md"
-          onClick={onClose}
+          className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none hover:bg-[#f6f8fa] dark:hover:bg-white/5 focus:bg-[#f6f8fa] dark:focus:bg-white/5 data-[state=open]:bg-[#f6f8fa] dark:data-[state=open]:bg-white/5 px-2 py-1.5 text-sm rounded-md"
+          onClick={() => {
+            onClose();
+            router.push('/admin/transcricoes');
+          }}
         >
           Voltar para projetos
         </div>
@@ -71,12 +76,12 @@ export function ProjectPopover({
         <div
           role="separator"
           aria-orientation="horizontal"
-          className="h-px bg-black/10 dark:bg-white/10 -mx-0.5 my-0.5"
+          className="h-px bg-[#E2E7F1] dark:bg-[#2A2A38] -mx-0.5 my-1"
         ></div>
 
         <div
           role="menuitem"
-          className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none focus:bg-gray-alpha-100 data-[state=open]:bg-gray-alpha-100 px-2 py-1 text-sm rounded-md"
+          className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none hover:bg-[#f6f8fa] dark:hover:bg-white/5 focus:bg-[#f6f8fa] dark:focus:bg-white/5 data-[state=open]:bg-[#f6f8fa] dark:data-[state=open]:bg-white/5 px-2 py-1.5 text-sm rounded-md"
           onClick={onClose}
         >
           Histórico de versões
@@ -84,7 +89,7 @@ export function ProjectPopover({
 
         <div
           role="menuitem"
-          className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none focus:bg-gray-alpha-100 data-[state=open]:bg-gray-alpha-100 px-2 py-1 text-sm rounded-md"
+          className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none hover:bg-[#f6f8fa] dark:hover:bg-white/5 focus:bg-[#f6f8fa] dark:focus:bg-white/5 data-[state=open]:bg-[#f6f8fa] dark:data-[state=open]:bg-white/5 px-2 py-1.5 text-sm rounded-md"
           onClick={() => {
             onClose();
             onOpenShortcuts();
@@ -123,7 +128,7 @@ export function ProjectPopover({
 
         <div
           role="menuitem"
-          className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none focus:bg-gray-alpha-100 data-[state=open]:bg-gray-alpha-100 px-2 py-1 text-sm rounded-md"
+          className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none hover:bg-[#f6f8fa] dark:hover:bg-white/5 focus:bg-[#f6f8fa] dark:focus:bg-white/5 data-[state=open]:bg-[#f6f8fa] dark:data-[state=open]:bg-white/5 px-2 py-1.5 text-sm rounded-md"
           onClick={onClose}
         >
           Documentação
@@ -131,7 +136,7 @@ export function ProjectPopover({
 
         <div
           role="menuitem"
-          className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none focus:bg-gray-alpha-100 data-[state=open]:bg-gray-alpha-100 px-2 py-1 text-sm rounded-md"
+          className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none hover:bg-[#f6f8fa] dark:hover:bg-white/5 focus:bg-[#f6f8fa] dark:focus:bg-white/5 data-[state=open]:bg-[#f6f8fa] dark:data-[state=open]:bg-white/5 px-2 py-1.5 text-sm rounded-md"
           onClick={onClose}
         >
           Enviar feedback

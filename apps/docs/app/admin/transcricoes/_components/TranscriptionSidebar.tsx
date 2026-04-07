@@ -137,7 +137,7 @@ export function TranscriptionSidebar({
   return (
     <div className="z-20 sticky top-0 left-0 h-full hidden md:flex shrink-0">
       {/* Icon Strip */}
-      <div className="h-full w-[68px] shrink-0 bg-background-alt dark:bg-background border-r border-gray-alpha-150">
+      <div className="h-full w-[68px] shrink-0 bg-[#FFFFFF] dark:bg-fd-background border-r border-[#E2E7F1] dark:border-[#2A2A38]">
         <div className="flex flex-col w-full h-full relative overflow-auto no-scrollbar">
           <div role="tablist" aria-orientation="vertical" className="py-3.5 px-1.5 gap-3 flex flex-col w-full">
             {SIDEBAR_TABS.map((tab) => {
@@ -157,8 +157,8 @@ export function TranscriptionSidebar({
                   <div className="flex w-8 h-8 shrink-0 items-center justify-center">
                     <div className={cn(
                       "flex w-7 h-7 rounded-lg items-center justify-center transition-all duration-75",
-                      "group-hover/tag-trigger:bg-gray-alpha-150 group-hover/tag-trigger:w-8 group-hover/tag-trigger:h-8",
-                      isActive && "bg-foreground text-background w-8 h-8"
+                      "group-hover/tag-trigger:bg-[#f6f8fa] dark:group-hover/tag-trigger:bg-white/5 group-hover/tag-trigger:w-8 group-hover/tag-trigger:h-8",
+                      isActive ? "bg-black dark:bg-white text-white dark:text-black w-8 h-8" : "bg-transparent text-gray-500"
                     )}>
                       {tab.icon}
                     </div>
@@ -175,7 +175,7 @@ export function TranscriptionSidebar({
       <div
         ref={panelRef}
         className={cn(
-          "h-full bg-background-alt dark:bg-background flex flex-col relative isolate transition-[width,opacity] duration-300 ease-in-out",
+          "h-full bg-[#FFFFFF] dark:bg-fd-background flex flex-col relative isolate transition-[width,opacity] duration-300 ease-in-out",
           activeTab ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         style={{ width: activeTab ? panelWidth : 0 }}
@@ -185,13 +185,13 @@ export function TranscriptionSidebar({
 
         <div className="w-full h-full overflow-hidden" style={{ width: activeTab ? panelWidth : 0 }}>
           <div className="h-full flex flex-col shrink-0" style={{ minWidth: 348 }}>
-            <div className="flex flex-col w-full h-full overflow-y-auto no-scrollbar bg-background-alt dark:bg-background relative">
+            <div className="flex flex-col w-full h-full overflow-y-auto no-scrollbar bg-[#FFFFFF] dark:bg-fd-background relative">
               
               {/* EDIT TAB CONTENT */}
               {activeTab === 'edit' && (
                 <div className="flex flex-col h-full w-full px-3.5 animate-in fade-in duration-300">
-                  <div className="flex items-center justify-between px-3.5 h-11 shrink-0 -mx-3.5 sticky top-0 z-30 bg-background-alt/[95%] dark:bg-background/[95%] backdrop-blur-xl border-b">
-                    <div className="flex items-center gap-1 w-full min-w-0 font-medium text-xm">Edit Speech</div>
+                  <div className="flex items-center justify-between px-3.5 h-11 shrink-0 -mx-3.5 sticky top-0 z-30 bg-white/80 dark:bg-[#1A1A24]/80 backdrop-blur-xl border-b border-[#E2E7F1] dark:border-[#2A2A38]">
+                    <div className="flex items-center gap-1 w-full min-w-0 font-medium text-xm">Editar Transcrição</div>
                   </div>
                   
                                     <div className="flex flex-col grow shrink-0 w-full gap-5 py-3.5 isolate peer empty:hidden">
@@ -269,7 +269,7 @@ export function TranscriptionSidebar({
 
                     <div className="flex flex-col gap-2 w-full">
                       <span className="flex items-center select-none gap-0.5 focus-ring rounded-md group/item-title text-foreground font-medium text-xm w-full cursor-default">Model</span>
-                      <div className="flex flex-col rounded-[10px] border border-gray-alpha-150 bg-background dark:bg-gray-alpha-50 dark:border-gray-alpha-50">
+                      <div className="flex flex-col rounded-[10px] border border-[#E2E7F1] dark:border-[#2A2A38] bg-[#FFFFFF] dark:bg-fd-background">
                         <div className="flex w-full items-center flex-col relative isolate group/row">
                           <div className="flex w-full p-0.5 items-center flex-col">
                             <div className="flex w-full items-center relative group/item">
@@ -288,7 +288,7 @@ export function TranscriptionSidebar({
 
                     <div className="flex flex-col gap-2 w-full">
                       <span className="flex items-center w-fit select-none gap-0.5 focus-ring rounded-md group/item-title text-foreground font-medium text-xm cursor-default">Voice</span>
-                      <div className="flex flex-col rounded-[10px] border border-gray-alpha-150 bg-background dark:bg-gray-alpha-50 dark:border-gray-alpha-50">
+                      <div className="flex flex-col rounded-[10px] border border-[#E2E7F1] dark:border-[#2A2A38] bg-[#FFFFFF] dark:bg-fd-background">
                         <div className="p-0.5">
                           <button role="combobox" aria-label="Select voice" type="button" className="relative items-center whitespace-nowrap text-sm font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-transparent text-foreground hover:bg-gray-alpha-100 rounded-[10px] group/item flex w-full justify-between gap-2 overflow-hidden h-9 p-1.5 active:bg-gray-alpha-100">
                             <p className="text-sm text-subtle font-normal px-1 truncate w-full text-start">Voice unavailable</p>

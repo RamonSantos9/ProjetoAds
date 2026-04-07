@@ -40,6 +40,7 @@ interface TimelineSectionProps {
   selectedTrackIds: string[];
   setSelectedTrackIds: React.Dispatch<React.SetStateAction<string[]>>;
   audioRef?: React.RefObject<HTMLAudioElement | null>;
+  onOpenShortcuts?: () => void;
 }
 
 const TOOLBAR_HEIGHT = 54;
@@ -142,7 +143,36 @@ export function TimelineSection({
   selectedTrackIds,
   setSelectedTrackIds,
   audioRef,
+  onOpenShortcuts,
 }: TimelineSectionProps) {
+  const [viewportWidth, setViewportWidth] = React.useState(1366);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Sync viewport width
+  React.useEffect(() => {
+    if (!containerRef.current) return;
+    
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setViewportWidth(containerRef.current.clientWidth);
+      }
+    };
+
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(containerRef.current);
+    updateWidth();
+
+    return () => observer.disconnect();
+  }, []);
+
+  const audioDuration = tracks.length > 0
+    ? Math.max(...tracks.map(t => t.startTime + t.duration))
+    : 0;
+  
+  // Total duration: used for the container width to fill the screen
+  const containerDuration = Math.max(viewportWidth / 136.5, audioDuration);
+  const totalWidth = containerDuration * 136.5;
+
   const [mutedLayers, setMutedLayers] = React.useState<number[]>([]);
   const [contextMenu, setContextMenu] = React.useState<{
     x: number;
@@ -162,7 +192,7 @@ export function TimelineSection({
       if (!audio || !playheadRef.current || !timeBadgeRef.current) return;
       
       const time = audio.currentTime;
-      const x = time * 135.6;
+      const x = time * 136.5;
       
       // Update DOM directly for zero-lag smooth glide
       // Removed the +16 offset to keep it perfectly aligned with track 0:0 origin
@@ -187,7 +217,6 @@ export function TimelineSection({
   }, [isPlaying, audioRef]);
   const MIN_HEIGHT = TOOLBAR_HEIGHT + 60;
   const isResizingRef = useRef(false);
-  const containerRef = useRef<HTMLDivElement>(null);
   const currentHeightRef = useRef(height);
 
   // Close context menu on outside click
@@ -391,8 +420,11 @@ export function TimelineSection({
         setSelectedTrackIds([]);
         break;
       }
-      case 'comment':
       case 'shortcuts': {
+        onOpenShortcuts?.();
+        break;
+      }
+      case 'comment': {
         window.alert(action + ' is a placeholder interface');
         break;
       }
@@ -457,7 +489,7 @@ export function TimelineSection({
   return (
     <div
       ref={containerRef}
-      className="flex flex-col bg-background w-full flex-shrink-0"
+      className="flex flex-col bg-[#FFFFFF] dark:bg-fd-background w-full flex-shrink-0"
       style={{
         height: effectiveHeight,
         transition: 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -479,7 +511,7 @@ export function TimelineSection({
 
         {/* Timeline Toolbar */}
         <div
-          className="relative grid px-4 border-b bg-background flex-shrink-0 py-2 border-t"
+          className="relative grid px-4 border-b border-[#E2E7F1] dark:border-[#2A2A38] bg-[#FFFFFF] dark:bg-fd-background flex-shrink-0 py-2 border-t"
           style={{
             gridTemplateColumns: '1fr 2fr 1fr',
             transform: 'none',
@@ -493,7 +525,7 @@ export function TimelineSection({
                 aria-label="Split clip"
                 data-state="closed"
                 data-agent-tooltip="Split clip at current time"
-                className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-transparent text-foreground hover:bg-gray-alpha-100 active:bg-gray-alpha-200 rounded-[10px] center p-0 h-9 w-9"
+                className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-transparent text-foreground hover:bg-[#f6f8fa] dark:hover:bg-white/5 rounded-[10px] center p-0 h-9 w-9"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -679,16 +711,10 @@ export function TimelineSection({
               </button>
             </div>
 
-            <div className="text-xs tabular-nums hidden gap-1 md:flex font-medium pl-3 items-center text-fd-muted-foreground shrink-0">
+            <div className="text-xs tabular-nums hidden gap-1 md:flex font-medium pl-3 items-center text-[#8A8AA3] shrink-0">
               {formatTime(currentTime)}
               <span className="text-gray-400">/</span>
-              {tracks.length > 0
-                ? `0:${Math.max(
-                    ...tracks.map((t) => Math.ceil(t.startTime + t.duration)),
-                  )
-                    .toString()
-                    .padStart(2, '0')}`
-                : '0:10'}
+              {formatTime(audioDuration || 0.1)}
             </div>
           </div>
 
@@ -816,8 +842,8 @@ export function TimelineSection({
         <div className="flex flex-col items-end min-w-max h-full">
           <div className="relative flex w-full h-full shrink-0 grow-0">
             {/* Sticky track sidebar */}
-            <div className="flex flex-col shrink-0 md:sticky left-0 z-30 w-12 border-r border-fd-border bg-background">
-              <div className="h-5 mb-[6px] border-b border-fd-border bg-background"></div>
+            <div className="flex flex-col shrink-0 md:sticky left-0 z-30 w-12 border-r border-fd-border bg-white dark:bg-black">
+              <div className="h-5 mb-[6px] border-b border-fd-border bg-white dark:bg-black"></div>
               <div className="flex flex-col w-full">
                 {(() => {
                   const maxLayer = Math.max(
@@ -910,7 +936,7 @@ export function TimelineSection({
                 id="timeline-tracks"
                 ref={timelineRef}
                 className="relative flex flex-col w-full flex-1 cursor-pointer select-none"
-                style={{ padding: '0px 0px 4px' }}
+                style={{ padding: '0px 0px 4px', width: `${totalWidth}px` }}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
@@ -929,7 +955,7 @@ export function TimelineSection({
                     const dropX = e.clientX - rect.left - 12; // Compensate for sidebar
                     const dropY = e.clientY - rect.top - 20; // Compensate for ruler
 
-                    const dropTime = Math.max(0, dropX / 135.6);
+                    const dropTime = Math.max(0, dropX / 136.5);
                     const dropLayer = Math.max(0, Math.floor(dropY / 45));
 
                     const newTrack: TimelineTrack = {
@@ -957,284 +983,46 @@ export function TimelineSection({
                 >
                   <div
                     className="z-[1] h-5 flex items-center relative select-none shrink-0 border-b border-gray-alpha-100"
-                    style={{ width: '1366px', minHeight: '20px' }}
+                    style={{ width: `${totalWidth}px`, minHeight: '20px' }}
                   >
                     <div
                       className="absolute right-0 top-0 bottom-0"
-                      style={{ width: '1366px' }}
+                      style={{ width: `${totalWidth}px` }}
                     >
                       <div className="w-full h-full brightness-90 bg-striped-feint-timeline dark:invert-[0.4]"></div>
                     </div>
                     <div
                       className="relative h-full hstack items-center select-none"
-                      style={{ width: '1366px' }}
+                      style={{ width: `${totalWidth}px` }}
                     >
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '-1px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '33.15px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '67.3px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '101.45px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '135.6px' }}
-                      >
-                        <span className="absolute text-gray-400 text-[10px] font-medium tabular-nums z-[1] bg-transparent">
-                          0:01
-                        </span>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '169.75px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '203.9px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '238.05px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '272.2px' }}
-                      >
-                        <span className="absolute text-gray-400 text-[10px] font-medium tabular-nums z-[1] bg-transparent">
-                          0:02
-                        </span>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '306.35px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '340.5px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '374.65px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '408.8px' }}
-                      >
-                        <span className="absolute text-gray-400 text-[10px] font-medium tabular-nums z-[1] bg-transparent">
-                          0:03
-                        </span>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '442.95px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '477.1px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '511.25px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '545.4px' }}
-                      >
-                        <span className="absolute text-gray-400 text-[10px] font-medium tabular-nums z-[1] bg-transparent">
-                          0:04
-                        </span>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '579.55px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '613.7px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '647.85px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '682px' }}
-                      >
-                        <span className="absolute text-gray-400 text-[10px] font-medium tabular-nums z-[1] bg-transparent">
-                          0:05
-                        </span>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '716.15px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '750.3px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '784.45px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '818.6px' }}
-                      >
-                        <span className="absolute text-gray-400 text-[10px] font-medium tabular-nums z-[1] bg-transparent">
-                          0:06
-                        </span>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '852.75px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '886.9px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '921.05px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '955.2px' }}
-                      >
-                        <span className="absolute text-gray-400 text-[10px] font-medium tabular-nums z-[1] bg-transparent">
-                          0:07
-                        </span>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '989.35px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '1023.5px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '1057.65px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '1091.8px' }}
-                      >
-                        <span className="absolute text-gray-400 text-[10px] font-medium tabular-nums z-[1] bg-transparent">
-                          0:08
-                        </span>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '1125.95px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '1160.1px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '1194.25px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '1228.4px' }}
-                      >
-                        <span className="absolute text-gray-400 text-[10px] font-medium tabular-nums z-[1] bg-transparent">
-                          0:09
-                        </span>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '1262.55px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '1296.7px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '1330.85px' }}
-                      >
-                        <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
-                      </div>
-                      <div
-                        className="absolute w-[1px] h-full center"
-                        style={{ left: '1365px' }}
-                      >
-                        <span className="absolute text-gray-400 text-[10px] font-medium tabular-nums z-[1] bg-transparent">
-                          0:10
-                        </span>
-                      </div>
+                          {Array.from({ length: Math.ceil(audioDuration) + 1 }).map((_, second) => (
+                          <React.Fragment key={second}>
+                            {/* Main second label or 0 dot */}
+                            <div
+                              className="absolute w-[1px] h-full center"
+                              style={{ left: `${second * 136.5}px` }}
+                            >
+                              {second > 0 ? (
+                                <span className="absolute text-gray-400 text-[10px] font-medium tabular-nums z-[1] bg-transparent">
+                                  {formatTime(second)}
+                                </span>
+                              ) : (
+                                <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
+                              )}
+                            </div>
+                            
+                            {/* Sub-ticks (0.25s, 0.5s, 0.75s) */}
+                            {second < audioDuration && [0.25, 0.5, 0.75].map(offset => (
+                              <div
+                                key={`${second}-${offset}`}
+                                className="absolute w-[1px] h-full center"
+                                style={{ left: `${(second + offset) * 136.5}px` }}
+                              >
+                                <div className="w-[3px] h-[3px] rounded-full bg-gray-300"></div>
+                              </div>
+                            ))}
+                          </React.Fragment>
+                        ))}
                     </div>
                   </div>
 
@@ -1250,7 +1038,7 @@ export function TimelineSection({
                       borderRadius: currentTime < 0.05 ? '0px 6px 6px 0px' : '6px',
                       backgroundColor: 'black',
                       color: 'white',
-                      transform: `translateX(${currentTime * 135.6}px)`,
+                      transform: `translateX(${currentTime * 136.5}px)`,
                     }}
                   >
                     {formatTime(currentTime)}
@@ -1270,7 +1058,7 @@ export function TimelineSection({
                     )}
                     style={{
                       backgroundColor: 'hsl(var(--foreground))',
-                      transform: `translateX(${currentTime * 135.6}px)`,
+                      transform: `translateX(${currentTime * 136.5}px)`,
                     }}
                   >
                     <div className="absolute top-0 left-[-4px] w-2 h-2 rounded-full bg-foreground" />
@@ -1315,8 +1103,8 @@ export function TimelineSection({
                             {rows.map((_, i) => (
                               <div
                                 key={`bg-${i}`}
-                                className="transition-all duration-150 absolute w-full border-b border-gray-alpha-100"
-                                style={{ top: i * 45, height: 45 }}
+                                className="transition-all duration-150 absolute border-b border-gray-alpha-100"
+                                style={{ top: i * 45, height: 45, width: `${totalWidth}px` }}
                               />
                             ))}
 
@@ -1325,9 +1113,9 @@ export function TimelineSection({
                               const layerIndex = track.layerIndex || 0;
                               const pxWidth = Math.max(
                                 30,
-                                track.duration * 135.6,
+                                track.duration * 136.5,
                               );
-                              const pxLeft = track.startTime * 135.6;
+                              const pxLeft = track.startTime * 136.5;
                               const isSelected = selectedTrackIds.includes(
                                 track.id,
                               );
@@ -1455,7 +1243,7 @@ export function TimelineSection({
 
                                         const onMove = (ev: PointerEvent) => {
                                           const deltaX = ev.clientX - startX;
-                                          const deltaSeconds = deltaX / 135.6;
+                                          const deltaSeconds = deltaX / 136.5;
                                           const deltaY = ev.clientY - startY;
                                           const layerShift = Math.round(
                                             deltaY / 45,
@@ -1647,7 +1435,7 @@ export function TimelineSection({
                                               const deltaX =
                                                 ev.clientX - startX;
                                               const deltaSeconds =
-                                                deltaX / 135.6;
+                                                deltaX / 136.5;
                                               let newDuration =
                                                 startDuration + deltaSeconds;
                                               if (newDuration < 0.5)
@@ -1789,7 +1577,7 @@ export function TimelineSection({
                   <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
                   <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
                 </svg>
-                Copy
+                Copiar
               </div>
               <span className={shortcutSpanClass}>
                 <kbd className={kbdClass}>Ctrl</kbd>
@@ -1849,7 +1637,7 @@ export function TimelineSection({
                   <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
                   <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
                 </svg>
-                Duplicate
+                Duplicar
               </div>
               <span className={shortcutSpanClass}>
                 <kbd className={kbdClass}>Ctrl</kbd>
@@ -1878,7 +1666,7 @@ export function TimelineSection({
                 <path d="M12 7v6"></path>
                 <path d="M9 10h6"></path>
               </svg>
-              <span>Comment</span>
+              <span>Comentário</span>
             </div>
 
             <div
@@ -1913,7 +1701,7 @@ export function TimelineSection({
                   <path d="M7.2 2.2 8 5.1"></path>
                   <path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"></path>
                 </svg>
-                Multi-select
+                Seleção múltipla
               </div>
               <span className={shortcutSpanClass}>
                 <kbd className={kbdClass}>Ctrl</kbd>
@@ -1945,7 +1733,7 @@ export function TimelineSection({
                   <path d="M18 9v6"></path>
                   <path d="M21 12h-6"></path>
                 </svg>
-                Select after
+                Selecionar tudo depois
               </div>
               <span className={shortcutSpanClass}>
                 <kbd className={kbdClass}>Ctrl</kbd>
@@ -1978,7 +1766,7 @@ export function TimelineSection({
                   <path d="M18 9v6"></path>
                   <path d="M21 12h-6"></path>
                 </svg>
-                Select before
+                Selecionar tudo antes
               </div>
               <span className={shortcutSpanClass}>
                 <kbd className={kbdClass}>Ctrl</kbd>
@@ -2022,7 +1810,7 @@ export function TimelineSection({
                   <path d="M8 12h.01"></path>
                   <rect width="20" height="16" x="2" y="4" rx="2"></rect>
                 </svg>
-                Shortcuts
+                Atalhos de teclado
               </div>
             </div>
 
@@ -2054,7 +1842,7 @@ export function TimelineSection({
                   <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
                   <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
                 </svg>
-                Delete
+                Deletar
               </div>
               <span className={shortcutSpanClass}>
                 <kbd className={kbdClass}>Del</kbd>

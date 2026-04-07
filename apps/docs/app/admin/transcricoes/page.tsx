@@ -24,6 +24,7 @@ import { ShareProjectModal } from './_components/ShareProjectModal';
 import { ProjectDetailsModal } from './_components/ProjectDetailsModal';
 import { cn } from '@/lib/cn';
 import { Episode } from '@/lib/db';
+import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
 
 type ScriptStatus = 'Em Pauta' | 'Em Redação' | 'Revisão' | 'Finalizado';
 
@@ -92,16 +93,9 @@ export default function TranscricoesAdminPage() {
     s.title.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const tabs = [
-    { id: 'biblioteca', label: 'Biblioteca' },
-    { id: 'modelos', label: 'Modelos' },
-    { id: 'estatisticas', label: 'Estatísticas' },
-    { id: 'recursos', label: 'Recursos' },
-  ];
-
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-[#121212] transition-colors duration-300">
-      <div className="flex flex-col flex-1 w-full max-w-6xl mx-auto px-5 pt-8 pb-20 lg:pb-12">
+    <div className="flex flex-col min-h-screen bg-[#FFFFFF] dark:bg-fd-background transition-colors duration-300">
+      <div className="flex flex-col flex-1 w-full max-w-6xl mx-auto px-5 pt-8 pb-20 lg:pb-12 text-fd-foreground">
         
         <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8 w-full">
           <div className="flex items-center gap-3">
@@ -111,36 +105,30 @@ export default function TranscricoesAdminPage() {
           </div>
           
           <div className="flex items-center gap-2">
-            <button className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-              <User className="size-[18px] text-foreground" />
-            </button>
-            <button className="relative inline-flex items-center justify-center gap-1.5 px-3 h-9 text-sm font-medium transition-all bg-black dark:bg-white text-white dark:text-black border hover:opacity-70 shadow-none rounded-[10px] active:scale-[0.98]">
-              <Plus className="size-[18px] stroke-[2.5]" />
-              Nova Transcrição
-            </button>
+            <ThemeToggle mode="light-dark" />
           </div>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-          <button className="group relative flex flex-col md:flex-row md:items-center gap-3 p-3 bg-white dark:bg-white/5 border border-gray-100 dark:border-gray-800 rounded-xl text-left transition-all hover:border-gray-200 dark:hover:border-gray-700 hover:-translate-y-px">
+          <button className="group relative flex flex-col md:flex-row md:items-center gap-3 p-3 bg-[#FFFFFF] dark:bg-[#1A1A24] border border-[#E2E7F1] dark:border-[#2A2A38] rounded-xl text-left transition-all hover:border-gray-200 dark:hover:border-gray-700 hover:-translate-y-px">
             <div className="flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-blue-500 relative overflow-hidden">
                <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-600 opacity-80" />
                <Plus className="relative z-10 size-4 text-white" />
             </div>
             <div className="flex flex-col">
-              <p className="text-sm font-medium text-foreground">Gerar Transcrição</p>
-              <p className="text-xs text-muted-foreground">Converta áudio em texto com alta precisão usando IA.</p>
+              <p className="text-sm font-medium text-foreground">Transcrição Inteligente</p>
+              <p className="text-xs text-muted-foreground">Crie um novo projeto usando IA para converter áudio em texto.</p>
             </div>
           </button>
 
-          <button className="group relative flex flex-col md:flex-row md:items-center gap-3 p-3 bg-white dark:bg-white/5 border border-gray-100 dark:border-gray-800 rounded-xl text-left transition-all hover:border-gray-200 dark:hover:border-gray-700 hover:-translate-y-px">
+          <button className="group relative flex flex-col md:flex-row md:items-center gap-3 p-3 bg-[#FFFFFF] dark:bg-[#1A1A24] border border-[#E2E7F1] dark:border-[#2A2A38] rounded-xl text-left transition-all hover:border-gray-200 dark:hover:border-gray-700 hover:-translate-y-px">
             <div className="flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-pink-500 relative overflow-hidden">
                <div className="absolute inset-0 bg-gradient-to-br from-pink-400 to-pink-600 opacity-80" />
                <Upload className="relative z-10 size-4 text-white" />
             </div>
             <div className="flex flex-col">
-              <p className="text-sm font-medium text-foreground">Exportar Legendas</p>
-              <p className="text-xs text-muted-foreground">Gere arquivos SRT ou VTT para seus episódios publicados.</p>
+              <p className="text-sm font-medium text-foreground">Exportar Legendas (SRT)</p>
+              <p className="text-xs text-muted-foreground">Converta sua transcrição finalizada em legendas profissionais.</p>
             </div>
           </button>
         </div>
@@ -155,20 +143,20 @@ export default function TranscricoesAdminPage() {
                   placeholder="Buscar transcrições e falas..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full h-10 pl-9 pr-4 bg-transparent border border-gray-200 dark:border-gray-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-foreground/10 focus:border-foreground transition-all"
+                  className="w-full h-10 pl-9 pr-4 bg-[#f6f8fa] dark:bg-[#1F2122] border border-[#E2E7F1] dark:border-[#2A2A38] rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-fd-primary transition-all"
                 />
               </div>
 
-              <div className="flex items-center border border-gray-200 dark:border-gray-800 rounded-xl p-0.5">
+              <div className="flex items-center border border-[#E2E7F1] dark:border-[#2A2A38] rounded-xl p-0.5 bg-[#f6f8fa] dark:bg-[#1F2122]">
                 <button 
                   onClick={() => setViewMode('grid')}
-                  className={cn("p-2 rounded-lg transition-colors", viewMode === 'grid' ? "bg-gray-100 dark:bg-white/10 text-foreground" : "text-muted-foreground hover:text-foreground")}
+                  className={cn("p-2 rounded-lg transition-colors", viewMode === 'grid' ? "bg-white dark:bg-[#2A2A38] text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
                 >
                   <LayoutGrid className="size-4" />
                 </button>
                 <button 
                   onClick={() => setViewMode('list')}
-                  className={cn("p-2 rounded-lg transition-colors", viewMode === 'list' ? "bg-gray-100 dark:bg-white/10 text-foreground" : "text-muted-foreground hover:text-foreground")}
+                  className={cn("p-2 rounded-lg transition-colors", viewMode === 'list' ? "bg-white dark:bg-[#2A2A38] text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
                 >
                   <List className="size-4" />
                 </button>
@@ -183,7 +171,7 @@ export default function TranscricoesAdminPage() {
                   <div key={i} className="aspect-[16/11] bg-gray-50 dark:bg-white/5 rounded-2xl animate-pulse" />
                 ))
               ) : filtered.length === 0 ? (
-                <div className="col-span-full py-12 text-center text-muted-foreground border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-2xl">
+                <div className="col-span-full py-12 text-center text-muted-foreground border-2 border-dashed border-[#E2E7F1] dark:border-[#2A2A38] rounded-2xl">
                   Nenhuma transcrição encontrada.
                 </div>
               ) : (
@@ -194,7 +182,7 @@ export default function TranscricoesAdminPage() {
                     onClick={() => router.push(`/admin/transcricoes/${script.id}`)}
                   >
                     <div className="flex w-full flex-col group">
-                      <div className="relative flex w-full flex-col rounded-2xl transition-all duration-150 border hover:border-black/20">
+                      <div className="relative flex w-full flex-col rounded-2xl transition-all duration-150 border border-[#E2E7F1] dark:border-[#2A2A38] hover:border-black/20 dark:hover:border-white/20 bg-white dark:bg-[#1A1A24]">
                         <div className="flex transition-all duration-100 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100 md:[&:has([data-state='open'])]:opacity-100 items-center justify-end gap-1.5 absolute top-3 right-3 z-20">
                           <div className="flex items-center gap-1">
                             <button 
@@ -205,7 +193,7 @@ export default function TranscricoesAdminPage() {
                                 e.stopPropagation();
                                 handleOpenDetails(script);
                               }}
-                              className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium focus-ring disabled:pointer-events-auto data-[loading='true']:!text-transparent border shadow-none disabled:bg-background rounded-[10px] center p-0 h-9 w-9 text-gray-500 dark:text-gray-600 bg-white dark:bg-black transition-colors duration-75"
+                              className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium focus-ring disabled:pointer-events-auto border border-[#E2E7F1] dark:border-[#2A2A38] shadow-none disabled:bg-background rounded-[10px] center p-0 h-9 w-9 text-gray-500 dark:text-gray-400 bg-white dark:bg-[#1A1A24] transition-colors duration-75 hover:bg-gray-50 dark:hover:bg-white/5"
                             >
                               <Info className="shrink-0 w-[18px] h-[18px]" />
                             </button>
@@ -218,7 +206,7 @@ export default function TranscricoesAdminPage() {
                                     e.preventDefault();
                                     e.stopPropagation();
                                   }}
-                                  className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium focus-ring disabled:pointer-events-auto data-[loading='true']:!text-transparent border shadow-none disabled:bg-background rounded-[10px] center p-0 h-9 w-9 text-gray-500 dark:text-gray-600 bg-white dark:bg-black transition-colors duration-75"
+                                  className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium focus-ring disabled:pointer-events-auto border border-[#E2E7F1] dark:border-[#2A2A38] shadow-none disabled:bg-background rounded-[10px] center p-0 h-9 w-9 text-gray-500 dark:text-gray-400 bg-white dark:bg-[#1A1A24] transition-colors duration-75 hover:bg-gray-50 dark:hover:bg-white/5"
                                 >
                                   <Ellipsis className="shrink-0 w-[18px] h-[18px]" />
                                 </button>
@@ -228,7 +216,7 @@ export default function TranscricoesAdminPage() {
                                 <DropdownMenu.Content 
                                   align="end" 
                                   sideOffset={5}
-                                  className="z-50 bg-white dark:bg-black text-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-1 data-[side=left]:slide-in-from-right-1 data-[side=right]:slide-in-from-left-1 data-[side=top]:slide-in-from-bottom-1 p-1 rounded-[10px] min-w-[8rem] flex flex-col outline-none border"
+                                  className="z-50 bg-white dark:bg-[#1A1A24] text-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-1 data-[side=left]:slide-in-from-right-1 data-[side=right]:slide-in-from-left-1 data-[side=top]:slide-in-from-bottom-1 p-1 rounded-[10px] min-w-[8rem] flex flex-col outline-none border border-[#E2E7F1] dark:border-[#2A2A38] shadow-lg"
                                 >
                                   <DropdownMenu.Item onSelect={() => handleOpenDetails(script)} className="relative transition-colors focus:text-foreground w-full data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer select-none outline-none hover:bg-gray-100 dark:hover:bg-white/10 focus:bg-gray-100 dark:focus:bg-white/10 data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-white/10 px-2 py-1.5 text-sm rounded-lg inline-flex justify-between items-center gap-2">
                                     <div className="flex items-center gap-2">
@@ -258,7 +246,9 @@ export default function TranscricoesAdminPage() {
                                     </div>
                                   </DropdownMenu.Item>
                                   
-                                  <DropdownMenu.Item className="relative transition-colors focus:text-foreground w-full data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer select-none outline-none hover:bg-gray-100 dark:hover:bg-white/10 focus:bg-gray-100 dark:focus:bg-white/10 data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-white/10 px-2 py-1.5 text-sm rounded-lg inline-flex justify-between items-center gap-2 text-red-600 focus:text-red-700">
+                                  <DropdownMenu.Separator className="h-px bg-[#E2E7F1] dark:bg-[#2A2A38] my-1" />
+                                  
+                                  <DropdownMenu.Item className="relative transition-colors focus:text-foreground w-full data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer select-none outline-none hover:bg-red-50 dark:hover:bg-red-900/20 focus:bg-red-50 dark:focus:bg-red-900/20 px-2 py-1.5 text-sm rounded-lg inline-flex justify-between items-center gap-2 text-red-600 focus:text-red-700">
                                     <div className="flex items-center gap-2">
                                       <Trash className="shrink-0 w-4 h-4 opacity-70" />
                                       <span>Excluir</span>
@@ -354,16 +344,5 @@ export default function TranscricoesAdminPage() {
         } : undefined}
       />
     </div>
-  );
-}
-
-function FilterChip({ label }: { label: string }) {
-  return (
-    <button className="flex items-center gap-1 px-1 py-0.5 h-6 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/5 text-[11px] font-medium text-foreground hover:bg-gray-50 dark:hover:bg-white/10 transition-colors">
-      <div className="w-4 h-4 flex items-center justify-center">
-        <Plus className="size-3 text-muted-foreground" />
-      </div>
-      <span className="pr-1.5">{label}</span>
-    </button>
   );
 }

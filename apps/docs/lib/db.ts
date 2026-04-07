@@ -42,12 +42,28 @@ export interface Guest {
   email?: string; // Adicionado para CRM
 }
 
+export interface WordItem {
+  word: string;
+  start: number;
+  end: number;
+  confidence: number;
+  punctuated_word?: string;
+  speaker?: string | number;
+}
+
+export interface SharingConfig {
+  isEnabled: boolean;
+  publicAccess: 'Restrito' | 'Visualizador' | 'Comentador' | 'Editor' | 'Admin';
+  token: string;
+}
+
 export interface TranscriptionSegment {
   id: string;
   start: number;
   end: number;
   speaker: string;
   text: string;
+  words?: WordItem[];
 }
 
 export interface Episode {
@@ -71,6 +87,9 @@ export interface Episode {
   confidence?: number;
   image?: string; // URL for persisted image
   imageFile?: any; // Local File object for optimistic UI
+  tracks?: TimelineTrack[];
+  assets?: UploadedFile[];
+  sharingConfig?: SharingConfig;
 }
 
 export interface TimelineTrack {
