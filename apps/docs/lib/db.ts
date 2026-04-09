@@ -187,7 +187,7 @@ export async function readDb(): Promise<DbSchema> {
 
   return {
     episodes: episodesData.map(mapEpisode),
-    feedbacks: feedbacks.map(f => ({ ...f, ownerId: f.ownerId || undefined })),
+    feedbacks: feedbacks.map((f: any) => ({ ...f, ownerId: f.ownerId || undefined })),
     projects: projectsData.map((p: any) => ({
       ...p,
       lastModified: p.lastModified.toISOString(),
