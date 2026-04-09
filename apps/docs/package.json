@@ -3,7 +3,7 @@
   "version": "0.1.3",
   "private": true,
   "scripts": {
-    "build": "node ../../packages/mdx/dist/bin.js && next build",
+    "build": "prisma generate && node ../../packages/mdx/dist/bin.js && next build",
     "clean": "rimraf .next",
     "dev": "node ../../packages/mdx/dist/bin.js && next dev --webpack",
     "lint": "node ../../packages/mdx/dist/bin.js && eslint .",
