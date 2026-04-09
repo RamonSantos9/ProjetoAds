@@ -149,25 +149,123 @@ export default function Layout({ children }: LayoutProps<'/'>) {
 
 function Footer() {
   return (
-    <footer className="mt-auto border-t bg-background py-12 text-foreground">
-      <div className="container flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="mb-1 text-sm font-semibold">
-            PodcastAds - Serra Dourada
-          </p>
-          <p className="text-xs">
-            Construído com carinho pelos alunos de ADS da{' '}
-            <a
-              href="https://serradouradalorena.com.br"
-              rel="noreferrer noopener"
-              target="_blank"
-              className="font-bold underline underline-offset-2"
-            >
-              Faculdade Serra Dourada
-            </a>
-          </p>
+    <>
+    <div className="w-full border-t border-dashed" />
+    <footer className="relative pb-12 container mt-16" data-footer="true">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-x-6 gap-y-16">
+        {/* Coluna Logo e Idioma */}
+        <div className="flex flex-col gap-6">
+          <Link
+            aria-label="PodcastAds"
+            className="block w-fit outline-none focus-visible:outline-fd-primary rounded text-fd-foreground p-2 -m-2 hover:text-fd-muted-foreground transition"
+            href="/"
+          >
+            <span className="text-xl font-bold tracking-tighter">PodcastAds</span>
+          </Link>
+        </div>
+
+        {/* Colunas de Links */}
+        <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-10">
+          {/* Navegação */}
+          <div>
+            <p className="text-sm font-bold text-fd-muted-foreground mb-4">
+              Navegação
+            </p>
+            <ul className="flex flex-col gap-2">
+              <li>
+                <Link href="/episodios" className="text-sm font-medium text-fd-foreground hover:text-fd-muted-foreground transition-colors">
+                  Episódios
+                </Link>
+              </li>
+              <li>
+                <Link href="/docs" className="text-sm font-medium text-fd-foreground hover:text-fd-muted-foreground transition-colors">
+                  Guias Técnicos
+                </Link>
+              </li>
+              <li>
+                <Link href="/dashboard/home" className="text-sm font-medium text-fd-foreground hover:text-fd-muted-foreground transition-colors">
+                  Painel Central
+                </Link>
+              </li>
+              <li>
+                <Link href="/admin/home" className="text-sm font-medium text-fd-foreground hover:text-fd-muted-foreground transition-colors">
+                  Área Administrativa
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Institucional */}
+          <div>
+            <p className="text-sm font-bold text-fd-muted-foreground mb-4">
+              Institucional
+            </p>
+            <ul className="flex flex-col gap-2">
+              <li>
+                <Link href="/privacidade" className="text-sm font-medium text-fd-foreground hover:text-fd-muted-foreground transition-colors underline-offset-4 decoration-fd-primary/30">
+                  Privacidade
+                </Link>
+              </li>
+              <li>
+                <Link href="/termos" className="text-sm font-medium text-fd-foreground hover:text-fd-muted-foreground transition-colors underline-offset-4 decoration-fd-primary/30">
+                  Termos de Uso
+                </Link>
+              </li>
+              <li>
+                <a 
+                  href="https://serradouradalorena.com.br" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-fd-foreground hover:text-fd-muted-foreground transition-colors"
+                >
+                  Serra Dourada
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Social */}
+          <div>
+            <p className="text-sm font-bold text-fd-muted-foreground mb-4">
+              Social
+            </p>
+            <ul className="flex flex-col gap-2">
+              <li>
+                <a href="https://open.spotify.com" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-fd-foreground hover:text-fd-muted-foreground transition-colors">
+                  Spotify
+                </a>
+              </li>
+              <li>
+                <a href="https://www.instagram.com/podcastads" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-fd-foreground hover:text-fd-muted-foreground transition-colors">
+                  Instagram
+                </a>
+              </li>
+              <li>
+                <a href="https://www.youtube.com/@podcastads" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-fd-foreground hover:text-fd-muted-foreground transition-colors">
+                  YouTube
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/RamonSantos9/PodcastAds" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-fd-foreground hover:text-fd-muted-foreground transition-colors">
+                  Github
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      
+      <div className="mt-20 border-t pt-10 flex flex-col md:flex-row justify-between items-center gap-4 border-dashed">
+        <p className="text-xs text-fd-muted-foreground text-center md:text-left">
+          © {new Date().getFullYear()} PodcastAds. Desenvolvido por alunos de ADS.
+        </p>
+        <div className="flex gap-6">
+          <Link href="/privacidade" className="text-xs text-fd-muted-foreground hover:text-fd-foreground">Proteção de Dados</Link>
+          <Link href="/termos" className="text-xs text-fd-muted-foreground hover:text-fd-foreground">Aviso Legal</Link>
         </div>
       </div>
     </footer>
+    </>
   );
 }
