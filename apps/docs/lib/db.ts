@@ -1,20 +1,5 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-
-const getDbPath = () => {
-  const cwd = process.cwd();
-  // Detect if we're in the monorepo root or already in the app docs folder
-  if (
-    cwd.endsWith('apps/docs') ||
-    cwd.includes('apps\\docs') ||
-    cwd.includes('apps/docs')
-  ) {
-    return path.resolve(cwd, 'lib', 'db.json');
-  }
-  // Assume monorepo root
-  return path.resolve(cwd, 'apps/docs/lib/db.json');
-};
-const DB_PATH = getDbPath();
+import { prisma } from './prisma';
+import { Prisma } from '@prisma/client';
 
 export type EpisodeStatus =
   | 'Publicado'
@@ -26,6 +11,14 @@ export type EpisodeStatus =
   | 'Produção'
   | 'Rascunho'
   | 'Agendado';
+
+export enum UserRole {
+  USUARIO = 'USUARIO',
+  ALUNO = 'ALUNO',
+  PROFESSOR = 'PROFESSOR',
+  ADMIN = 'ADMIN',
+}
+
 export type EpisodeCategory =
   | 'Institucional'
   | 'Carreira'
@@ -39,7 +32,8 @@ export interface Guest {
   bio?: string;
   social?: string;
   avatar?: string;
-  email?: string; // Adicionado para CRM
+  email?: string;
+  ownerId?: string | null;
 }
 
 export interface WordItem {
@@ -66,32 +60,6 @@ export interface TranscriptionSegment {
   words?: WordItem[];
 }
 
-export interface Episode {
-  id: string; // unique identifier
-  slug: string;
-  title: string; // Maps from "episodeTitle" and "title"
-  summary: string;
-  category: EpisodeCategory;
-  status: EpisodeStatus;
-  duration: string;
-  guests: Guest[];
-  platforms: string[];
-  createdAt: string;
-
-  // Transcription-specific fields
-  audioUrl?: string;
-  externalUrl?: string; // YouTube, Spotify, etc.
-  transcriptionText?: string;
-  segments?: TranscriptionSegment[];
-  language?: string;
-  confidence?: number;
-  image?: string; // URL for persisted image
-  imageFile?: any; // Local File object for optimistic UI
-  tracks?: TimelineTrack[];
-  assets?: UploadedFile[];
-  sharingConfig?: SharingConfig;
-}
-
 export interface TimelineTrack {
   id: string;
   name: string;
@@ -116,6 +84,31 @@ export interface UploadedFile {
   url?: string;
 }
 
+export interface Episode {
+  id: string; // unique identifier
+  slug: string;
+  title: string;
+  summary: string;
+  category: EpisodeCategory;
+  status: EpisodeStatus;
+  duration: string;
+  guests: Guest[];
+  platforms: string[];
+  createdAt: string;
+  ownerId?: string | null;
+
+  audioUrl?: string;
+  externalUrl?: string;
+  transcriptionText?: string;
+  segments?: TranscriptionSegment[];
+  language?: string;
+  confidence?: number;
+  image?: string;
+  tracks?: TimelineTrack[];
+  assets?: UploadedFile[];
+  sharingConfig?: SharingConfig;
+}
+
 export interface StudioProject {
   id: string;
   name: string;
@@ -124,13 +117,16 @@ export interface StudioProject {
   aspectRatio: string;
   lastModified: string;
   createdAt?: string;
+  ownerId?: string | null;
 }
 
 export interface Feedback {
+  id?: string;
   avatar: string;
   user: string;
   role: string;
   message: string;
+  ownerId?: string | null;
 }
 
 export interface VisualAsset {
@@ -140,6 +136,7 @@ export interface VisualAsset {
   type: 'Thumbnail' | 'Social Post' | 'Banner' | 'Story';
   url: string;
   createdAt: string;
+  ownerId?: string | null;
 }
 
 export interface PlayEvent {
@@ -158,374 +155,312 @@ export interface DbSchema {
   events: PlayEvent[];
 }
 
-const initialFeedbacks: Feedback[] = [
-  {
-    avatar: 'https://avatars.githubusercontent.com/u/1',
-    user: 'Prof. Anderson',
-    role: 'Coordenador de ADS',
-    message: `O PodcastAds é uma ferramenta fundamental para levar o conhecimento teórico da sala de aula para o mundo real, conectando nossos alunos com profissionais do mercado.`,
-  },
-  {
-    avatar: 'https://avatars.githubusercontent.com/u/35677084',
-    user: 'Júlia Santos',
-    role: 'Aluna do 4º Período',
-    message: `Adoro ouvir os episódios no caminho para a faculdade. As dicas sobre carreira e tecnologia me ajudam muito a decidir em qual área me especializar.`,
-  },
-  {
-    avatar: 'https://avatars.githubusercontent.com/u/3',
-    user: 'Tech Inovação',
-    role: 'Empresa Parceira',
-    message:
-      'Uma iniciativa incrível da Serra Dourada. Talentos são formados quando há essa troca de experiências que o podcast proporciona.',
-  },
-  {
-    avatar: 'https://avatars.githubusercontent.com/u/10645823',
-    user: 'Ricardo Lima',
-    role: 'Desenvolvedor Fullstack',
-    message: `Eu não teria a chance de aprender tanto sobre o mercado de trabalho sem as conversas incríveis deste podcast! 💚`,
-  },
-];
-
-const initialEpisodes: Episode[] = [
-  {
-    id: 'ep-1',
-    slug: 'piloto-ads-serra-dourada',
-    title: 'Episódio Piloto: O que é o PodcastAds?',
-    category: 'Institucional',
-    duration: '18 min',
-    status: 'Publicado',
-    summary:
-      'Apresentação oficial do projeto, da proposta de extensão e da conexão entre o curso de ADS, a faculdade e a comunidade.',
-    guests: [{ id: 'guest-equipe', name: 'Equipe PodcastAds' }],
-    platforms: ['Spotify', 'YouTube'],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'ep-2',
-    slug: 'mercado-tech-regional',
-    title: 'Mercado Tech Regional e Oportunidades em ADS',
-    category: 'Carreira',
-    duration: '26 min',
-    status: 'Em gravação',
-    summary:
-      'Conversa com empreendedores e profissionais da região sobre empregabilidade, portfólio e primeiros passos na tecnologia.',
-    guests: [
-      { id: 'guest-empreendedor', name: 'Empreendedor local' },
-      { id: 'guest-professor', name: 'Professor convidado' },
-    ],
-    platforms: ['Spotify', 'Instagram'],
-    createdAt: new Date(Date.now() - 86400 * 1000).toISOString(),
-  },
-  {
-    id: 'ep-3',
-    slug: 'soft-skills-para-desenvolvedores',
-    title: 'Soft Skills para Desenvolvedores',
-    category: 'Formação',
-    duration: '22 min',
-    status: 'Em pauta',
-    summary:
-      'Debate sobre comunicação, trabalho em equipe e postura profissional para estudantes e futuros desenvolvedores.',
-    guests: [
-      { id: 'guest-docente', name: 'Docente ADS' },
-      { id: 'guest-aluno-lider', name: 'Aluno líder' },
-    ],
-    platforms: ['Spotify', 'YouTube', 'Instagram'],
-    createdAt: new Date(Date.now() - 86400 * 2000).toISOString(),
-  },
-];
-
-const initialAssets: VisualAsset[] = [
-  {
-    id: 'asset-1',
-    episodeId: 'ep-1',
-    title: 'Thumbnail Oficial - Ep 01',
-    type: 'Thumbnail',
-    url: 'https://picsum.photos/seed/ep1/800/450',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'asset-2',
-    episodeId: 'ep-1',
-    title: 'Post Instagram - Ep 01',
-    type: 'Social Post',
-    url: 'https://picsum.photos/seed/ep1-insta/1080/1080',
-    createdAt: new Date().toISOString(),
-  },
-];
-
-const initialGuests: Guest[] = [
-  {
-    id: 'guest-anderson',
-    name: 'Prof. Anderson',
-    bio: 'Coordenador do curso de ADS com vasta experiência em gestão acadêmica e tecnologia.',
-    social: 'https://linkedin.com/in/anderson',
-    avatar: 'https://avatars.githubusercontent.com/u/1',
-  },
-  {
-    id: 'guest-julia',
-    name: 'Júlia Santos',
-    bio: 'Aluna destaque do 4º período, entusiasta de desenvolvimento web e UX Design.',
-    social: 'https://instagram.com/juliasantos',
-    avatar: 'https://avatars.githubusercontent.com/u/35677084',
-  },
-];
-
-/**
- * Initializes the database file if it doesn't exist, seeding with initial data.
- */
-async function initDb(): Promise<void> {
-  try {
-    const data = await fs.readFile(DB_PATH, 'utf-8');
-    // If it exists but it's an old schema (e.g. transcriptions array from previous step)
-    const parsed = JSON.parse(data);
-    let updated = false;
-
-    if (!parsed.episodes) {
-      if (parsed.transcriptions) {
-        const mergedEpisodes = [...initialEpisodes];
-        for (const tr of parsed.transcriptions) {
-          mergedEpisodes.push({
-            id: tr.id,
-            slug: tr.slug,
-            title: tr.episodeTitle,
-            category: tr.category,
-            summary: tr.summary,
-            status: tr.status,
-            duration: tr.duration,
-            guests: tr.guests || [],
-            platforms: tr.platforms || [],
-            createdAt: tr.createdAt,
-            audioUrl: tr.audioUrl,
-            transcriptionText: tr.transcriptionText,
-            language: tr.language,
-          });
-        }
-        parsed.episodes = mergedEpisodes;
-      } else {
-        parsed.episodes = initialEpisodes;
-      }
-      updated = true;
-    }
-
-    if (!parsed.feedbacks) {
-      parsed.feedbacks = initialFeedbacks;
-      updated = true;
-    }
-
-    if (!parsed.projects) {
-      parsed.projects = [];
-      updated = true;
-    }
-
-    if (!parsed.guests) {
-      parsed.guests = initialGuests;
-      updated = true;
-    }
-
-    if (!parsed.assets) {
-      parsed.assets = initialAssets;
-      updated = true;
-    }
-
-    if (!parsed.events) {
-      parsed.events = [];
-      updated = true;
-    }
-
-    if (updated) {
-      await fs.writeFile(DB_PATH, JSON.stringify(parsed, null, 2));
-    }
-  } catch (err: any) {
-    if (err.code === 'ENOENT') {
-      await fs.writeFile(
-        DB_PATH,
-        JSON.stringify(
-          {
-            episodes: initialEpisodes,
-            feedbacks: initialFeedbacks,
-            projects: [],
-            guests: initialGuests,
-            assets: initialAssets,
-            events: [],
-          },
-          null,
-          2,
-        ),
-      );
-    }
-  }
+// ------ HELPER PARSERS (Simplified for Native PostgreSQL JSON) ------ //
+function mapEpisode(ep: any): Episode {
+  return {
+    ...ep,
+    status: ep.status as EpisodeStatus,
+    category: ep.category as EpisodeCategory,
+    createdAt: ep.createdAt.toISOString(),
+    // Prisma maps native PgSQL Json to JS objects/arrays automatically
+    platforms: ((ep as any).platforms as string[]) || [],
+    segments: ((ep as any).segments as TranscriptionSegment[]) || [],
+    tracks: ((ep as any).tracks as TimelineTrack[]) || [],
+    assets: ((ep as any).assets as UploadedFile[]) || [],
+    sharingConfig: ((ep as any).sharingConfig as SharingConfig) || undefined,
+    guests: ep.guests?.map((g: any) => g.guest) || [],
+  };
 }
 
+// ------ READ FULL DB (Mocking legacy behavior) ------ //
 export async function readDb(): Promise<DbSchema> {
-  await initDb();
-  const data = await fs.readFile(DB_PATH, 'utf-8');
-  return JSON.parse(data);
-}
+  const episodesData = await prisma.episode.findMany({
+    include: { guests: { include: { guest: true } } },
+    orderBy: { createdAt: 'desc' },
+  });
+  
+  const feedbacks = await prisma.feedback.findMany();
+  const projectsData = await prisma.studioProject.findMany({ orderBy: { lastModified: 'desc' } });
+  const guests = await prisma.guest.findMany();
+  const assetsData = await prisma.visualAsset.findMany({ orderBy: { createdAt: 'desc' } });
+  const eventsData = await prisma.playEvent.findMany();
 
-export async function writeDb(data: DbSchema): Promise<void> {
-  await initDb();
-  await fs.writeFile(DB_PATH, JSON.stringify(data, null, 2));
+  return {
+    episodes: episodesData.map(mapEpisode),
+    feedbacks: feedbacks.map(f => ({ ...f, ownerId: f.ownerId || undefined })),
+    projects: projectsData.map((p: any) => ({
+      ...p,
+      lastModified: p.lastModified.toISOString(),
+      createdAt: p.createdAt.toISOString(),
+      tracks: ((p as any).tracks as TimelineTrack[]) || [],
+      assets: ((p as any).assets as UploadedFile[]) || [],
+    })),
+    guests: guests.map((g: any) => ({
+      ...g,
+      email: g.email || undefined,
+      avatar: g.avatar || undefined,
+      bio: g.bio || undefined,
+      social: g.social || undefined,
+    })),
+    assets: assetsData.map((a: any) => ({ ...a, createdAt: a.createdAt.toISOString() }) as VisualAsset),
+    events: eventsData.map((e: any) => ({ ...e, device: e.device as 'desktop'|'mobile', createdAt: e.createdAt.toISOString() })),
+  };
 }
 
 // ------ EPISODE CRUD ------ //
 
-export async function addEpisode(record: Episode) {
-  const db = await readDb();
-  db.episodes.unshift(record);
-  await writeDb(db);
+export async function addEpisode(record: Episode, userId: string) {
+  const { guests, platforms, segments, tracks, assets, sharingConfig, createdAt, ownerId, ...rest } = record;
+  
+  await prisma.episode.create({
+    data: {
+      ...rest,
+      status: rest.status,
+      category: rest.category,
+      createdAt: createdAt ? new Date(createdAt) : undefined,
+      // Pass arrays directly to Postgres JSON columns
+      platforms: platforms || [],
+      segments: (segments as any) || [],
+      tracks: (tracks as any) || [],
+      assets: (assets as any) || [],
+      sharingConfig: (sharingConfig as any) || {},
+      ownerId: userId,
+      guests: {
+        create: guests?.map(g => ({
+          guest: {
+            connectOrCreate: {
+              where: { id: g.id },
+              create: { ...g, ownerId: userId }
+            }
+          }
+        })) || []
+      }
+    }
+  });
 }
 
-export async function updateEpisode(id: string, updates: Partial<Episode>) {
-  const db = await readDb();
-  const index = db.episodes.findIndex((t) => t.id === id);
-  if (index !== -1) {
-    db.episodes[index] = { ...db.episodes[index], ...updates };
-    await writeDb(db);
+export async function updateEpisode(id: string, updates: Partial<Episode>, userId: string) {
+  const { guests, platforms, segments, tracks, assets, sharingConfig, createdAt, ownerId, ...rest } = updates;
+  
+  // Security check: Verify ownership if not an admin (Admin check can be added here)
+  const existing = await prisma.episode.findUnique({ where: { id } });
+  if (existing && existing.ownerId && existing.ownerId !== userId) {
+    throw new Error("Não autorizado: Você não é o proprietário deste episódio.");
   }
+
+  await prisma.episode.update({
+    where: { id },
+    data: {
+      ...rest,
+      platforms,
+      segments: segments as any,
+      tracks: tracks as any,
+      assets: assets as any,
+      sharingConfig: sharingConfig as any,
+    },
+  });
 }
 
 export async function getEpisodeBySlug(slug: string): Promise<Episode | null> {
-  const db = await readDb();
-  return db.episodes.find((t) => t.slug === slug) || null;
+  const ep = await prisma.episode.findUnique({
+    where: { slug },
+    include: { guests: { include: { guest: true } } }
+  });
+  return ep ? mapEpisode(ep) : null;
 }
 
 export async function getEpisodeById(id: string): Promise<Episode | null> {
-  const db = await readDb();
-  return db.episodes.find((t) => t.id.trim() === id.trim()) || null;
+  const ep = await prisma.episode.findUnique({
+    where: { id },
+    include: { guests: { include: { guest: true } } }
+  });
+  return ep ? mapEpisode(ep) : null;
 }
 
 // ------ STUDIO PROJECT CRUD ------ //
 
-export async function getProjects(): Promise<StudioProject[]> {
-  const db = await readDb();
-  return db.projects || [];
+export async function getProjects(userId: string, role: string): Promise<StudioProject[]> {
+  const isElevated = role === 'ADMIN' || role === 'PROFESSOR';
+  
+  const projects = await prisma.studioProject.findMany({
+    where: isElevated ? {} : { ownerId: userId },
+    orderBy: { lastModified: 'desc' }
+  });
+  
+  return projects.map((p: any) => ({
+    ...p,
+    lastModified: p.lastModified.toISOString(),
+    createdAt: p.createdAt.toISOString(),
+    tracks: ((p as any).tracks as TimelineTrack[]) || [],
+    assets: ((p as any).assets as UploadedFile[]) || [],
+  }));
 }
 
-export async function addProject(project: StudioProject) {
-  const db = await readDb();
-  db.projects.unshift(project);
-  await writeDb(db);
+export async function getProjectById(id: string): Promise<StudioProject | null> {
+  const p = await prisma.studioProject.findUnique({ where: { id } });
+  if (!p) return null;
+  return {
+    ...p,
+    lastModified: p.lastModified.toISOString(),
+    createdAt: p.createdAt.toISOString(),
+    tracks: ((p as any).tracks as TimelineTrack[]) || [],
+    assets: ((p as any).assets as UploadedFile[]) || [],
+  } as StudioProject;
 }
 
-export async function updateProject(
-  id: string,
-  updates: Partial<StudioProject>,
-) {
-  const db = await readDb();
-  const index = db.projects.findIndex((p) => p.id === id);
-  if (index !== -1) {
-    db.projects[index] = { ...db.projects[index], ...updates };
-    await writeDb(db);
+export async function addProject(project: StudioProject, userId: string) {
+  const { tracks, assets, lastModified, createdAt, ownerId, ...rest } = project;
+  await prisma.studioProject.create({
+    data: {
+      ...rest,
+      lastModified: new Date(lastModified),
+      createdAt: createdAt ? new Date(createdAt) : undefined,
+      tracks: (tracks as any) || [],
+      assets: (assets as any) || [],
+      ownerId: userId
+    }
+  });
+}
+
+export async function updateProject(id: string, updates: Partial<StudioProject>, userId: string) {
+  const { tracks, assets, lastModified, createdAt, ownerId, ...rest } = updates;
+  
+  const existing = await prisma.studioProject.findUnique({ where: { id } });
+  if (existing && existing.ownerId !== userId) {
+    throw new Error("Não autorizado: Este projeto pertence a outro aluno.");
   }
-}
 
-export async function getProjectById(
-  id: string,
-): Promise<StudioProject | null> {
-  const db = await readDb();
-  return db.projects.find((p) => p.id === id) || null;
-}
-
-export async function deleteProject(id: string) {
-  const db = await readDb();
-  db.projects = db.projects.filter((p) => p.id !== id);
-  await writeDb(db);
+  const data: any = { ...rest };
+  if (tracks !== undefined) data.tracks = tracks as any;
+  if (assets !== undefined) data.assets = assets as any;
+  if (lastModified !== undefined) data.lastModified = new Date(lastModified);
+  
+  await prisma.studioProject.update({
+    where: { id },
+    data
+  });
 }
 
 export async function addAsset(projectId: string, asset: UploadedFile) {
-  const db = await readDb();
-  const index = db.projects.findIndex((p) => p.id === projectId);
-  if (index !== -1) {
-    if (!db.projects[index].assets) db.projects[index].assets = [];
-    db.projects[index].assets!.push(asset);
-    await writeDb(db);
-  }
+  const project = await prisma.studioProject.findUnique({ where: { id: projectId } });
+  if (!project) throw new Error("Projeto não encontrado");
+
+  const currentAssets = ((project as any).assets as any[]) || [];
+  await prisma.studioProject.update({
+    where: { id: projectId },
+    data: {
+      assets: [...currentAssets, asset] as any
+    }
+  });
 }
 
-export async function deleteAsset(
-  projectId: string,
-  assetId: string,
-): Promise<UploadedFile | null> {
-  const db = await readDb();
-  const index = db.projects.findIndex((p) => p.id === projectId);
-  if (index !== -1) {
-    const project = db.projects[index];
-    if (!project.assets) return null;
-    const assetIndex = project.assets.findIndex((a) => a.id === assetId);
-    if (assetIndex !== -1) {
-      const [deletedAsset] = project.assets.splice(assetIndex, 1);
-      await writeDb(db);
-      return deletedAsset;
-    }
+export async function deleteAsset(projectId: string, assetId: string): Promise<UploadedFile | null> {
+  const project = await prisma.studioProject.findUnique({ where: { id: projectId } });
+  if (!project) throw new Error("Projeto não encontrado");
+
+  const currentAssets = ((project as any).assets as any[]) || [];
+  const assetToDelete = currentAssets.find(a => a.id === assetId);
+  if (!assetToDelete) return null;
+
+  const newAssets = currentAssets.filter(a => a.id !== assetId);
+  await prisma.studioProject.update({
+    where: { id: projectId },
+    data: { assets: newAssets as any }
+  });
+
+  return assetToDelete as UploadedFile;
+}
+
+export async function deleteProject(id: string, userId: string, role: string) {
+  const existing = await prisma.studioProject.findUnique({ where: { id } });
+  if (!existing) throw new Error("Projeto não encontrado.");
+  
+  const isElevated = role === 'ADMIN'; // Only admin can delete others' projects
+  
+  if (existing.ownerId !== userId && !isElevated) {
+    throw new Error("Não autorizado: Você não pode excluir projetos de outros alunos.");
   }
-  return null;
+  
+  await prisma.studioProject.delete({ where: { id } });
 }
 
 // ------ GUEST CRUD ------ //
 
 export async function getGuests(): Promise<Guest[]> {
-  const db = await readDb();
-  return db.guests || [];
+  const list = await prisma.guest.findMany();
+  return list.map((g: any) => ({
+    ...g,
+    email: g.email || undefined,
+    avatar: g.avatar || undefined,
+    bio: g.bio || undefined,
+    social: g.social || undefined,
+  }));
 }
 
-export async function addGuest(record: Guest) {
-  const db = await readDb();
-  if (!db.guests) db.guests = [];
-  db.guests.unshift(record);
-  await writeDb(db);
+export async function addGuest(record: Guest, userId: string) {
+  await prisma.guest.create({ data: { ...record, ownerId: userId } });
 }
 
-export async function updateGuest(id: string, updates: Partial<Guest>) {
-  const db = await readDb();
-  const index = db.guests.findIndex((g) => g.id === id);
-  if (index !== -1) {
-    db.guests[index] = { ...db.guests[index], ...updates };
-    await writeDb(db);
+export async function updateGuest(id: string, updates: Partial<Guest>, userId: string) {
+  const existing = await prisma.guest.findUnique({ where: { id } });
+  if (existing && existing.ownerId && existing.ownerId !== userId) {
+    throw new Error("Não autorizado.");
   }
+  await prisma.guest.update({ where: { id }, data: updates });
 }
 
-export async function deleteGuest(id: string) {
-  const db = await readDb();
-  db.guests = db.guests.filter((g) => g.id !== id);
-  await writeDb(db);
+export async function deleteGuest(id: string, userId: string) {
+  const existing = await prisma.guest.findUnique({ where: { id } });
+  if (existing && existing.ownerId && existing.ownerId !== userId) {
+    throw new Error("Não autorizado.");
+  }
+  await prisma.guest.delete({ where: { id } });
 }
 
 // ------ ASSET CRUD ------ //
 
 export async function getVisualAssets(): Promise<VisualAsset[]> {
-  const db = await readDb();
-  return db.assets || [];
+  const assets = await prisma.visualAsset.findMany({ orderBy: { createdAt: 'desc' } });
+  return assets.map((a: any) => ({ ...a, createdAt: a.createdAt.toISOString() }) as VisualAsset);
 }
 
-export async function addVisualAsset(record: VisualAsset) {
-  const db = await readDb();
-  if (!db.assets) db.assets = [];
-  db.assets.unshift(record);
-  await writeDb(db);
-}
-
-export async function deleteVisualAsset(id: string) {
-  const db = await readDb();
-  db.assets = db.assets.filter((a) => a.id !== id);
-  await writeDb(db);
-}
-
-// ------ PLAY EVENTS ------ //
-
-export async function recordPlayEvent(
-  event: Omit<PlayEvent, 'id' | 'createdAt'>,
-) {
-  const db = await readDb();
-  if (!db.events) db.events = [];
-  db.events.push({
-    id: `evt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    ...event,
-    createdAt: new Date().toISOString(),
+export async function addVisualAsset(record: VisualAsset, userId: string) {
+  const { episodeId, createdAt, ownerId, ...rest } = record;
+  await prisma.visualAsset.create({
+    data: {
+      ...rest,
+      episodeId: episodeId || null,
+      createdAt: createdAt ? new Date(createdAt) : undefined,
+      ownerId: userId
+    }
   });
-  await writeDb(db);
+}
+
+export async function deleteVisualAsset(id: string, userId: string, role: string) {
+  const existing = await prisma.visualAsset.findUnique({ where: { id } });
+  if (!existing) throw new Error("Asset não encontrado.");
+
+  const isElevated = role === 'ADMIN';
+  if (existing.ownerId !== userId && !isElevated) {
+    throw new Error("Não autorizado.");
+  }
+  await prisma.visualAsset.delete({ where: { id } });
+}
+
+export async function recordPlayEvent(event: Omit<PlayEvent, 'id' | 'createdAt'>) {
+  await prisma.playEvent.create({
+    data: {
+      episodeId: event.episodeId,
+      device: event.device,
+    }
+  });
 }
 
 export async function getPlayEvents(): Promise<PlayEvent[]> {
-  const db = await readDb();
-  return db.events || [];
+  const events = await prisma.playEvent.findMany({ orderBy: { createdAt: 'desc' } });
+  return events.map((e: any) => ({
+    ...e,
+    device: e.device as 'desktop' | 'mobile',
+    createdAt: e.createdAt.toISOString()
+  }));
 }

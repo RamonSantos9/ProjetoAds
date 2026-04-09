@@ -72,9 +72,9 @@ export function EpisodeCard({
                 className="w-full h-full object-cover"
                 alt={episode.title}
               />
-            ) : episode.imageFile ? (
+            ) : (episode as any).imageFile ? (
               <img
-                src={URL.createObjectURL(episode.imageFile)}
+                src={URL.createObjectURL((episode as any).imageFile)}
                 className="w-full h-full object-cover"
                 alt={episode.title}
               />
@@ -164,9 +164,9 @@ export function EpisodeListItem({
               className="w-full h-full object-cover"
               alt={episode.title}
             />
-          ) : episode.imageFile ? (
+          ) : (episode as any).imageFile ? (
             <img
-              src={URL.createObjectURL(episode.imageFile)}
+              src={URL.createObjectURL((episode as any).imageFile)}
               className="w-full h-full object-cover"
               alt={episode.title}
             />

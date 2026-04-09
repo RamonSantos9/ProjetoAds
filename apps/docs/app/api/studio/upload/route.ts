@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import { saveProjectAsset, deleteProjectAsset } from '@/lib/storage';
 import { addAsset, deleteAsset, UploadedFile } from '@/lib/db';
+import { auth } from '@/lib/auth';
 
 export async function POST(request: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -41,6 +47,11 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get('projectId');

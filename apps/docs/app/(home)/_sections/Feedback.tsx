@@ -21,9 +21,9 @@ export async function Feedback() {
       </div>
       {/* Componente Marquee para o efeito de rolagem infinita horizontal */}
       <Marquee className="pb-8 [mask-image:linear-gradient(to_right,transparent,white_20px,white_calc(100%-20px),transparent)]">
-        {feedback.map((item) => (
+        {feedback.map((item, i) => (
           <div
-            key={item.user}
+            key={`${item.user}-${i}`}
             className="flex flex-col rounded-xl border bg-gradient-to-b from-fd-card p-4 shadow-lg w-[320px]"
           >
             {/* Mensagem do depoimento */}

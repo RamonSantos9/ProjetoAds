@@ -5,6 +5,7 @@ import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { cn } from '@xispedocs/ui/utils/cn';
 import { ChevronRight, ArrowLeftRight, LogOut, Check } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 
 function ThemeMenuItem() {
   const [open, setOpen] = React.useState(false);
@@ -87,6 +88,19 @@ export function PodcastUserMenu({
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
+  const { data: session } = useSession();
+  const user = session?.user;
+  const userRole = (user as any)?.role || 'USUARIO';
+  
+  const roleLabel = {
+    'ADMIN': 'Administrador',
+    'PROFESSOR': 'Professor',
+    'ALUNO': 'Aluno',
+    'USUARIO': 'Usuário'
+  }[userRole as string] || 'Usuário';
+
+  const avatarUrl = user?.image || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop';
+
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <PopoverPrimitive.Trigger asChild>{children}</PopoverPrimitive.Trigger>
@@ -96,7 +110,7 @@ export function PodcastUserMenu({
           side="bottom"
           sideOffset={8}
           className={cn(
-            'z-50 w-56 overflow-visible rounded-[10px] bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md text-popover-foreground shadow-popover-sm outline-none transition-all duration-150',
+            'z-50 w-64 overflow-visible rounded-[10px] bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md text-popover-foreground shadow-popover-sm outline-none transition-all duration-150',
             'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
             'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 flex flex-col p-0',
           )}
@@ -107,6 +121,22 @@ export function PodcastUserMenu({
           }}
         >
           <div className="overflow-auto" style={{ scrollbarWidth: 'thin' }}>
+            {/* User Profile Summary */}
+            <div className="p-3 border-b border-gray-alpha-150">
+              <div className="hstack gap-3 items-center">
+                <img src={avatarUrl} alt={user?.name || ''} className="w-10 h-10 rounded-full border border-gray-alpha-200" />
+                <div className="stack gap-0.5 overflow-hidden">
+                  <p className="text-sm font-semibold truncate text-foreground">{user?.name || 'Carregando...'}</p>
+                  <div className="hstack items-center gap-1.5">
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-fd-primary/10 text-fd-primary border border-fd-primary/20">
+                      {roleLabel}
+                    </span>
+                    <p className="text-[11px] text-subtle truncate">{user?.email}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Balance Section */}
             <div
               className="p-1 pb-0 bg-gray-alpha-50 dark:bg-transparent"
@@ -223,10 +253,10 @@ export function PodcastUserMenu({
                       <div className="hstack justify-between items-center">
                         <div className="stack max-w-[calc(100%-2rem)]">
                           <p className="text-sm text-foreground font-medium block truncate">
-                            Meu Espaço
+                            {userRole === 'ALUNO' ? 'Meu Workspace' : 'Portal Administrativo'}
                           </p>
                           <p className="text-xs text-subtle font-normal block truncate">
-                            Plano gratuito
+                            {userRole === 'ALUNO' ? 'Espaço de Aluno' : 'Acesso Geral'}
                           </p>
                         </div>
                         <div>
@@ -290,7 +320,10 @@ export function PodcastUserMenu({
 
               <ul className="last:border-b-0 last:pb-0 last:mb-0 border-gray-alpha-200 border-b pb-1 mb-1">
                 <li className="relative px-1">
-                  <button className="relative w-full flex cursor-pointer select-none items-center rounded-lg px-3 py-1.5 text-sm outline-none transition-colors hover:bg-gray-alpha-100 hover:text-foreground group justify-between">
+                  <button 
+                    onClick={() => signOut({ callbackUrl: '/sign-in' })}
+                    className="relative w-full flex cursor-pointer select-none items-center rounded-lg px-3 py-1.5 text-sm outline-none transition-colors hover:bg-red-500/10 hover:text-red-500 group justify-between"
+                  >
                     <span className="block truncate">
                       <span className="inline-block mr-1.5 align-top translate-y-[3px]">
                         <svg
@@ -311,7 +344,7 @@ export function PodcastUserMenu({
                           ></path>
                         </svg>
                       </span>
-                      <span>Sair</span>
+                      <span>Sair da conta</span>
                     </span>
                   </button>
                 </li>

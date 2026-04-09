@@ -19,6 +19,9 @@ export const metadata = createMetadata({
   description:
     'O canal oficial de tecnologia e inovação dos alunos de ADS da Faculdade Serra Dourada.',
   metadataBase: baseUrl,
+  verification: {
+    google: 'p6Y5vf2dnChvlf2LHHO3nbhsCI7s-cudhbxb2XhMbq8',
+  },
 });
 
 const geist = GeistSans;

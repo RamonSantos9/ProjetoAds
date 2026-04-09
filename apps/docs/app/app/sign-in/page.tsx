@@ -98,16 +98,6 @@ export default function SignInPage() {
               <span>Entrar com Apple</span>
             </button>
           </div>
-
-          {/* SSO Option */}
-          <div className="relative w-full text-center mt-2">
-            <Link
-              href="/app/sso"
-              className="text-sm font-medium text-gray-900 dark:text-gray-alpha-900 hover:underline"
-            >
-              Entrar com SSO
-            </Link>
-          </div>
         </div>
 
         {/* Divider */}

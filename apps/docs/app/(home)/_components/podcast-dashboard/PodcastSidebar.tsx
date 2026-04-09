@@ -8,6 +8,7 @@ import { ChevronsUpDown, Code2, Plus, Zap, ChevronDown } from 'lucide-react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { SidebarFooter } from '@xispedocs/ui/components/layout/sidebar';
 import { useSidebar } from '@xispedocs/ui/contexts/sidebar';
+import { useSession } from 'next-auth/react';
 import { cn } from '@/lib/cn';
 
 type NavItem = {
@@ -665,14 +666,22 @@ const platforms = [
 ];
 
 export function PodcastSidebar() {
+  const { data: session } = useSession();
   const pathname = usePathname();
   const { setOpen, collapsed, open } = useSidebar();
   const [activePlatform, setActivePlatform] = useState(platforms[0]);
 
+  const userRole = (session?.user as any)?.role || 'USUARIO';
   const basePath = pathname.startsWith('/admin') ? '/admin' : '/dashboard';
 
   const renderNavItem = (item: any) => {
-    if (item.adminOnly && basePath !== '/admin') return null;
+    // Role-based visibility logic
+    if (item.adminOnly && userRole !== 'ADMIN' && userRole !== 'PROFESSOR') return null;
+    
+    // Students ('ALUNO') can see but have restricted access (handled in pages/components)
+    // Here we just control what shows up in the sidebar.
+    
+    if (basePath !== '/admin' && item.adminOnly) return null;
 
     const href = item.path ? `${basePath}${item.path}` : item.href;
 

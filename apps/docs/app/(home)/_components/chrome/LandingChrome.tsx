@@ -196,6 +196,12 @@ export function LandingFooter() {
           <Link href="/dashboard/home" className="hover:text-fd-foreground">
             Dashboard
           </Link>
+          <Link href="/privacidade" className="hover:text-fd-foreground">
+            Privacidade
+          </Link>
+          <Link href="/termos" className="hover:text-fd-foreground">
+            Termos
+          </Link>
           <a
             href="https://serradouradalorena.com.br"
             target="_blank"

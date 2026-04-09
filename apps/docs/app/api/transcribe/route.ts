@@ -8,8 +8,14 @@ import {
   EpisodeCategory,
   EpisodeStatus,
 } from '@/lib/db';
+import { auth } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const formData = await req.formData();
     const audioFile = formData.get('audio') as File | null;
@@ -77,7 +83,7 @@ export async function POST(req: NextRequest) {
       segments: transcriptionResult?.segments || [],
     };
 
-    await addEpisode(newEpisode);
+    await addEpisode(newEpisode, session.user.id);
 
     return NextResponse.json({
       success: true,

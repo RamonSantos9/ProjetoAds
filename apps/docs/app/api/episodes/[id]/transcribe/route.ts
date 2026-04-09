@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEpisodeById, updateEpisode, TimelineTrack, TranscriptionSegment } from '@/lib/db';
 import { transcribeAudio } from '@/lib/deepgram';
+import { auth } from '@/lib/auth';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -23,6 +24,11 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const { id } = await params;
     
@@ -107,7 +113,7 @@ export async function POST(
     await updateEpisode(id, {
       transcriptionText,
       segments: allSegments,
-    });
+    }, session.user.id);
 
     return NextResponse.json({
       success: true,

@@ -8,6 +8,7 @@ import { Pause } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Episode } from '@/lib/db';
+import { useSession } from 'next-auth/react';
 
 /**
  * Componente principal do Dashboard Administrativo do PodcastAds.
@@ -18,9 +19,13 @@ import { Episode } from '@/lib/db';
  * @returns {JSX.Element} Painel de controle do projeto.
  */
 export default function AppHomePage() {
+  const { data: session } = useSession();
   const pathname = usePathname();
   const isAdmin = pathname.startsWith('/admin');
   const basePath = isAdmin ? '/admin' : '/dashboard';
+
+  const userRole = (session?.user as any)?.role || 'USUARIO';
+  const userName = session?.user?.name?.split(' ')[0] || 'Usuário';
 
   const { playTrack, currentVoice, isPlaying } = useAudioPlayer();
   const hour = new Date().getHours();
@@ -115,13 +120,13 @@ export default function AppHomePage() {
                           aria-hidden="true"
                           className="truncate inter font-medium text-sm text-gray-500 dark:text-gray-400 min-h-[20px]"
                         >
-                          Gestão do Podcast
+                          {userRole === 'ALUNO' ? 'Meu Espaço de Aluno' : 'Gestão do Podcast'}
                         </p>
                         <h5
                           aria-hidden="true"
                           className="font-waldenburg-ht font-medium line-clamp-1 text-2xl md:text-3xl text-gray-950 dark:text-gray-100 min-h-[30px]"
                         >
-                          {greeting}, Ramon
+                          {greeting}, {userName}
                         </h5>
                       </div>
                     </div>

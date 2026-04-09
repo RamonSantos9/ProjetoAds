@@ -29,9 +29,9 @@ function EpisodeCard({
     <article className="group flex flex-col w-full rounded-2xl border border-fd-border bg-fd-background p-3 gap-3 overflow-hidden transition-all hover:bg-fd-muted hover:border-fd-primary/30">
       {/* Image / Placeholder */}
       <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black/5 dark:bg-white/5 flex items-center justify-center shrink-0">
-        {episode.imageFile ? (
+        {(episode as any).imageFile ? (
           <img
-            src={URL.createObjectURL(episode.imageFile)}
+            src={URL.createObjectURL((episode as any).imageFile)}
             className="w-full h-full object-cover"
             alt={episode.title}
           />
@@ -99,9 +99,9 @@ function EpisodeListItem({
   return (
     <article className="group flex items-center w-full rounded-xl border border-fd-border bg-fd-background p-3 gap-4 transition-all hover:bg-fd-muted hover:border-fd-primary/30">
       <div className="w-14 h-14 rounded-lg bg-black/5 dark:bg-white/5 flex items-center justify-center shrink-0 overflow-hidden relative">
-        {episode.imageFile ? (
+        {(episode as any).imageFile ? (
           <img
-            src={URL.createObjectURL(episode.imageFile)}
+            src={URL.createObjectURL((episode as any).imageFile)}
             className="w-full h-full object-cover"
             alt={episode.title}
           />

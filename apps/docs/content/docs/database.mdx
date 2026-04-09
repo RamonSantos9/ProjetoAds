@@ -1,0 +1,94 @@
+---
+title: Banco de Dados e Segurança (RBAC)
+description: Guia técnico sobre a arquitetura PostgreSQL, o sistema de Role-Based Access Control (RBAC) e as políticas de isolamento de dados do PodcastAds.
+---
+
+O **PodcastAds** utiliza o **PostgreSQL** hospedado no **Supabase** como núcleo de armazenamento. Para garantir um ambiente acadêmico seguro e colaborativo, implementamos um sistema de **Multi-Role Access Control (RBAC)** que automatiza permissões com base no domínio institucional.
+
+---
+
+## Hierarquia de Roles
+
+O sistema classifica os usuários em quatro níveis de acesso, definidos no `Prisma Schema`:
+
+| Role          | Descrição                   | Nível de Acesso                                                                |
+| :------------ | :-------------------------- | :----------------------------------------------------------------------------- |
+| **USUARIO**   | Usuário externo/visitante.  | Acesso apenas à dashboard pública e visualização de episódios globais.         |
+| **ALUNO**     | Estudante da Serra Dourada. | Workspace privado. Gerencia apenas seus próprios episódios e projetos.         |
+| **PROFESSOR** | **Modo Vigilância**.        | Visualiza todos os projetos e episódios de todos os alunos para avaliação.     |
+| **ADMIN**     | Administrador do Sistema.   | Controle total: pode editar, excluir e gerenciar qualquer registro no sistema. |
+
+---
+
+## Atribuição Automática Institucional
+
+Para facilitar o onboarding, o sistema identifica o vínculo do usuário durante o login social (Google/GitHub) ou cadastro manual através do domínio do e-mail:
+
+- **Estudantes**: `@aluno.faculdadeserradourada.com.br` ➔ Atribuição automática como `ALUNO`.
+- **Docentes**: `@faculdadeserradourada.com.br` ➔ Atribuição automática como `PROFESSOR`.
+- **Outros**: Qualquer outro domínio é classificado como `USUARIO` por padrão.
+
+---
+
+## Segurança e Isolamento (RBAC)
+
+Implementamos a lógica de segurança na camada de infraestrutura (`lib/db.ts`) e nas rotas de API, garantindo que o isolamento seja respeitado mesmo que a interface seja burlada.
+
+### Regras de Negócio e CRUD
+
+| Entidade             | ALUNO                        | PROFESSOR           | ADMIN              |
+| :------------------- | :--------------------------- | :------------------ | :----------------- |
+| **Projetos/Estúdio** | Apenas os próprios           | **Visualiza Todos** | **Controle Total** |
+| **Episódios**        | Apenas os próprios           | **Visualiza Todos** | **Controle Total** |
+| **Convidados**       | Globais (Leitura) / Próprios | Globais             | Globais            |
+
+### Modo Vigilância (Surveillance Mode)
+
+Professores e Admins possuem um filtro de banco de dados (`where`) dinâmico. Se o usuário possuir papel elevado, o filtro `ownerId` é ignorado nas consultas de leitura, permitindo a supervisão acadêmica completa.
+
+---
+
+## Configuração Obrigatória (SQL)
+
+Para garantir a integridade no nível mais baixo (Banco de Dados), execute este script no seu **SQL Editor** do Supabase para configurar as políticas RLS avançadas:
+
+```sql
+-- 1. Habilitar RLS em todas as tabelas
+ALTER TABLE "Episode" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "StudioProject" ENABLE ROW LEVEL SECURITY;
+
+-- 2. Políticas para EPISÓDIOS (Isolamento por Role)
+CREATE POLICY "Professores veem tudo" ON "Episode"
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM "User" WHERE "User".id = auth.uid()::text AND ("User".role = 'PROFESSOR' OR "User".role = 'ADMIN'))
+  );
+
+CREATE POLICY "Alunos veem apenas os seus" ON "Episode"
+  FOR SELECT USING (auth.uid()::text = "ownerId");
+
+-- 3. Políticas para PROJETOS (Privacidade e Auditoria)
+CREATE POLICY "Acesso de Professor/Admin" ON "StudioProject"
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM "User" WHERE "User".id = auth.uid()::text AND ("User".role = 'PROFESSOR' OR "User".role = 'ADMIN'))
+  );
+
+CREATE POLICY "Dono gerencia seus projetos" ON "StudioProject"
+  FOR ALL USING (auth.uid()::text = "ownerId");
+```
+
+---
+
+## FAQ de Segurança
+
+### Um aluno pode apagar o projeto de outro?
+
+**Não.** Mesmo que um aluno descubra o ID do projeto de outro, a função `deleteProject` no `lib/db.ts` verifica se le `ownerId` corresponde ao `userId` da sessão, a menos que o executor seja um `ADMIN`.
+
+### Como o sistema identifica o Admin?
+
+O papel de `ADMIN` é atribuído manualmente via banco de dados ou configurado através da variável de ambiente `ADMIN_EMAIL` no script de seed/auth.
+
+<Callout type="warn">
+  **Segurança em Primeiro Lugar:** As políticas de RLS no Supabase são a última
+  linha de defesa. Sempre valide o `ownerId` em Server Actions e rotas de API.
+</Callout>

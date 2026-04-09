@@ -1,0 +1,193 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// --- Autenticação (NextAuth/Auth.js) ---
+
+enum UserRole {
+  USUARIO
+  ALUNO
+  PROFESSOR
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  password      String?   // Hash da senha (bcrypt)
+  emailVerified DateTime?
+  image         String?
+  role          UserRole  @default(USUARIO)
+  accounts      Account[]
+  sessions      Session[]
+  
+  // Relações de Propriedade (Ownership)
+  episodes      Episode[]
+  guests        Guest[]
+  projects      StudioProject[]
+  visualAssets  VisualAsset[]
+  feedbacks     Feedback[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// --- Conteúdo do Podcast ---
+
+model Episode {
+  id                String   @id @default(cuid())
+  slug              String   @unique
+  title             String
+  summary           String
+  category          String   // Enum-like string
+  status            String   // Enum-like string
+  duration          String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  audioUrl          String?
+  externalUrl       String?
+  transcriptionText String?
+  language          String?
+  confidence        Float?
+  image             String?
+  
+  // Dados complexos como JSON Nativo (PostgreSQL)
+  platforms         Json?    
+  segments          Json?    
+  tracks            Json?    
+  sharingConfig     Json?    
+  assets            Json?    
+
+  // Segurança e Propriedade
+  ownerId           String?
+  owner             User?    @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+
+  guests            EpisodeGuest[]
+  visualAssets      VisualAsset[]
+  playEvents        PlayEvent[]
+}
+
+model Guest {
+  id        String         @id @default(cuid())
+  name      String
+  bio       String?
+  social    String?
+  avatar    String?
+  email     String?
+  
+  // Segurança e Propriedade
+  ownerId   String?
+  owner     User?          @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+
+  episodes  EpisodeGuest[]
+  createdAt DateTime       @default(now())
+}
+
+// Tabela de junção Muitos-para-Muitos
+model EpisodeGuest {
+  episodeId String
+  guestId   String
+  episode   Episode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  guest     Guest   @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+  @@id([episodeId, guestId])
+}
+
+model StudioProject {
+  id           String   @id @default(cuid())
+  name         String
+  aspectRatio  String   @default("16 / 9")
+  lastModified DateTime @default(now())
+  createdAt    DateTime @default(now())
+  
+  // Dados complexos como JSON Nativo
+  tracks       Json?
+  assets       Json?
+
+  // Segurança e Propriedade
+  ownerId      String?
+  owner        User?    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  avatar    String
+  user      String
+  role      String
+  message   String
+  
+  // Segurança e Propriedade
+  ownerId   String?
+  owner     User?    @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  
+  createdAt DateTime @default(now())
+}
+
+model VisualAsset {
+  id        String   @id @default(cuid())
+  episodeId String?
+  title     String
+  type      String   // Thumbnail, Social Post, etc.
+  url       String
+  createdAt DateTime @default(now())
+  
+  // Segurança e Propriedade
+  ownerId   String?
+  owner     User?    @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+
+  episode   Episode? @relation(fields: [episodeId], references: [id], onDelete: SetNull)
+}
+
+model PlayEvent {
+  id        String   @id @default(cuid())
+  episodeId String
+  device    String   // desktop, mobile
+  createdAt DateTime @default(now())
+  
+  episode   Episode  @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+}

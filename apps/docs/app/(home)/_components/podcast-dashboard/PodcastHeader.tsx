@@ -7,6 +7,7 @@ import { PodcastNotifications } from './PodcastNotifications';
 import { PodcastUserMenu } from './PodcastUserMenu';
 import { cn } from '@xispedocs/ui/utils/cn';
 import { usePathname } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 const PAGE_TITLES: Record<string, string> = {
   '/admin/home': 'Página Inicial',
@@ -32,10 +33,14 @@ function usePageTitle() {
 }
 
 export function PodcastHeader() {
+  const { data: session } = useSession();
   const { collapsed, setCollapsed, setOpen } = useSidebar();
   const [isDesktopMenuOpen, setIsDesktopMenuOpen] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [isHovered, setIsHovered] = React.useState(false);
+
+  const userName = session?.user?.name || 'Usuário';
+  const userImage = session?.user?.image || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop';
 
   const totalCredits = 10000;
   const remainingCredits = 8634;
@@ -135,8 +140,8 @@ export function PodcastHeader() {
           }}
         >
           <img
-            alt="Ramon Santos"
-            src="https://lh3.googleusercontent.com/a/ACg8ocLh2UMVOoVbJW7Zwn-aCrzgGvZ6WwAAZjvsfIDxv-EZ0QojDjA=s96-c"
+            alt={userName}
+            src={userImage}
             className="rounded-full shrink-0 bg-gray-50 object-cover h-full w-full"
           />
         </div>

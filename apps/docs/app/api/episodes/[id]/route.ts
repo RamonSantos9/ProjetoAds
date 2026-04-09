@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEpisodeById, getEpisodeBySlug, updateEpisode } from '@/lib/db';
+import { auth } from '@/lib/auth';
 
 export async function GET(
   req: NextRequest,
@@ -30,6 +31,11 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const { id } = await params;
     const body = await req.json();
@@ -45,7 +51,7 @@ export async function PATCH(
       ...(status && { status }),
       ...(tracks && { tracks }),
       ...(assets && { assets }),
-    });
+    }, session.user.id);
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

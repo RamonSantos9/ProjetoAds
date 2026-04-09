@@ -3,9 +3,9 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
-import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+import { registerUser } from '@/lib/actions/auth';
+import { signIn } from 'next-auth/react';
 
 function Wordmark() {
   return (
@@ -23,34 +23,32 @@ function Wordmark() {
   );
 }
 
-export default function SignInPage() {
+export default function SignUpPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
+  const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
 
-    try {
-      const res = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      });
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('password', password);
 
-      if (res?.error) {
-        toast.error('E-mail ou senha incorretos.');
-        setIsLoading(false);
-      } else {
-        router.push('/admin/home');
-        router.refresh();
-      }
-    } catch (err) {
-      toast.error('Ocorreu um erro ao tentar fazer login.');
+    const result = await registerUser(formData);
+
+    if (result.error) {
+      setError(result.error);
       setIsLoading(false);
+    } else {
+      router.push('/sign-in?success=Conta criada. Agora você pode entrar.');
     }
   };
 
@@ -66,9 +64,9 @@ export default function SignInPage() {
         <div className="w-96 h-96 bg-gradient-to-tr from-fd-primary/20 to-transparent rounded-full blur-[100px] animate-pulse" />
       </div>
 
-      <div className="relative z-10 w-full max-w-[400px] flex flex-col items-center">
+      <div className="relative z-10 w-full max-w-[400px] flex flex-col items-center mt-[-60px]">
         {/* Centered Wordmark */}
-        <div className="mb-10 w-full flex justify-center">
+        <div className="mb-8 w-full flex justify-center">
           <Link
             href="/"
             className="ring-0 outline-none focus-visible:underline"
@@ -82,10 +80,10 @@ export default function SignInPage() {
         <div className="w-full rounded-2xl p-0 sm:p-8">
           <header className="stack gap-2 mb-8">
             <h1 className="font-waldenburg-ht text-2xl text-foreground font-semibold text-center">
-              Bem-vindo de volta
+              Criar sua conta
             </h1>
-            <p className="text-sm text-center text-muted-foreground">
-              Faça login na sua conta para continuar
+            <p className="text-[13px] text-center text-muted-foreground">
+              Comece a gerenciar e hospedar seus podcasts.
             </p>
           </header>
 
@@ -96,7 +94,7 @@ export default function SignInPage() {
                 type="button"
                 onClick={() => handleSocialLogin('google')}
                 disabled={isLoading}
-                className="whitespace-nowrap font-medium transition-all duration-75 focus-ring bg-white dark:bg-black border active:bg-gray-alpha-100 hover:border-gray-alpha-300 px-3 relative flex items-center justify-center gap-2.5 w-full text-sm h-[46px] rounded-[12px] text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-alpha-100 disabled:opacity-50"
+                className="whitespace-nowrap font-medium transition-all duration-75 focus-ring bg-background border border-gray-200 dark:border-gray-alpha-200 active:bg-gray-alpha-100 hover:border-gray-alpha-300 px-3 relative flex items-center justify-center gap-2.5 w-full text-sm h-[46px] rounded-[12px] text-gray-900 dark:text-gray-alpha-900 hover:bg-gray-50 dark:hover:bg-gray-alpha-50 disabled:opacity-50"
               >
                 <div className="absolute left-[14px] flex items-center">
                   <svg width="20" height="20" viewBox="0 0 25 25">
@@ -125,6 +123,15 @@ export default function SignInPage() {
                 <span>Entrar com GitHub</span>
               </button>
             </div>
+            
+            <div className="relative w-full text-center mt-1">
+              <Link
+                href="/sign-in"
+                className="text-[13px] font-medium text-muted-foreground hover:text-foreground hover:underline"
+              >
+                Já tem uma conta?
+              </Link>
+            </div>
           </div>
 
           <div className="hstack items-center justify-stretch w-full my-6">
@@ -135,13 +142,31 @@ export default function SignInPage() {
             <div className="border-b border-gray-200 dark:border-gray-800 w-full"></div>
           </div>
 
-          <form onSubmit={handleLogin} className="stack gap-4">
+          <form onSubmit={handleRegister} className="stack gap-4">
+            <div className="relative stack gap-1.5">
+              <label
+                htmlFor="name"
+                className="text-sm font-medium text-foreground"
+              >
+                Nome
+              </label>
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Seu nome completo"
+                className="flex w-full border bg-transparent py-2.5 px-4 rounded-[12px] border-gray-200 dark:border-gray-alpha-200 focus-ring placeholder:text-gray-400 text-sm transition-colors hover:border-gray-300 dark:hover:border-gray-700"
+                required
+              />
+            </div>
+
             <div className="relative stack gap-1.5">
               <label
                 htmlFor="email"
                 className="text-sm font-medium text-foreground"
               >
-                E-mail
+                E-mail corporativo
               </label>
               <input
                 id="email"
@@ -160,14 +185,8 @@ export default function SignInPage() {
                   htmlFor="password"
                   className="text-sm font-medium text-foreground"
                 >
-                  Senha
+                  Senha Segura
                 </label>
-                <button
-                  type="button"
-                  className="text-[13px] font-medium text-fd-primary hover:underline"
-                >
-                  Esqueceu sua senha?
-                </button>
               </div>
               <div className="relative">
                 <input
@@ -188,20 +207,25 @@ export default function SignInPage() {
               </div>
             </div>
 
+            {error && (
+              <div className="text-[13px] text-red-500 font-medium bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 p-2 rounded-lg text-center mt-1">
+                {error}
+              </div>
+            )}
 
             <button
               type="submit"
               disabled={isLoading}
               className="w-full mt-4 h-[46px] rounded-[12px] bg-foreground text-background font-semibold text-sm hover:bg-foreground/90 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
             >
-              {isLoading ? 'Autenticando...' : 'Entrar'}
+              {isLoading ? 'Registrando...' : 'Criar conta'}
             </button>
           </form>
 
           <footer className="mt-8 text-center text-[13px] text-muted-foreground">
-            Não tem uma conta?{' '}
-            <Link href="/sign-up" className="font-semibold text-foreground hover:underline transition-colors">
-              Cadastre-se
+            Ao se registrar, você concorda com nossos{' '}
+            <Link href="/termos" className="font-semibold text-foreground hover:underline transition-colors">
+              Termos de Uso
             </Link>
           </footer>
         </div>
