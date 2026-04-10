@@ -178,18 +178,18 @@ export async function POST(req: NextRequest) {
 
       // Explicit logic for source replacement
       if (sourceType === 'link') {
-        finalEpisode.externalUrl = externalUrl;
-        finalEpisode.audioUrl = audioUrl || null; // Clear if Spotify, set if downloaded MP3
+        finalEpisode.externalUrl = externalUrl || undefined;
+        finalEpisode.audioUrl = audioUrl || undefined; // Clear if Spotify, set if downloaded MP3
         if (!audioUrl) finalEpisode.duration = duration;
         else finalEpisode.duration = duration;
       } else if (sourceType === 'file' && formData.get('removeAudio') === 'true') {
-        finalEpisode.audioUrl = null;
-        finalEpisode.externalUrl = null;
+        finalEpisode.audioUrl = undefined;
+        finalEpisode.externalUrl = undefined;
         finalEpisode.duration = '00:00';
       } else if (audioUrl && audioFile) {
         // Direct file upload Overrides any old link
         finalEpisode.audioUrl = audioUrl;
-        finalEpisode.externalUrl = null;
+        finalEpisode.externalUrl = undefined;
         finalEpisode.duration = duration;
         finalEpisode.transcriptionText = transcriptionResult?.text || '';
         finalEpisode.segments = transcriptionResult?.segments || [];
