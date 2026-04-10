@@ -81,18 +81,18 @@ export function GuestSelector({ selected, onChange }: GuestSelectorProps) {
         onClick={() => setIsOpen(!isOpen)}
         className="w-full bg-fd-muted border border-border rounded-xl px-4 py-2.5 h-10 text-sm text-foreground flex items-center justify-between hover:border-fd-primary/50 transition-colors"
       >
-        <div className="flex flex-wrap gap-1 items-center overflow-hidden">
+        <div className="flex flex-wrap gap-1 items-center overflow-hidden text-left">
           {selected.length === 0 ? (
-            <span className="text-primary text-[12px] font-bold truncate">
+            <span key="placeholder" className="text-primary text-[12px] font-bold truncate">
               Convidados
             </span>
           ) : (
-            selected.map((name) => (
+            selected.map((name, idx) => (
               <span
-                key={name}
+                key={`${name}-${idx}`}
                 className="inline-flex items-center text-primary text-[12px] font-bold truncate"
               >
-                {name},
+                {name}{idx < selected.length - 1 ? ',' : ''}
               </span>
             ))
           )}

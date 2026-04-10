@@ -10,15 +10,19 @@ export async function GET() {
   }
 
   const userId = session.user.id;
-  const role = (session.user as any).role;
-  const isElevated = role === 'ADMIN' || role === 'PROFESSOR';
+  const userObj = session.user as any;
+  const role = userObj.role;
+  const isGlobal = userObj.joinedGlobalWorkspace === true;
+  
+  // Perfil elevado (Admin/Professor) ou quem faz parte do Workspace Global vê tudo
+  const canSeeAll = role === 'ADMIN' || role === 'PROFESSOR' || isGlobal;
 
   try {
     const episodes = await prisma.episode.findMany({
-      where: isElevated ? {} : { ownerId: userId },
+      where: canSeeAll ? {} : { ownerId: userId },
       include: { 
         guests: { include: { guest: true } },
-        owner: { select: { name: true } }
+        owner: { select: { id: true, name: true, email: true, image: true } }
       },
       orderBy: { createdAt: 'desc' },
     });

@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { HomeBadge } from '@/components/home/HomeBadge';
 import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
 import { ContentToolbar } from '@/components/ui/ContentToolbar';
+import { cn } from '@/lib/cn';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { Search, Trash2 } from 'lucide-react';
+import { Check, Search, Trash2 } from 'lucide-react';
 import { CreateEpisodeModal } from '@/components/dashboard/CreateEpisodeModal';
 import { EditEpisodeModal } from '@/components/dashboard/EditEpisodeModal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
@@ -14,49 +15,81 @@ import { Episode } from '@/lib/db';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { useSession } from 'next-auth/react';
 
 import {
   EpisodeCard,
   EpisodeListItem,
 } from '@/components/episodes/EpisodeCard';
 
+import * as Popover from '@radix-ui/react-popover';
+import { Plus, X, User as UserIcon } from 'lucide-react';
+
 export default function EpisodesDashboardPage() {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith('/admin');
+  const { data: session } = useSession();
+  const currentUserId = (session?.user as any)?.id;
 
   const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [search, setSearch] = useState('');
+  const [authorSearch, setAuthorSearch] = useState('');
+
+  const [selectedAuthorId, setSelectedAuthorId] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+
   const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(null);
   const [episodeToDelete, setEpisodeToDelete] = useState<Episode | null>(null);
 
   // Load real data from API
   useEffect(() => {
-    const fetchEpisodes = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await fetch('/api/episodes');
-        if (!res.ok) throw new Error('Failed to fetch episodes');
-        const data = await res.json();
-        setEpisodes(data);
+        const [epRes, memRes] = await Promise.all([
+          fetch('/api/episodes'),
+          fetch('/api/workspace/members')
+        ]);
+        
+        if (epRes.ok) {
+          const epData = await epRes.json();
+          setEpisodes(epData);
+        }
+        
+        if (memRes.ok) {
+          const memData = await memRes.json();
+          setMembers(memData);
+        }
       } catch (error) {
         console.error(error);
       } finally {
         setLoading(false);
       }
     };
-    fetchEpisodes();
+    fetchData();
   }, []);
 
+  const filteredMembers = members.filter(m => 
+    m.name?.toLowerCase().includes(authorSearch.toLowerCase()) || 
+    m.email?.toLowerCase().includes(authorSearch.toLowerCase())
+  );
+
+  const selectedAuthor = members.find(m => m.id === selectedAuthorId);
+
   const filtered = episodes.filter(
-    (p) =>
-      p.title.toLowerCase().includes(search.toLowerCase()) ||
-      p.summary.toLowerCase().includes(search.toLowerCase()),
+    (p) => {
+      const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase()) ||
+                            p.summary.toLowerCase().includes(search.toLowerCase());
+      const matchesAuthor = selectedAuthorId ? p.ownerId === selectedAuthorId : true;
+      return matchesSearch && matchesAuthor;
+    }
   );
 
   const handleCreateSave = (data: any) => {
@@ -135,7 +168,159 @@ export default function EpisodesDashboardPage() {
                 }
               />
 
-              <hr className="w-full h-px bg-fd-border border-none opacity-50 hidden sm:block" />
+              {/* Barra de Filtros (High Fidelity) */}
+              <div className="flex flex-wrap items-center gap-2 mt-2 -mb-2 empty:hidden py-1">
+                {/* Filtro: Criado por */}
+                <Popover.Root>
+                  <Popover.Trigger asChild>
+                    <div 
+                      tabIndex={0} 
+                      className={cn(
+                        "cursor-pointer select-none focus:outline-none transition-colors duration-200 max-w-full flex items-center justify-center h-7 rounded-lg whitespace-nowrap text-xs font-medium px-2 border",
+                        selectedAuthorId 
+                          ? "bg-black text-white dark:bg-white dark:text-black border-transparent" 
+                          : "text-foreground bg-background hover:bg-fd-accent dark:hover:bg-white/5 border-fd-border"
+                      )}
+                      role="button"
+                    >
+                      <div className="w-4 h-4 relative flex items-center justify-center mr-1">
+                        {selectedAuthorId ? (
+                           <X 
+                             className="w-3 h-3 hover:scale-110 transition-transform" 
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               setSelectedAuthorId(null);
+                             }}
+                           />
+                        ) : (
+                          <Plus className="w-3 h-3" />
+                        )}
+                      </div>
+                      <div className="shrink-0">
+                        {selectedAuthor 
+                          ? `${selectedAuthor.name || selectedAuthor.email}${selectedAuthor.id === currentUserId ? ' (Eu)' : ''}` 
+                          : 'Criado por'
+                        }
+                      </div>
+                    </div>
+                  </Popover.Trigger>
+                  
+                  <Popover.Portal>
+                    <Popover.Content 
+                      className="z-50 w-72 overflow-hidden rounded-[12px] border border-fd-border bg-fd-background/95 backdrop-blur-md p-0 shadow-2xl animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2"
+                      sideOffset={8}
+                      align="start"
+                    >
+                      <div className="flex items-center border-b border-fd-border/50 px-3">
+                        <UserIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                        <input
+                          className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-fd-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="Buscar membros do workspace..."
+                          value={authorSearch}
+                          onChange={(e) => setAuthorSearch(e.target.value)}
+                          autoFocus
+                        />
+                      </div>
+                      <div className="max-h-[280px] overflow-y-auto overflow-x-hidden p-1">
+                        {filteredMembers.length === 0 ? (
+                          <div className="flex items-center justify-center py-6 text-xs text-fd-muted-foreground">
+                            Nenhum membro encontrado.
+                          </div>
+                        ) : (
+                          filteredMembers.map((member) => (
+                            <div
+                              key={member.id}
+                              onClick={() => {
+                                setSelectedAuthorId(member.id);
+                              }}
+                              className={cn(
+                                "relative flex cursor-pointer select-none items-center rounded-lg px-2 py-2 text-sm outline-none transition-colors",
+                                selectedAuthorId === member.id 
+                                  ? "bg-fd-accent text-fd-accent-foreground" 
+                                  : "hover:bg-fd-accent/50 text-fd-foreground"
+                              )}
+                            >
+                              <div className="flex items-center gap-2 flex-1">
+                                {member.image ? (
+                                  <img src={member.image} alt={member.name} className="w-5 h-5 rounded-full" />
+                                ) : (
+                                  <UserIcon className="w-4 h-4 opacity-50" />
+                                )}
+                                <div className="flex flex-col">
+                                  <span className="text-xs font-medium truncate">
+                                    {member.name || member.email} {member.id === currentUserId ? "(Eu)" : ""}
+                                  </span>
+                                  {member.name && <span className="text-[10px] opacity-60 truncate">{member.email}</span>}
+                                </div>
+                              </div>
+                              {selectedAuthorId === member.id && <Plus className="w-3 h-3 rotate-45" />}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover.Root>
+
+                {/* Filtro: Status */}
+                <Popover.Root>
+                  <Popover.Trigger asChild>
+                    <div 
+                      tabIndex={0} 
+                      className={cn(
+                        "cursor-pointer select-none focus:outline-none transition-colors duration-200 max-w-full flex items-center justify-center h-7 rounded-lg whitespace-nowrap text-xs font-medium px-2 border",
+                        selectedStatus 
+                          ? "bg-black text-white dark:bg-white dark:text-black border-transparent" 
+                          : "text-foreground bg-background hover:bg-fd-accent dark:hover:bg-white/5 border-fd-border"
+                      )}
+                      role="button"
+                    >
+                      <div className="w-4 h-4 relative flex items-center justify-center mr-1">
+                        {selectedStatus ? (
+                           <X 
+                             className="w-3 h-3 hover:scale-110 transition-transform" 
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               setSelectedStatus(null);
+                             }}
+                           />
+                        ) : (
+                          <Plus className="w-3 h-3" />
+                        )}
+                      </div>
+                      <div className="shrink-0">{selectedStatus || 'Status'}</div>
+                    </div>
+                  </Popover.Trigger>
+                  
+                  <Popover.Portal>
+                    <Popover.Content 
+                      className="z-50 w-48 overflow-hidden rounded-[12px] border border-fd-border bg-fd-background/95 backdrop-blur-md p-1 shadow-2xl animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2"
+                      sideOffset={8}
+                      align="start"
+                    >
+                      {['Publicado', 'Produção', 'Revisão'].map((status) => (
+                        <div
+                          key={status}
+                          onClick={() => setSelectedStatus(status)}
+                          className={cn(
+                            "relative flex cursor-pointer select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none transition-colors",
+                            selectedStatus === status 
+                              ? "bg-fd-accent text-fd-accent-foreground" 
+                              : "hover:bg-fd-accent/50 text-fd-foreground"
+                          )}
+                        >
+                          <span className="text-xs font-medium">{status}</span>
+                          {selectedStatus === status && <Check className="w-3 h-3 ml-auto" />}
+                        </div>
+                      ))}
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover.Root>
+
+                
+              </div>
+
+              <hr className="w-full h-px bg-fd-border border-none opacity-30 hidden sm:block mt-2" />
 
               {/* List Wrapper Height Control so it scrolls internally */}
               <div className="w-full flex-1 overflow-y-auto min-h-0 pr-1 sm:pr-2 mt-2">

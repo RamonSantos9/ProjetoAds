@@ -106,12 +106,33 @@ export const {
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.role = (user as any).role;
+        // Se o usuário veio do login inicial, tentamos pegar as flags se disponíveis no objeto
+        if ('joinedGlobalWorkspace' in user) token.isGlobal = (user as any).joinedGlobalWorkspace;
+        if ('hasIndividualWorkspace' in user) token.isIndividual = (user as any).hasIndividualWorkspace;
       }
+
+      // Se não temos as flags no token, buscamos no banco para garantir consistência
+      if (token.sub && (token.isGlobal === undefined || token.isIndividual === undefined)) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.sub as string },
+            select: { joinedGlobalWorkspace: true, hasIndividualWorkspace: true }
+          });
+          if (dbUser) {
+            token.isGlobal = dbUser.joinedGlobalWorkspace;
+            token.isIndividual = dbUser.hasIndividualWorkspace;
+          }
+        } catch (e) {
+          console.error("Erro ao buscar info de workspace no JWT:", e);
+        }
+      }
+
       // Suporte para atualizacao de sessao
       if (trigger === "update" && session) {
         if (session.role) token.role = session.role;
         if (session.name) token.name = session.name;
         if (session.image) token.picture = session.image;
+        if (session.isGlobal !== undefined) token.isGlobal = session.isGlobal;
       }
       return token;
     },
@@ -119,6 +140,8 @@ export const {
       if (session.user) {
         (session.user as any).role = token.role;
         (session.user as any).id = token.sub;
+        (session.user as any).joinedGlobalWorkspace = token.isGlobal;
+        (session.user as any).hasIndividualWorkspace = token.isIndividual;
         if (token.name) session.user.name = token.name;
         if (token.picture) session.user.image = token.picture;
       }
