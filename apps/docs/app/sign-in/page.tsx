@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -29,6 +29,41 @@ export default function SignInPage() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
+  const { status, update } = useSession();
+  // Listener Definitivo: Cross-Tab Storage Sync
+  React.useEffect(() => {
+    // Escuta tanto postMessage (fallback) quanto LocalStorage (moderno cruzamento de origens)
+    const triggerSuccess = () => {
+      setIsLoading(false);
+      toast.success('Login concluído com sucesso!');
+      router.refresh();
+      // Delay essencial para propagar cookies do NextAuth v5 no Edge Middleware
+      setTimeout(() => {
+        window.location.href = '/admin/home';
+      }, 800);
+    };
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'auth-status' && e.newValue?.includes('success-')) {
+        triggerSuccess();
+      }
+    };
+
+    const handleMessage = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return;
+      if (e.data === 'auth-success') {
+        triggerSuccess();
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +91,35 @@ export default function SignInPage() {
 
   const handleSocialLogin = async (provider: 'google' | 'github') => {
     setIsLoading(true);
-    await signIn(provider, { callbackUrl: '/admin/home' });
+    
+    const width = 500;
+    const height = 600;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    
+    // Abrimos uma janela em branco primeiro para evitar bloqueio de popup
+    const popup = window.open(
+      '',
+      'auth-login',
+      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,status=yes`
+    );
+
+    if (popup) {
+      try {
+        const res = await signIn(provider, { 
+          redirect: false, 
+          callbackUrl: `${window.location.origin}/auth/callback-popup` 
+        });
+        
+        if (res?.url) {
+          popup.location.href = res.url;
+        }
+      } catch (err) {
+        console.error("Erro ao iniciar login social:", err);
+        popup.close();
+        setIsLoading(false);
+      }
+    }
   };
 
   return (
@@ -192,7 +255,7 @@ export default function SignInPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-4 h-[46px] rounded-[12px] bg-foreground text-background font-semibold text-sm hover:bg-foreground/90 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+              className="w-full mt-4 h-[46px] rounded-[12px] bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90 transition-all shadow-sm font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
             >
               {isLoading ? 'Autenticando...' : 'Entrar'}
             </button>

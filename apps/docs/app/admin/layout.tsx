@@ -1,17 +1,32 @@
 'use client';
 import '../global.old.css';
 import type { CSSProperties, ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { SidebarProvider, useSidebar } from '@xispedocs/ui/contexts/sidebar';
 import { PodcastSidebar } from '@/app/(home)/_components/podcast-dashboard/PodcastSidebar';
 import { PodcastHeader } from '@/app/(home)/_components/podcast-dashboard/PodcastHeader';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Toaster } from 'sonner';
 
 function GridLayout({ children }: { children: ReactNode }) {
   const { collapsed } = useSidebar();
   const pathname = usePathname();
+  const router = useRouter();
+  const [isOnboardingChecked, setIsOnboardingChecked] = useState(false);
+
+  useEffect(() => {
+    const hasCompletedOnboarding = localStorage.getItem('pca_onboarding_completed');
+    if (!hasCompletedOnboarding && !pathname.startsWith('/onboarding')) {
+      router.push('/onboarding');
+    } else {
+      setIsOnboardingChecked(true);
+    }
+  }, [pathname, router]);
+
   // Only strip sidebar/header for the project editors (has an ID segment after /estudio/ or /transcricoes/)
   const isEditorMode = /^\/admin\/(estudio|transcricoes)\/[^/]+/.test(pathname);
+
+  if (!isOnboardingChecked) return null;
 
   if (isEditorMode) {
     return (
@@ -45,6 +60,7 @@ function GridLayout({ children }: { children: ReactNode }) {
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider>
+      <Toaster richColors position="bottom-right" />
       <GridLayout>{children}</GridLayout>
     </SidebarProvider>
   );

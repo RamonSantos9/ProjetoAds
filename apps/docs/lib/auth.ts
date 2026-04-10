@@ -16,6 +16,8 @@ export const {
   ...authConfig,
   adapter: PrismaAdapter(prisma),
   session: { strategy: 'jwt' },
+  trustHost: true,
+  secret: process.env.AUTH_SECRET,
   providers: [
     GitHub({
       clientId: process.env.GITHUB_ID,
@@ -24,6 +26,13 @@ export const {
     Google({
       clientId: process.env.GOOGLE_ID,
       clientSecret: process.env.GOOGLE_SECRET,
+      authorization: {
+        params: {
+          prompt: "select_account",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
     CredentialsProvider({
       name: 'Credentials',
@@ -74,12 +83,22 @@ export const {
         role = 'ADMIN';
       }
 
-      // Atualiza a role no banco se necessário (especialmente para OAuth)
+      // Anexamos a role ao objeto user para que o adapter use no create/update
+      (user as any).role = role;
+
+      // Atualiza a role no banco apenas se o usuário já existir
       if (user.id) {
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { role: role as any },
-        });
+        try {
+          const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+          if (dbUser) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { role: role as any },
+            });
+          }
+        } catch (e) {
+          console.error("Erro ao atualizar role:", e);
+        }
       }
 
       return true;
@@ -89,8 +108,10 @@ export const {
         token.role = (user as any).role;
       }
       // Suporte para atualizacao de sessao
-      if (trigger === "update" && session?.role) {
-        token.role = session.role;
+      if (trigger === "update" && session) {
+        if (session.role) token.role = session.role;
+        if (session.name) token.name = session.name;
+        if (session.image) token.picture = session.image;
       }
       return token;
     },
@@ -98,6 +119,8 @@ export const {
       if (session.user) {
         (session.user as any).role = token.role;
         (session.user as any).id = token.sub;
+        if (token.name) session.user.name = token.name;
+        if (token.picture) session.user.image = token.picture;
       }
       return session;
     },

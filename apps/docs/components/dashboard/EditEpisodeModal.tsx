@@ -164,12 +164,18 @@ export function EditEpisodeModal({
       }
 
       const formData = new FormData();
+      formData.append('sourceType', sourceType);
+      
       if (sourceType === 'file' && audioFile) {
         formData.append('audio', audioFile);
       } else if (sourceType === 'file' && removeExistingAudio) {
         formData.append('removeAudio', 'true');
       } else if (sourceType === 'link') {
         formData.append('externalUrl', externalUrl);
+      }
+
+      if (imageFile) {
+        formData.append('image', imageFile);
       }
 
       formData.append('id', episode.id); // Send ID for update logic
@@ -185,14 +191,17 @@ export function EditEpisodeModal({
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Falha ao atualizar episódio');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Falha ao atualizar episódio');
+      }
 
       const result = await response.json();
       onSave?.(result.record);
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Falha ao atualizar episódio:', err);
-      alert('Erro ao atualizar dados.');
+      alert(err.message || 'Erro ao atualizar dados.');
     } finally {
       setLoading(false);
     }

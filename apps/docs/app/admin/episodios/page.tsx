@@ -3,16 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { HomeBadge } from '@/components/home/HomeBadge';
 import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
-import { ActionButton } from '@/components/ui/ActionButton';
+import { ContentToolbar } from '@/components/ui/ContentToolbar';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { ViewToggle } from '@/components/ui/ViewToggle';
-import { Search } from 'lucide-react';
+import { Search, Trash2 } from 'lucide-react';
 import { CreateEpisodeModal } from '@/components/dashboard/CreateEpisodeModal';
 import { EditEpisodeModal } from '@/components/dashboard/EditEpisodeModal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Badge } from '@/components/ui/Badge';
 import { Episode } from '@/lib/db';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 import {
   EpisodeCard,
@@ -30,7 +31,9 @@ export default function EpisodesDashboardPage() {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(null);
+  const [episodeToDelete, setEpisodeToDelete] = useState<Episode | null>(null);
 
   // Load real data from API
   useEffect(() => {
@@ -57,26 +60,9 @@ export default function EpisodesDashboardPage() {
   );
 
   const handleCreateSave = (data: any) => {
-    // If the data comes from the API result (it has an id)
     if (data.id || data.slug) {
       setEpisodes((prev) => [data, ...prev]);
-    } else {
-      // Fallback for manual local creation (rare now)
-      setEpisodes((prev) => [
-        {
-          id: Math.random().toString(36).substring(7),
-          ...data,
-          guests:
-            typeof data.guests === 'string'
-              ? data.guests.split(',').filter(Boolean)
-              : data.guests,
-          platforms:
-            typeof data.platforms === 'string'
-              ? data.platforms.split(',').filter(Boolean)
-              : data.platforms,
-        },
-        ...prev,
-      ]);
+      toast.success('Episódio criado com sucesso!');
     }
   };
 
@@ -84,6 +70,30 @@ export default function EpisodesDashboardPage() {
     setEpisodes((prev) =>
       prev.map((ep) => (ep.id === updated.id ? updated : ep)),
     );
+    toast.success('Episódio atualizado com sucesso!');
+  };
+
+  const handleDeleteClick = (ep: Episode) => {
+    setEpisodeToDelete(ep);
+    setIsConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!episodeToDelete) return;
+    try {
+      const res = await fetch(`/api/episodes/${episodeToDelete.id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Falha ao excluir episódio');
+      
+      setEpisodes((prev) => prev.filter((ep) => ep.id !== episodeToDelete.id));
+      setIsConfirmDeleteOpen(false);
+      setEpisodeToDelete(null);
+      toast.success('Episódio excluído com sucesso!');
+    } catch (error) {
+      console.error(error);
+      toast.error('Erro ao excluir episódio.');
+    }
   };
 
   return (
@@ -105,50 +115,25 @@ export default function EpisodesDashboardPage() {
             </h1>
 
             <div className="flex flex-col gap-4 flex-1 min-h-0">
-              {/* Toolbar */}
-              <header className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 w-full">
-                {/* Search */}
-                <div className="relative w-full max-w-[340px]">
-                  <input
-                    className="w-full bg-[#f6f8fa] dark:bg-[#1F2122] border rounded-lg pl-3 pr-9 py-2.5 text-sm font-semibold text-[#121217] dark:text-white placeholder:text-[#6F6F88] dark:placeholder:text-[#8A8AA3] focus:outline-none focus:border-fd-primary transition-colors"
-                    placeholder="Pesquisar episódios..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                  <svg
-                    className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none shrink-0"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="m11.336 11.334 2.667 2.667M2 7.333a5.333 5.333 0 1 0 10.667 0A5.333 5.333 0 0 0 2 7.333"
-                      stroke="#83899f"
-                      strokeWidth="1.333"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-
-                {/* Actions */}
-                <nav className="flex items-center gap-2 sm:gap-3 shrink-0 self-end sm:self-auto">
-                  <ViewToggle
-                    viewMode={viewMode}
-                    onViewModeChange={setViewMode}
-                    className="hidden sm:flex"
-                  />
-                  {isAdmin && (
-                    <ActionButton
-                      label="Novo Episódio"
+              <ContentToolbar
+                search={search}
+                onSearchChange={setSearch}
+                placeholder="Pesquisar episódios..."
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+                showViewToggle
+                action={
+                  isAdmin ? (
+                    <button
+                      type="button"
                       onClick={() => setIsCreateModalOpen(true)}
-                      className="rounded-xl px-4"
-                    />
-                  )}
-                </nav>
-              </header>
+                      className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium h-10 px-4 rounded-xl bg-black text-white dark:bg-white dark:text-black hover:bg-black/80 dark:hover:bg-white/80 transition-colors"
+                    >
+                      Novo Episódio
+                    </button>
+                  ) : undefined
+                }
+              />
 
               <hr className="w-full h-px bg-fd-border border-none opacity-50 hidden sm:block" />
 
@@ -163,11 +148,11 @@ export default function EpisodesDashboardPage() {
                           className="bg-background border border-[#E2E7F1] dark:border-[#2A2A38] rounded-2xl flex flex-col min-h-[280px] overflow-hidden"
                         >
                           <div className="p-[10px] flex flex-col gap-3 flex-1">
-                            <Skeleton className="w-full h-[140px] rounded-xl" />
+                            <Skeleton className="size-full rounded-xl h-[140px]" />
                             <Skeleton className="w-4/5 h-4 ml-1" />
                             <Skeleton className="w-2/3 h-3 ml-1" />
                           </div>
-                          <div className="flex justify-between items-center mt-auto p-3 bg-[#F9FAFB] dark:bg-[#1A1A24] border-t border-[#E2E7F1] dark:border-[#2A2A38]">
+                          <div className="flex justify-between items-center mt-auto p-3 bg-[#F9FAFB] dark:bg-[#121212] border-t border-[#E2E7F1] dark:border-[#2A2A38]">
                             <Skeleton className="w-16 h-6 rounded-full" />
                             <Skeleton className="w-8 h-8 rounded-lg" />
                           </div>
@@ -210,6 +195,7 @@ export default function EpisodesDashboardPage() {
                             setSelectedEpisode(ep);
                             setIsEditModalOpen(true);
                           }}
+                          onDelete={() => handleDeleteClick(ep)}
                         />
                       </li>
                     ))}
@@ -226,6 +212,7 @@ export default function EpisodesDashboardPage() {
                             setSelectedEpisode(ep);
                             setIsEditModalOpen(true);
                           }}
+                          onDelete={() => handleDeleteClick(ep)}
                         />
                       </li>
                     ))}
@@ -251,6 +238,19 @@ export default function EpisodesDashboardPage() {
         }}
         episode={selectedEpisode}
         onSave={handleEditSave}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmDeleteOpen}
+        title="Excluir Episódio"
+        description={`Tem certeza que deseja excluir o episódio "${episodeToDelete?.title}"? Esta ação não pode ser desfeita.`}
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          setIsConfirmDeleteOpen(false);
+          setEpisodeToDelete(null);
+        }}
       />
     </div>
   );

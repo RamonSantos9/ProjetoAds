@@ -32,6 +32,24 @@ function usePageTitle() {
   return PAGE_TITLES[pathname] || 'Início';
 }
 
+export function getAvatarColor(name: string) {
+  const colors = [
+    '#ef4444', '#f97316', '#f59e0b', '#10b981', '#06b6d4', 
+    '#3b82f6', '#6366f1', '#8b5cf6', '#d946ef', '#f43f5e'
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
+
+export function getInitials(name: string) {
+  const cleanName = name.trim();
+  if (!cleanName) return 'U';
+  return cleanName.charAt(0).toUpperCase();
+}
+
 export function PodcastHeader() {
   const { data: session } = useSession();
   const { collapsed, setCollapsed, setOpen } = useSidebar();
@@ -40,7 +58,8 @@ export function PodcastHeader() {
   const [isHovered, setIsHovered] = React.useState(false);
 
   const userName = session?.user?.name || 'Usuário';
-  const userImage = session?.user?.image || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop';
+  const hasUserImage = !!session?.user?.image;
+  const userImage = session?.user?.image || undefined;
 
   const totalCredits = 10000;
   const remainingCredits = 8634;
@@ -139,11 +158,20 @@ export function PodcastHeader() {
             transform: 'scale(0.65)',
           }}
         >
-          <img
-            alt={userName}
-            src={userImage}
-            className="rounded-full shrink-0 bg-gray-50 object-cover h-full w-full"
-          />
+          {hasUserImage ? (
+            <img
+              alt={userName}
+              src={userImage}
+              className="rounded-full shrink-0 bg-gray-50 object-cover h-full w-full"
+            />
+          ) : (
+            <div 
+              className="rounded-full shrink-0 flex items-center justify-center text-white h-full w-full font-bold select-none"
+              style={{ backgroundColor: getAvatarColor(userName), fontSize: '18px' }}
+            >
+              {getInitials(userName)}
+            </div>
+          )}
         </div>
       </div>
     </div>

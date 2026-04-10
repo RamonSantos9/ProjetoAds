@@ -95,7 +95,7 @@ export function Badge({
       'border-[#FECACA] dark:border-[#7f1d1d] text-[#DC2626] bg-[#FEF2F2] dark:bg-[#450a0a]/20',
     info: 'border-[#BFDBFE] dark:border-[#1e3a8a] text-[#2563EB] bg-[#EFF6FF] dark:bg-[#172554]/20',
     neutral:
-      'border-[#E2E7F1] dark:border-[#2A2A38] text-[#64748B] dark:text-[#8A8AA3] bg-[#F8FAFC] dark:bg-[#1A1A24]/50',
+      'border-[#E2E7F1] dark:border-[#2A2A38] text-[#64748B] dark:text-[#8A8AA3] bg-[#F8FAFC] dark:bg-[#121212]/50',
   };
 
   const defaultIcons = {

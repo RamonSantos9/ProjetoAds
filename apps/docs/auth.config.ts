@@ -27,10 +27,18 @@ export const authConfig: NextAuthConfig = {
       const path = nextUrl.pathname;
       const isProtectedRoute = path.startsWith('/admin') || path.startsWith('/app');
       const isAuthRoute = path.startsWith('/sign-in') || path.startsWith('/sign-up');
+      const isPopupCallback = path === '/auth/callback-popup';
 
+      if (isPopupCallback) return true;
       if (isProtectedRoute && !isLoggedIn) return false;
-      if (isAuthRoute && isLoggedIn) {
-        return Response.redirect(new URL('/admin/home', nextUrl));
+      
+      // Impedimos o redirecionamento se for a rota de popup, para permitir o fechamento
+      if (isAuthRoute && isLoggedIn && !isPopupCallback) {
+        const userRole = (auth.user as any)?.role;
+        const target = (userRole === 'ADMIN' || userRole === 'PROFESSOR' || userRole === 'ALUNO') 
+          ? '/admin/home' 
+          : '/dashboard/home';
+        return Response.redirect(new URL(target, nextUrl));
       }
       return true;
     },

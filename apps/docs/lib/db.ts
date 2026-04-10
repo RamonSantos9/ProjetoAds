@@ -107,6 +107,7 @@ export interface Episode {
   tracks?: TimelineTrack[];
   assets?: UploadedFile[];
   sharingConfig?: SharingConfig;
+  ownerName?: string;
 }
 
 export interface StudioProject {
@@ -169,13 +170,17 @@ function mapEpisode(ep: any): Episode {
     assets: ((ep as any).assets as UploadedFile[]) || [],
     sharingConfig: ((ep as any).sharingConfig as SharingConfig) || undefined,
     guests: ep.guests?.map((g: any) => g.guest) || [],
+    ownerName: ep.owner?.name || undefined,
   };
 }
 
 // ------ READ FULL DB (Mocking legacy behavior) ------ //
 export async function readDb(): Promise<DbSchema> {
   const episodesData = await prisma.episode.findMany({
-    include: { guests: { include: { guest: true } } },
+    include: { 
+      guests: { include: { guest: true } },
+      owner: { select: { name: true } }
+    },
     orderBy: { createdAt: 'desc' },
   });
   
@@ -211,60 +216,126 @@ export async function readDb(): Promise<DbSchema> {
 
 export async function addEpisode(record: Episode, userId: string) {
   const { guests, platforms, segments, tracks, assets, sharingConfig, createdAt, ownerId, ...rest } = record;
+  const id = record.id || `ep_${Math.random().toString(36).substring(2, 11)}`;
+  const now = new Date().toISOString();
   
-  await prisma.episode.create({
-    data: {
-      ...rest,
-      status: rest.status,
-      category: rest.category,
-      createdAt: createdAt ? new Date(createdAt) : undefined,
-      // Pass arrays directly to Postgres JSON columns
-      platforms: platforms || [],
-      segments: (segments as any) || [],
-      tracks: (tracks as any) || [],
-      assets: (assets as any) || [],
-      sharingConfig: (sharingConfig as any) || {},
-      ownerId: userId,
-      guests: {
-        create: guests?.map(g => ({
-          guest: {
-            connectOrCreate: {
-              where: { id: g.id },
-              create: { ...g, ownerId: userId }
-            }
-          }
-        })) || []
+  // 1. Inserir o Episódio
+  await prisma.$executeRaw`
+    INSERT INTO "Episode" (
+      "id", "slug", "title", "summary", "category", "status", "duration", 
+      "createdAt", "updatedAt", "audioUrl", "externalUrl", "transcriptionText",
+      "language", "confidence", "image", "platforms", "segments", "tracks",
+      "sharingConfig", "assets", "ownerId"
+    ) VALUES (
+      ${id}, 
+      ${rest.slug}, 
+      ${rest.title}, 
+      ${rest.summary}, 
+      ${rest.category}, 
+      ${rest.status}, 
+      ${rest.duration}, 
+      ${createdAt ? new Date(createdAt).toISOString() : now}::timestamp,
+      ${now}::timestamp,
+      ${rest.audioUrl || null},
+      ${rest.externalUrl || null},
+      ${rest.transcriptionText || null},
+      ${rest.language || null},
+      ${rest.confidence || null},
+      ${rest.image || null},
+      ${platforms ? JSON.stringify(platforms) : null}::jsonb,
+      ${segments ? JSON.stringify(segments) : null}::jsonb,
+      ${tracks ? JSON.stringify(tracks) : null}::jsonb,
+      ${sharingConfig ? JSON.stringify(sharingConfig) : null}::jsonb,
+      ${assets ? JSON.stringify(assets) : null}::jsonb,
+      ${userId}
+    )
+  `;
+
+  // 2. Lidar com Convidados (Simplificado: Assume que o Guest já existe ou é criado separadamente)
+  if (guests && guests.length > 0) {
+    for (const g of guests) {
+      try {
+        // Tenta garantir que o Guest existe (Raw)
+        await prisma.$executeRaw`
+          INSERT INTO "Guest" ("id", "name", "ownerId", "createdAt")
+          VALUES (${g.id}, ${g.name}, ${userId}, ${now}::timestamp)
+          ON CONFLICT (id) DO NOTHING
+        `;
+        
+        // Cria a relação na tabela de junção
+        await prisma.$executeRaw`
+          INSERT INTO "EpisodeGuest" ("episodeId", "guestId")
+          VALUES (${id}, ${g.id})
+          ON CONFLICT DO NOTHING
+        `;
+      } catch (e) {
+        console.error('Erro ao vincular convidado via SQL:', e);
       }
     }
-  });
+  }
 }
 
 export async function updateEpisode(id: string, updates: Partial<Episode>, userId: string) {
   const { guests, platforms, segments, tracks, assets, sharingConfig, createdAt, ownerId, ...rest } = updates;
+  const now = new Date().toISOString();
   
-  // Security check: Verify ownership if not an admin (Admin check can be added here)
-  const existing = await prisma.episode.findUnique({ where: { id } });
-  if (existing && existing.ownerId && existing.ownerId !== userId) {
-    throw new Error("Não autorizado: Você não é o proprietário deste episódio.");
+  // Security check: Verify ownership
+  const existingRecords = await prisma.$queryRaw<any[]>`SELECT "ownerId" FROM "Episode" WHERE id = ${id}`;
+  if (existingRecords.length > 0) {
+    const recordOwnerId = existingRecords[0].ownerId;
+    if (recordOwnerId && recordOwnerId !== userId) {
+      throw new Error("Não autorizado: Você não é o proprietário deste episódio.");
+    }
   }
 
-  await prisma.episode.update({
-    where: { id },
-    data: {
-      ...rest,
-      platforms,
-      segments: segments as any,
-      tracks: tracks as any,
-      assets: assets as any,
-      sharingConfig: sharingConfig as any,
-    },
-  });
+  // Update Individual Fields safely
+  if (rest.title !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "title" = ${rest.title} WHERE id = ${id}`;
+  if (rest.summary !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "summary" = ${rest.summary} WHERE id = ${id}`;
+  if (rest.category !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "category" = ${rest.category} WHERE id = ${id}`;
+  if (rest.status !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "status" = ${rest.status} WHERE id = ${id}`;
+  if (rest.duration !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "duration" = ${rest.duration} WHERE id = ${id}`;
+  if (rest.image !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "image" = ${rest.image} WHERE id = ${id}`;
+  if (rest.audioUrl !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "audioUrl" = ${rest.audioUrl} WHERE id = ${id}`;
+  if (rest.externalUrl !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "externalUrl" = ${rest.externalUrl} WHERE id = ${id}`;
+  if (rest.transcriptionText !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "transcriptionText" = ${rest.transcriptionText} WHERE id = ${id}`;
+  
+  // Update JSON Fields
+  if (platforms !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "platforms" = ${JSON.stringify(platforms)}::jsonb WHERE id = ${id}`;
+  if (segments !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "segments" = ${JSON.stringify(segments)}::jsonb WHERE id = ${id}`;
+  if (tracks !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "tracks" = ${JSON.stringify(tracks)}::jsonb WHERE id = ${id}`;
+  if (sharingConfig !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "sharingConfig" = ${JSON.stringify(sharingConfig)}::jsonb WHERE id = ${id}`;
+  if (assets !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "assets" = ${JSON.stringify(assets)}::jsonb WHERE id = ${id}`;
+
+  // Update Timestamp
+  await prisma.$executeRaw`UPDATE "Episode" SET "updatedAt" = ${now}::timestamp WHERE id = ${id}`;
+
+  // Update Guests if provided
+  if (guests !== undefined) {
+    await prisma.$executeRaw`DELETE FROM "EpisodeGuest" WHERE "episodeId" = ${id}`;
+    if (guests && guests.length > 0) {
+      for (const g of guests) {
+        await prisma.$executeRaw`
+          INSERT INTO "Guest" ("id", "name", "ownerId", "createdAt")
+          VALUES (${g.id}, ${g.name}, ${userId}, ${now}::timestamp)
+          ON CONFLICT (id) DO NOTHING
+        `;
+        await prisma.$executeRaw`
+          INSERT INTO "EpisodeGuest" ("episodeId", "guestId")
+          VALUES (${id}, ${g.id})
+          ON CONFLICT DO NOTHING
+        `;
+      }
+    }
+  }
 }
 
 export async function getEpisodeBySlug(slug: string): Promise<Episode | null> {
   const ep = await prisma.episode.findUnique({
     where: { slug },
-    include: { guests: { include: { guest: true } } }
+    include: { 
+      guests: { include: { guest: true } },
+      owner: { select: { name: true } }
+    }
   });
   return ep ? mapEpisode(ep) : null;
 }
@@ -272,9 +343,28 @@ export async function getEpisodeBySlug(slug: string): Promise<Episode | null> {
 export async function getEpisodeById(id: string): Promise<Episode | null> {
   const ep = await prisma.episode.findUnique({
     where: { id },
-    include: { guests: { include: { guest: true } } }
+    include: { 
+      guests: { include: { guest: true } },
+      owner: { select: { name: true } }
+    }
   });
   return ep ? mapEpisode(ep) : null;
+}
+
+export async function deleteEpisode(id: string, userId: string) {
+  // Security check: Verify ownership
+  const existing = await prisma.$queryRaw<any[]>`SELECT "ownerId" FROM "Episode" WHERE id = ${id}`;
+  if (existing.length > 0 && existing[0].ownerId && existing[0].ownerId !== userId) {
+    throw new Error("Não autorizado: Você não é o proprietário deste episódio.");
+  }
+
+  // Delete relations first (though Cascade should handle most, raw SQL is safer here)
+  await prisma.$executeRaw`DELETE FROM "EpisodeGuest" WHERE "episodeId" = ${id}`;
+  await prisma.$executeRaw`DELETE FROM "PlayEvent" WHERE "episodeId" = ${id}`;
+  await prisma.$executeRaw`DELETE FROM "VisualAsset" WHERE "episodeId" = ${id}`;
+  
+  // Delete the episode
+  await prisma.$executeRaw`DELETE FROM "Episode" WHERE id = ${id}`;
 }
 
 // ------ STUDIO PROJECT CRUD ------ //
@@ -448,12 +538,13 @@ export async function deleteVisualAsset(id: string, userId: string, role: string
 }
 
 export async function recordPlayEvent(event: Omit<PlayEvent, 'id' | 'createdAt'>) {
-  await prisma.playEvent.create({
-    data: {
-      episodeId: event.episodeId,
-      device: event.device,
-    }
-  });
+  const id = `evt_${Math.random().toString(36).substring(2, 11)}`;
+  const now = new Date().toISOString();
+  
+  await prisma.$executeRaw`
+    INSERT INTO "PlayEvent" ("id", "episodeId", "device", "createdAt")
+    VALUES (${id}, ${event.episodeId}, ${event.device}, ${now}::timestamp)
+  `;
 }
 
 export async function getPlayEvents(): Promise<PlayEvent[]> {

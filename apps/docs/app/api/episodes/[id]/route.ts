@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEpisodeById, getEpisodeBySlug, updateEpisode } from '@/lib/db';
+import { getEpisodeById, getEpisodeBySlug, updateEpisode, deleteEpisode } from '@/lib/db';
 import { auth } from '@/lib/auth';
 
 export async function GET(
@@ -55,6 +55,25 @@ export async function PATCH(
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
+  try {
+    const { id } = await params;
+    await deleteEpisode(id, session.user.id);
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('[API Delete Episode] Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

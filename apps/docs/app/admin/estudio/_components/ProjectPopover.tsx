@@ -50,7 +50,7 @@ export function ProjectPopover({
     <div
       ref={popoverRef}
       className={cn(
-        'fixed z-50 min-w-[7rem] p-0.5 bg-white dark:bg-[#1A1A24] text-foreground shadow-sm rounded-lg border border-[#E2E7F1] dark:border-[#2A2A38] animate-in fade-in-0 zoom-in-95 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-100',
+        'fixed z-50 min-w-[7rem] p-0.5 bg-white dark:bg-[#121212] text-foreground shadow-sm rounded-lg border border-[#E2E7F1] dark:border-[#2A2A38] animate-in fade-in-0 zoom-in-95 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-100',
       )}
       style={{
         top: position.top,

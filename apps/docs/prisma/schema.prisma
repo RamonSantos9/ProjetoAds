@@ -29,13 +29,22 @@ model User {
   role          UserRole  @default(USUARIO)
   accounts      Account[]
   sessions      Session[]
-  
+
   // Relações de Propriedade (Ownership)
   episodes      Episode[]
   guests        Guest[]
   projects      StudioProject[]
   visualAssets  VisualAsset[]
   feedbacks     Feedback[]
+
+  // Onboarding
+  academicRole           String?   // "Aluno", "Professor / Docente", etc.
+  sourceChannel          String?   // "Sala de aula", "Instagram", "Google", etc.
+  joinedGlobalWorkspace  Boolean   @default(false)
+  hasIndividualWorkspace Boolean   @default(false)
+  acceptedTerms          Boolean   @default(false)
+  wantsUpdates           Boolean   @default(false)
+  onboardingCompletedAt  DateTime?
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

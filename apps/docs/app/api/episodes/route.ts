@@ -16,7 +16,10 @@ export async function GET() {
   try {
     const episodes = await prisma.episode.findMany({
       where: isElevated ? {} : { ownerId: userId },
-      include: { guests: { include: { guest: true } } },
+      include: { 
+        guests: { include: { guest: true } },
+        owner: { select: { name: true } }
+      },
       orderBy: { createdAt: 'desc' },
     });
     

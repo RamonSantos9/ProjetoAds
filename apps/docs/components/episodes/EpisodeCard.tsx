@@ -42,10 +42,36 @@ const EpisodePlaceholderIcon = ({ color }: { color: string }) => (
   </svg>
 );
 
+const TrashIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+      stroke="#6F6F88"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M10 11v6m4-6v6"
+      stroke="#6F6F88"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 interface EpisodeCardProps {
   episode: Episode;
   href: string;
   onEdit?: () => void;
+  onDelete?: () => void;
   isAdmin?: boolean;
   className?: string;
 }
@@ -54,6 +80,7 @@ export function EpisodeCard({
   episode,
   href,
   onEdit,
+  onDelete,
   isAdmin,
   className,
 }: EpisodeCardProps) {
@@ -102,9 +129,7 @@ export function EpisodeCard({
                 Criado por:
               </span>
               <span className="text-[11px] text-[#6F6F88] dark:text-[#8A8AA3] truncate flex-1 min-w-0">
-                {episode.guests
-                  ?.map((g: any) => (typeof g === 'object' ? g.name : g))
-                  .join(', ')}
+                {episode.ownerName || 'Sistema'}
               </span>
             </div>
           </div>
@@ -125,19 +150,34 @@ export function EpisodeCard({
               </span>
             </div>
 
-            {isAdmin && onEdit && (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onEdit();
-                }}
-                className="p-2 cursor-pointer hover:text-fd-primary transition-colors"
-                aria-label={`Editar episódio ${episode.title}`}
-              >
-                <EditIcon />
-              </button>
-            )}
+            <div className="flex items-center gap-1">
+              {isAdmin && onEdit && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onEdit();
+                  }}
+                  className="p-2 cursor-pointer hover:text-fd-primary transition-colors"
+                  aria-label={`Editar episódio ${episode.title}`}
+                >
+                  <EditIcon />
+                </button>
+              )}
+              {isAdmin && onDelete && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onDelete();
+                  }}
+                  className="p-2 cursor-pointer hover:text-red-500 transition-colors"
+                  aria-label={`Deletar episódio ${episode.title}`}
+                >
+                  <TrashIcon />
+                </button>
+              )}
+            </div>
           </footer>
         </Link>
       </div>
@@ -149,15 +189,16 @@ export function EpisodeListItem({
   episode,
   href,
   onEdit,
+  onDelete,
   isAdmin,
 }: EpisodeCardProps) {
   return (
-    <li className="list-none w-full">
+    <div className="w-full">
       <Link
         href={href}
         className="flex items-center w-full rounded-xl border border-[#E2E7F1] dark:border-[#2A2A38] p-3 gap-4 cursor-pointer hover:bg-[#F6F8FA] dark:hover:bg-[#1A1A24] transition-colors bg-[#FFFFFF] dark:bg-[#121217] group"
       >
-        <div className="size-12 rounded-lg bg-[#F6F8FA] dark:bg-[#1A1A24] flex items-center justify-center shrink-0 overflow-hidden relative shadow-sm">
+        <div className="size-12 rounded-lg bg-[#F6F8FA] dark:bg-[#121212] flex items-center justify-center shrink-0 overflow-hidden relative shadow-sm">
           {episode.image ? (
             <img
               src={episode.image}
@@ -181,16 +222,14 @@ export function EpisodeListItem({
               : episode.title}
           </h3>
           <div className="flex gap-3 items-center text-[10px] text-[#6F6F88] dark:text-[#8A8AA3] font-medium tracking-tight">
-            <span className="bg-[#F6F8FA] dark:bg-[#1A1A24] border border-[#E2E7F1] dark:border-[#2A2A38] px-1.5 py-0.5 rounded-md uppercase shrink-0">
+            <span className="bg-[#F6F8FA] dark:bg-[#121212] border border-[#E2E7F1] dark:border-[#2A2A38] px-1.5 py-0.5 rounded-md uppercase shrink-0">
               {episode.category || 'Geral'}
             </span>
             <span className="flex items-center gap-1 font-bold shrink-0">
               {episode.duration}
             </span>
             <span className="truncate flex-1 min-w-0">
-              {episode.guests
-                ?.map((g: any) => (typeof g === 'object' ? g.name : g))
-                .join(', ')}
+              Criado por: {episode.ownerName || 'Sistema'}
             </span>
           </div>
         </div>
@@ -202,19 +241,33 @@ export function EpisodeListItem({
           {episode.status}
         </Badge>
 
-        {isAdmin && onEdit && (
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onEdit();
-            }}
-            className="p-1.5 rounded-lg text-[#8A8AA3] hover:bg-[#E2E7F1]/50 hover:text-fd-primary transition-all cursor-pointer border border-[#E2E7F1]/50 ml-2"
-          >
-            <EditIcon />
-          </button>
-        )}
+        <div className="flex items-center gap-1 shrink-0 ml-2">
+          {isAdmin && onEdit && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onEdit();
+              }}
+              className="p-1.5 rounded-lg text-[#8A8AA3] hover:bg-[#E2E7F1]/50 hover:text-fd-primary transition-all cursor-pointer border border-[#E2E7F1]/50"
+            >
+              <EditIcon />
+            </button>
+          )}
+          {isAdmin && onDelete && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete();
+              }}
+              className="p-1.5 rounded-lg text-[#8A8AA3] hover:bg-red-100/50 hover:text-red-500 transition-all cursor-pointer border border-[#E2E7F1]/50"
+            >
+              <TrashIcon />
+            </button>
+          )}
+        </div>
       </Link>
-    </li>
+    </div>
   );
 }

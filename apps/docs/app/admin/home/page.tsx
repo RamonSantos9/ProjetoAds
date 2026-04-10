@@ -1443,11 +1443,13 @@ export default function AppHomePage() {
 
                         const handlePlay = (e: React.MouseEvent) => {
                           e.stopPropagation();
+                          if (!ep.audioUrl) {
+                            alert('Este episódio ainda não possui um arquivo de áudio carregado ou baixado.');
+                            return;
+                          }
                           playTrack({
                             ...displayVoice,
-                            url:
-                              ep.audioUrl ||
-                              'https://storage.googleapis.com/eleven-public-prod/database/workspace/9ffd9eb76f364648abbfb2c74b299b4a/voices/goT3UYdM9bhm0n2lmKQx/8e1e53b7-9320-4bab-acf2-86d7e77d1b8b.mp3',
+                            url: ep.audioUrl,
                           });
                         };
 

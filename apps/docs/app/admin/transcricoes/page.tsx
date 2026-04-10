@@ -110,7 +110,7 @@ export default function TranscricoesAdminPage() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-          <button className="group relative flex flex-col md:flex-row md:items-center gap-3 p-3 bg-[#FFFFFF] dark:bg-[#1A1A24] border border-[#E2E7F1] dark:border-[#2A2A38] rounded-xl text-left transition-all hover:border-gray-200 dark:hover:border-gray-700 hover:-translate-y-px">
+          <button className="group relative flex flex-col md:flex-row md:items-center gap-3 p-3 bg-[#FFFFFF] dark:bg-[#121212] border border-[#E2E7F1] dark:border-[#2A2A38] rounded-xl text-left transition-all hover:border-gray-200 dark:hover:border-gray-700 hover:-translate-y-px">
             <div className="flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-blue-500 relative overflow-hidden">
                <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-600 opacity-80" />
                <Plus className="relative z-10 size-4 text-white" />
@@ -121,7 +121,7 @@ export default function TranscricoesAdminPage() {
             </div>
           </button>
 
-          <button className="group relative flex flex-col md:flex-row md:items-center gap-3 p-3 bg-[#FFFFFF] dark:bg-[#1A1A24] border border-[#E2E7F1] dark:border-[#2A2A38] rounded-xl text-left transition-all hover:border-gray-200 dark:hover:border-gray-700 hover:-translate-y-px">
+          <button className="group relative flex flex-col md:flex-row md:items-center gap-3 p-3 bg-[#FFFFFF] dark:bg-[#121212] border border-[#E2E7F1] dark:border-[#2A2A38] rounded-xl text-left transition-all hover:border-gray-200 dark:hover:border-gray-700 hover:-translate-y-px">
             <div className="flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-pink-500 relative overflow-hidden">
                <div className="absolute inset-0 bg-gradient-to-br from-pink-400 to-pink-600 opacity-80" />
                <Upload className="relative z-10 size-4 text-white" />
@@ -182,7 +182,7 @@ export default function TranscricoesAdminPage() {
                     onClick={() => router.push(`/admin/transcricoes/${script.id}`)}
                   >
                     <div className="flex w-full flex-col group">
-                      <div className="relative flex w-full flex-col rounded-2xl transition-all duration-150 border border-[#E2E7F1] dark:border-[#2A2A38] hover:border-black/20 dark:hover:border-white/20 bg-white dark:bg-[#1A1A24]">
+                      <div className="relative flex w-full flex-col rounded-2xl transition-all duration-150 border border-[#E2E7F1] dark:border-[#2A2A38] hover:border-black/20 dark:hover:border-white/20 bg-white dark:bg-[#121212]">
                         <div className="flex transition-all duration-100 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100 md:[&:has([data-state='open'])]:opacity-100 items-center justify-end gap-1.5 absolute top-3 right-3 z-20">
                           <div className="flex items-center gap-1">
                             <button 
@@ -193,7 +193,7 @@ export default function TranscricoesAdminPage() {
                                 e.stopPropagation();
                                 handleOpenDetails(script);
                               }}
-                              className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium focus-ring disabled:pointer-events-auto border border-[#E2E7F1] dark:border-[#2A2A38] shadow-none disabled:bg-background rounded-[10px] center p-0 h-9 w-9 text-gray-500 dark:text-gray-400 bg-white dark:bg-[#1A1A24] transition-colors duration-75 hover:bg-gray-50 dark:hover:bg-white/5"
+                              className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium focus-ring disabled:pointer-events-auto border border-[#E2E7F1] dark:border-[#2A2A38] shadow-none disabled:bg-background rounded-[10px] center p-0 h-9 w-9 text-gray-500 dark:text-gray-400 bg-white dark:bg-[#121212] transition-colors duration-75 hover:bg-gray-50 dark:hover:bg-white/5"
                             >
                               <Info className="shrink-0 w-[18px] h-[18px]" />
                             </button>
@@ -206,7 +206,7 @@ export default function TranscricoesAdminPage() {
                                     e.preventDefault();
                                     e.stopPropagation();
                                   }}
-                                  className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium focus-ring disabled:pointer-events-auto border border-[#E2E7F1] dark:border-[#2A2A38] shadow-none disabled:bg-background rounded-[10px] center p-0 h-9 w-9 text-gray-500 dark:text-gray-400 bg-white dark:bg-[#1A1A24] transition-colors duration-75 hover:bg-gray-50 dark:hover:bg-white/5"
+                                  className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium focus-ring disabled:pointer-events-auto border border-[#E2E7F1] dark:border-[#2A2A38] shadow-none disabled:bg-background rounded-[10px] center p-0 h-9 w-9 text-gray-500 dark:text-gray-400 bg-white dark:bg-[#121212] transition-colors duration-75 hover:bg-gray-50 dark:hover:bg-white/5"
                                 >
                                   <Ellipsis className="shrink-0 w-[18px] h-[18px]" />
                                 </button>
@@ -216,7 +216,7 @@ export default function TranscricoesAdminPage() {
                                 <DropdownMenu.Content 
                                   align="end" 
                                   sideOffset={5}
-                                  className="z-50 bg-white dark:bg-[#1A1A24] text-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-1 data-[side=left]:slide-in-from-right-1 data-[side=right]:slide-in-from-left-1 data-[side=top]:slide-in-from-bottom-1 p-1 rounded-[10px] min-w-[8rem] flex flex-col outline-none border border-[#E2E7F1] dark:border-[#2A2A38] shadow-lg"
+                                  className="z-50 bg-white dark:bg-[#121212] text-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-1 data-[side=left]:slide-in-from-right-1 data-[side=right]:slide-in-from-left-1 data-[side=top]:slide-in-from-bottom-1 p-1 rounded-[10px] min-w-[8rem] flex flex-col outline-none border border-[#E2E7F1] dark:border-[#2A2A38] shadow-lg"
                                 >
                                   <DropdownMenu.Item onSelect={() => handleOpenDetails(script)} className="relative transition-colors focus:text-foreground w-full data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer select-none outline-none hover:bg-gray-100 dark:hover:bg-white/10 focus:bg-gray-100 dark:focus:bg-white/10 data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-white/10 px-2 py-1.5 text-sm rounded-lg inline-flex justify-between items-center gap-2">
                                     <div className="flex items-center gap-2">

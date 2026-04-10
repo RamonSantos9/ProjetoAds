@@ -196,7 +196,10 @@ export function CreateEpisodeModal({
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Falha ao criar episódio');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Falha ao criar episódio');
+      }
 
       const result = await response.json();
       onSave?.({
@@ -217,9 +220,9 @@ export function CreateEpisodeModal({
         transcriptionText: result.record.transcriptionText,
       });
       handleClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Falha ao processar episódio:', err);
-      alert('Erro ao criar dados.');
+      alert(err.message || 'Erro ao criar dados.');
     } finally {
       setLoading(false);
     }

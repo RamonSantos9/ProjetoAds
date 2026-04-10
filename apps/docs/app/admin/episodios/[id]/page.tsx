@@ -101,7 +101,7 @@ export default function EpisodeDetailPage() {
   const fetchEpisode = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/episodes/id/${id}`);
+      const res = await fetch(`/api/episodes/${id}`);
       if (!res.ok) throw new Error('Episode not found');
       const data = await res.json();
       setEpisode(data);

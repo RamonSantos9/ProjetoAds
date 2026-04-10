@@ -190,7 +190,7 @@ export function TranscriptionSidebar({
               {/* EDIT TAB CONTENT */}
               {activeTab === 'edit' && (
                 <div className="flex flex-col h-full w-full px-3.5 animate-in fade-in duration-300">
-                  <div className="flex items-center justify-between px-3.5 h-11 shrink-0 -mx-3.5 sticky top-0 z-30 bg-white/80 dark:bg-[#1A1A24]/80 backdrop-blur-xl border-b border-[#E2E7F1] dark:border-[#2A2A38]">
+                  <div className="flex items-center justify-between px-3.5 h-11 shrink-0 -mx-3.5 sticky top-0 z-30 bg-white/80 dark:bg-[#121212]/80 backdrop-blur-xl border-b border-[#E2E7F1] dark:border-[#2A2A38]">
                     <div className="flex items-center gap-1 w-full min-w-0 font-medium text-xm">Editar Transcrição</div>
                   </div>
                   

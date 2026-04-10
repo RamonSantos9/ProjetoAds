@@ -6,6 +6,7 @@ import { cn } from '@xispedocs/ui/utils/cn';
 import { ChevronRight, ArrowLeftRight, LogOut, Check } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
+import { getAvatarColor, getInitials } from './PodcastHeader';
 
 function ThemeMenuItem() {
   const [open, setOpen] = React.useState(false);
@@ -99,7 +100,9 @@ export function PodcastUserMenu({
     'USUARIO': 'Usuário'
   }[userRole as string] || 'Usuário';
 
-  const avatarUrl = user?.image || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop';
+  const userName = user?.name || 'Usuário';
+  const hasUserImage = !!user?.image;
+  const userImage = user?.image || undefined;
 
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={onOpenChange}>
@@ -124,107 +127,22 @@ export function PodcastUserMenu({
             {/* User Profile Summary */}
             <div className="p-3 border-b border-gray-alpha-150">
               <div className="hstack gap-3 items-center">
-                <img src={avatarUrl} alt={user?.name || ''} className="w-10 h-10 rounded-full border border-gray-alpha-200" />
+                <div className="w-10 h-10 shrink-0 relative">
+                  {hasUserImage ? (
+                    <img src={userImage} alt={userName} className="w-10 h-10 rounded-full border border-gray-alpha-200 object-cover" />
+                  ) : (
+                    <div 
+                      className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold select-none border border-gray-alpha-200"
+                      style={{ backgroundColor: getAvatarColor(userName), fontSize: '18px' }}
+                    >
+                      {getInitials(userName)}
+                    </div>
+                  )}
+                </div>
                 <div className="stack gap-0.5 overflow-hidden">
                   <p className="text-sm font-semibold truncate text-foreground">{user?.name || 'Carregando...'}</p>
                   <div className="hstack items-center gap-1.5">
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-fd-primary/10 text-fd-primary border border-fd-primary/20">
-                      {roleLabel}
-                    </span>
                     <p className="text-[11px] text-subtle truncate">{user?.email}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Balance Section */}
-            <div
-              className="p-1 pb-0 bg-gray-alpha-50 dark:bg-transparent"
-              style={{ opacity: 1 }}
-            >
-              <div className="w-full text-sm stack gap-3.5 p-2.5 px-3 bg-background dark:bg-gray-alpha-100 shadow-natural-xs rounded-lg">
-                <div className="hstack justify-between text-gray-alpha-500">
-                  <div className="hstack items-center">
-                    <div>
-                      <div className="flex relative" style={{ opacity: 1 }}>
-                        <div
-                          className="absolute [transform:rotate(18deg)] css-o6x0z7"
-                          aria-valuemax={100}
-                          aria-valuemin={0}
-                          aria-valuenow={9}
-                          role="progressbar"
-                        >
-                          <svg viewBox="0 0 100 100" className="css-r94w0k">
-                            <circle
-                              cx="50"
-                              cy="50"
-                              r="42"
-                              strokeWidth="10px"
-                              className="chakra-progress__track css-nj4szp"
-                            ></circle>
-                            <circle
-                              cx="50"
-                              cy="50"
-                              r="42"
-                              strokeWidth="10px"
-                              className="chakra-progress__indicator css-1xtv0dr stroke-foreground dark:stroke-white"
-                              strokeLinecap="round"
-                              strokeDashoffset="66"
-                              strokeDasharray="23.76 240.24"
-                            ></circle>
-                          </svg>
-                        </div>
-                        <div
-                          className="!absolute left-0 top-0 [transform:rotateY(180deg)] css-o6x0z7"
-                          aria-valuemax={100}
-                          aria-valuemin={0}
-                          aria-valuenow={81}
-                          role="progressbar"
-                        >
-                          <svg viewBox="0 0 100 100" className="css-r94w0k">
-                            <circle
-                              cx="50"
-                              cy="50"
-                              r="42"
-                              strokeWidth="10px"
-                              className="chakra-progress__track css-nj4szp"
-                            ></circle>
-                            <circle
-                              cx="50"
-                              cy="50"
-                              r="42"
-                              strokeWidth="10px"
-                              className="chakra-progress__indicator css-i93dgl"
-                              strokeLinecap="round"
-                              strokeDashoffset="66"
-                              strokeDasharray="213.84 50.16"
-                            ></circle>
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-foreground font-medium ml-1.5">
-                      Saldo
-                    </div>
-                  </div>
-                  <div>
-                    <button className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-foreground text-background shadow-none hover:bg-gray-800 px-1.5 rounded-md h-6 text-xs">
-                      Fazer Upgrade
-                    </button>
-                  </div>
-                </div>
-                <div className="hstack text-xm items-center gap-2.5">
-                  <div className="stack gap-0.5 flex-grow">
-                    <div className="hstack justify-between">
-                      <div className="text-subtle">Total</div>
-                      <div className="tabular-nums font-medium">
-                        10.000 créditos
-                      </div>
-                    </div>
-                    <div className="hstack justify-between">
-                      <div className="text-subtle">Restante</div>
-                      <div className="tabular-nums font-medium">8.634</div>
-                    </div>
                   </div>
                 </div>
               </div>
