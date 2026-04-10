@@ -26,11 +26,15 @@ export async function GET(request: Request) {
 
     const podcastTitle = "Podcast Ads - Serra Dourada";
     const podcastDescription = "O canal oficial de conteúdos acadêmicos e entrevistas exclusivas sobre o universo da tecnologia, empreendedorismo e inovação. Desenvolvido pelo curso de Análise e Desenvolvimento de Sistemas da Faculdade Serra Dourada.";
+    const podcastEmail = "contato@serradourada.edu.br";
+    const podcastAuthor = "Faculdade Serra Dourada";
     
     // Logo (pode ser enviada à pasta public da aplicação)
     const podcastImage = `${domain}/logo-podcast.png`; 
 
     let rssItems = '';
+
+    console.log(`[RSS Feed] Found ${episodes.length} published episodes.`);
 
     episodes.forEach((ep) => {
       // Filtrar caso exista strings vazias no banco que passaram pelo `not: null`
@@ -55,12 +59,13 @@ export async function GET(request: Request) {
       <link>${domain}/dashboard/detalhes/${ep.id}</link>
       <guid isPermaLink="false">${guid}</guid>
       <pubDate>${pubDate}</pubDate>
-      <enclosure url="${audioLink}" type="audio/mpeg" />
+      <enclosure url="${audioLink}" length="0" type="audio/mpeg" />
       <itunes:subtitle><![CDATA[${rawSummary}]]></itunes:subtitle>
       <itunes:summary><![CDATA[${rawSummary}]]></itunes:summary>
-      <itunes:author><![CDATA[Faculdade Serra Dourada]]></itunes:author>
+      <itunes:author><![CDATA[${podcastAuthor}]]></itunes:author>
       <itunes:explicit>no</itunes:explicit>
       <itunes:duration>${ep.duration}</itunes:duration>
+      <itunes:image href="${podcastImage}" />
     </item>`;
     });
 
@@ -72,13 +77,16 @@ export async function GET(request: Request) {
     <title>${podcastTitle}</title>
     <link>${domain}</link>
     <language>pt-BR</language>
-    <copyright>&#169; ${new Date().getFullYear()} Faculdade Serra Dourada</copyright>
-    <itunes:author>Faculdade Serra Dourada</itunes:author>
+    <copyright>&#169; ${new Date().getFullYear()} ${podcastAuthor}</copyright>
+    <itunes:author>${podcastAuthor}</itunes:author>
     <description>${podcastDescription}</description>
+    <managingEditor>${podcastEmail} (${podcastAuthor})</managingEditor>
+    <webMaster>${podcastEmail} (${podcastAuthor})</webMaster>
     <itunes:type>episodic</itunes:type>
+    <itunes:explicit>no</itunes:explicit>
     <itunes:owner>
-      <itunes:name>Faculdade Serra Dourada</itunes:name>
-      <itunes:email>contato@serradourada.edu.br</itunes:email>
+      <itunes:name>${podcastAuthor}</itunes:name>
+      <itunes:email>${podcastEmail}</itunes:email>
     </itunes:owner>
     <itunes:image href="${podcastImage}" />
     <image>
