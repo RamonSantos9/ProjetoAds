@@ -1,62 +1,352 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import * as React from 'react';
 import {
-  Users,
-  Search,
-  Plus,
-  Mail,
-  Globe,
-  Instagram,
-  Linkedin,
-  Twitter,
-  Github,
-  MoreHorizontal,
-  Edit2,
-  Trash2,
-  ExternalLink,
-  ChevronDown,
-  Download,
-  FileJson,
-  Table as TableIcon,
-  FileText,
-} from 'lucide-react';
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type UniqueIdentifier,
+} from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
-  ActionButtonRefined,
-  TooltipRefined,
-} from '@/components/ui/RefinedComponents';
-import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { cn } from '@/lib/cn';
-import { usePathname } from 'next/navigation';
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconDotsVertical,
+  IconGripVertical,
+  IconLayoutColumns,
+  IconLoader,
+  IconPlus,
+  IconTrendingUp,
+  IconSearch,
+  IconDownload,
+  IconTrash,
+  IconUsers,
+  IconBrandGithub,
+  IconBrandLinkedin,
+  IconBrandInstagram,
+  IconWorld,
+  IconEdit,
+} from '@tabler/icons-react';
+import {
+  flexRender,
+  getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type Row,
+  type SortingState,
+  type VisibilityState,
+} from '@tanstack/react-table';
+import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
+import { toast } from 'sonner';
+import { z } from 'zod';
+
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/button';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from '@/components/ui/chart';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Episode, Guest } from '@/lib/db';
-import { createPortal } from 'react-dom';
 import { CreateGuestModal } from '@/components/dashboard/CreateGuestModal';
+import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
 
 /**
  * Interface estendida para exibição na tabela
  */
-interface ExtendedGuest extends Guest {
-  id: string;
-  episodeCount: number;
-  episodes: string[];
+export const guestSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  bio: z.string().optional(),
+  avatar: z.string().optional(),
+  social: z.string().optional(),
+  company: z.string().optional(),
+  phone: z.string().optional(),
+  linkedin: z.string().optional(),
+  website: z.string().optional(),
+  episodeCount: z.number().default(0),
+  episodes: z.array(z.string()).default([]),
+});
+
+type ExtendedGuest = z.infer<typeof guestSchema>;
+
+// Create a separate component for the drag handle
+function DragHandle({ id }: { id: string }) {
+  const { attributes, listeners } = useSortable({
+    id,
+  });
+
+  return (
+    <Button
+      {...attributes}
+      {...listeners}
+      variant="ghost"
+      size="icon"
+      className="size-7 text-muted-foreground hover:bg-transparent"
+    >
+      <IconGripVertical className="size-3 text-muted-foreground" />
+      <span className="sr-only">Drag to reorder</span>
+    </Button>
+  );
+}
+
+function DraggableRow({ row }: { row: Row<ExtendedGuest> }) {
+  const { transform, transition, setNodeRef, isDragging } = useSortable({
+    id: row.original.id,
+  });
+
+  return (
+    <TableRow
+      data-state={row.getIsSelected() && 'selected'}
+      data-dragging={isDragging}
+      ref={setNodeRef}
+      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition: transition,
+      }}
+    >
+      {row.getVisibleCells().map((cell) => (
+        <TableCell key={cell.id}>
+          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+}
+
+const chartData = [
+  { month: 'January', desktop: 18, mobile: 8 },
+  { month: 'February', desktop: 30, mobile: 20 },
+  { month: 'March', desktop: 23, mobile: 12 },
+  { month: 'April', desktop: 7, mobile: 19 },
+  { month: 'May', desktop: 20, mobile: 13 },
+  { month: 'June', desktop: 21, mobile: 14 },
+];
+
+const chartConfig = {
+  desktop: {
+    label: 'Desktop',
+    color: 'var(--primary)',
+  },
+  mobile: {
+    label: 'Mobile',
+    color: 'var(--primary)',
+  },
+} satisfies ChartConfig;
+
+function TableCellViewer({ 
+  item, 
+  onDelete,
+  onEdit
+}: { 
+  item: ExtendedGuest, 
+  onDelete: (id: string) => void,
+  onEdit: (guest: ExtendedGuest) => void
+}) {
+  const isMobile = useIsMobile();
+
+  return (
+    <Drawer direction={isMobile ? 'bottom' : 'right'}>
+      <DrawerTrigger asChild>
+        <div className="flex flex-col items-start cursor-pointer">
+          <Button variant="link" className="w-fit h-auto p-0 text-left text-foreground hover:underline transition-all duration-300">
+            {item.name}
+          </Button>
+          <span className="text-muted-foreground text-[10px] line-clamp-1">{item.bio}</span>
+        </div>
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader className="gap-1">
+          <DrawerTitle>{item.name}</DrawerTitle>
+          <DrawerDescription>
+            Detalhes do convidado e histórico de participações.
+          </DrawerDescription>
+        </DrawerHeader>
+        <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
+          <div className="flex items-center gap-4 py-2">
+            <div className="w-16 h-16 rounded-full bg-fd-primary/10 flex items-center justify-center overflow-hidden border border-fd-border">
+              {item.avatar ? (
+                <img src={item.avatar} alt={item.name} className="w-full h-full object-cover" />
+              ) : (
+                <IconUsers className="size-8 text-fd-primary" />
+              )}
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold text-lg">{item.name}</span>
+              <span className="text-muted-foreground">{item.company || 'Empresa não informada'}</span>
+            </div>
+          </div>
+          
+          <Separator />
+          
+          <div className="grid gap-2">
+            <div className="font-medium text-xs uppercase text-muted-foreground">Biografia</div>
+            <div className="text-sm leading-relaxed">
+              {item.bio || 'Nenhuma biografia disponível.'}
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="grid gap-2">
+            <div className="font-medium text-xs uppercase text-muted-foreground">Estatísticas de Episódios</div>
+            <div className="flex gap-2 items-center leading-none font-medium">
+              Participou de {item.episodeCount} episódios <IconTrendingUp className="size-4" />
+            </div>
+          </div>
+
+          {!isMobile && (
+            <ChartContainer config={chartConfig} className="h-[200px]">
+              <AreaChart
+                accessibilityLayer
+                data={chartData}
+                margin={{ left: 0, right: 10 }}
+              >
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey='month'
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  tickFormatter={(value) => value.slice(0, 3)}
+                  hide
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent indicator="dot" />}
+                />
+                <Area
+                  dataKey="mobile"
+                  type="natural"
+                  fill="var(--color-mobile)"
+                  fillOpacity={0.6}
+                  stroke="var(--color-mobile)"
+                  stackId="a"
+                />
+                <Area
+                  dataKey="desktop"
+                  type="natural"
+                  fill="var(--color-desktop)"
+                  fillOpacity={0.4}
+                  stroke="var(--color-desktop)"
+                  stackId="a"
+                />
+              </AreaChart>
+            </ChartContainer>
+          )}
+
+          <Separator />
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1">
+              <Label className="text-xs text-muted-foreground">Telefone</Label>
+              <span className="text-sm font-medium">{item.phone || '-'}</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label className="text-xs text-muted-foreground">LinkedIn</Label>
+              <span className="text-sm font-medium truncate">{item.linkedin || '-'}</span>
+            </div>
+          </div>
+        </div>
+        <DrawerFooter className="flex-row gap-2 border-t mt-4">
+          <Button className="flex-1" onClick={() => onEdit(item)}>
+            <IconEdit className="size-4 mr-2" /> Editar
+          </Button>
+          <Button variant="outline" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => onDelete(item.id)}>
+            <IconTrash className="size-4 mr-2" /> Excluir
+          </Button>
+          <DrawerClose asChild>
+            <Button variant="ghost">Fechar</Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  );
 }
 
 export default function ConvidadosAdminPage() {
-  const pathname = usePathname();
-  const isAdmin = pathname.startsWith('/admin');
-  const [episodes, setEpisodes] = useState<Episode[]>([]);
-  const [guests, setGuests] = useState<Guest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [isExportOpen, setIsExportOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
-  const [menuOpen, setMenuOpen] = useState<{
-    id: string;
-    rect: DOMRect;
-  } | null>(null);
-  const exportRef = useRef<HTMLDivElement>(null);
+  const [episodes, setEpisodes] = React.useState<Episode[]>([]);
+  const [guests, setGuests] = React.useState<Guest[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [data, setData] = React.useState<ExtendedGuest[]>([]);
+  
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [editingGuest, setEditingGuest] = React.useState<Guest | null>(null);
+
+  const sortableId = React.useId();
+  const sensors = useSensors(
+    useSensor(MouseSensor, {}),
+    useSensor(TouchSensor, {}),
+    useSensor(KeyboardSensor, {})
+  );
 
   const loadData = async () => {
     try {
@@ -71,6 +361,21 @@ export default function ConvidadosAdminPage() {
         const guestData = await guestRes.json();
         setEpisodes(epData);
         setGuests(guestData);
+        
+        // Correlacionar convidados com episódios
+        const extended: ExtendedGuest[] = guestData.map((g: Guest) => {
+          const relatedEpisodes = epData.filter((ep: Episode) =>
+            ep.guests?.some((eg) => eg.id === g.id || eg.name === g.name),
+          );
+
+          return {
+            ...g,
+            episodeCount: relatedEpisodes.length,
+            episodes: relatedEpisodes.map((ep: Episode) => ep.title),
+          };
+        });
+        
+        setData(extended);
       }
     } catch (error) {
       console.error('Failed to load data:', error);
@@ -79,34 +384,28 @@ export default function ConvidadosAdminPage() {
     }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     loadData();
   }, []);
 
-  // Correlacionar convidados com episódios
-  const guestsList = useMemo(() => {
-    return guests.map((g) => {
-      const relatedEpisodes = episodes.filter((ep) =>
-        ep.guests?.some((eg) => eg.id === g.id || eg.name === g.name),
-      );
+  const handleDelete = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir este convidado?')) return;
 
-      return {
-        ...g,
-        episodeCount: relatedEpisodes.length,
-        episodes: relatedEpisodes.map((ep) => ep.title),
-      } as ExtendedGuest;
-    });
-  }, [guests, episodes]);
+    try {
+      const res = await fetch(`/api/guests?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        toast.success("Convidado excluído com sucesso");
+        loadData();
+      }
+    } catch (error) {
+      console.error('Error deleting guest:', error);
+      toast.error("Erro ao excluir convidado");
+    }
+  };
 
-  const filtered = guestsList.filter(
-    (g) =>
-      g.name.toLowerCase().includes(search.toLowerCase()) ||
-      g.bio?.toLowerCase().includes(search.toLowerCase()),
-  );
-
-  const handleExport = (format: 'json' | 'csv') => {
-    console.log(`Exportando em ${format}...`);
-    setIsExportOpen(false);
+  const handleEdit = (guest: ExtendedGuest) => {
+    setEditingGuest(guest);
+    setIsModalOpen(true);
   };
 
   const handleSave = () => {
@@ -115,275 +414,367 @@ export default function ConvidadosAdminPage() {
     setEditingGuest(null);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este convidado?')) return;
-
-    try {
-      const res = await fetch(`/api/guests?id=${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        loadData();
-        setMenuOpen(null);
+  const columns: ColumnDef<ExtendedGuest>[] = [
+    {
+      id: "drag",
+      header: () => null,
+      cell: ({ row }) => <DragHandle id={row.original.id} />,
+    },
+    {
+      id: "select",
+      header: ({ table }) => (
+        <div className="flex items-center justify-center">
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            aria-label="Select all"
+          />
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="flex items-center justify-center">
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        </div>
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "name",
+      header: "Convidado",
+      cell: ({ row }) => {
+        const item = row.original;
+        return (
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-fd-primary/10 flex items-center justify-center overflow-hidden shrink-0 border border-fd-border">
+              {item.avatar ? (
+                <img src={item.avatar} alt={item.name} className="w-full h-full object-cover" />
+              ) : (
+                <IconUsers className="size-4 text-fd-primary" />
+              )}
+            </div>
+            <TableCellViewer item={item} onDelete={handleDelete} onEdit={handleEdit} />
+          </div>
+        );
+      },
+      enableHiding: false,
+    },
+    {
+      accessorKey: "company",
+      header: "Empresa",
+      cell: ({ row }) => (
+        <div className="w-32 truncate text-muted-foreground text-xs font-medium">
+          {row.original.company || "-"}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "episodeCount",
+      header: "Episódios",
+      cell: ({ row }) => (
+        <Badge variant="success">
+          {row.original.episodeCount}
+        </Badge>
+      ),
+    },
+    {
+      id: "social",
+      header: "Social",
+      cell: ({ row }) => {
+        const item = row.original;
+        return (
+          <div className="flex items-center gap-2">
+            {item.social && (
+              <a href={item.social} target="_blank" className="p-1 rounded-md hover:bg-fd-accent text-muted-foreground transition-colors">
+                {item.social.includes('github') ? <IconBrandGithub size={16}/> : 
+                 item.social.includes('instagram') ? <IconBrandInstagram size={16}/> :
+                 <IconWorld size={16}/>}
+              </a>
+            )}
+            {item.linkedin && (
+              <a href={item.linkedin} target="_blank" className="p-1 rounded-md hover:bg-fd-accent text-muted-foreground transition-colors">
+                <IconBrandLinkedin size={16}/>
+              </a>
+            )}
+          </div>
+        )
       }
-    } catch (error) {
-      console.error('Error deleting guest:', error);
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="flex text-muted-foreground data-[state=open]:bg-muted size-4"
+              size="icon"
+            >
+              <IconDotsVertical />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuItem onClick={() => handleEdit(row.original)}>
+              <IconEdit className="size-4 mr-2" /> Editar
+            </DropdownMenuItem>
+            <DropdownMenuItem>Fazer cópia</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive" onClick={() => handleDelete(row.original.id)}>
+              <IconTrash className="size-4 mr-2" /> Excluir
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ];
+
+  const dataIds = React.useMemo<UniqueIdentifier[]>(
+    () => data?.map(({ id }) => id) || [],
+    [data]
+  );
+
+  const table = useReactTable({
+    data,
+    columns,
+    state: {
+      sorting,
+      columnVisibility,
+      rowSelection,
+      columnFilters,
+      pagination,
+    },
+    getRowId: (row) => row.id,
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+  });
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setData((prev) => {
+        const oldIndex = prev.findIndex(item => item.id === active.id);
+        const newIndex = prev.findIndex(item => item.id === over.id);
+        return arrayMove(prev, oldIndex, newIndex);
+      });
+      toast.info("Ordem alterada localmente");
     }
+  }
+
+  const handleExport = (format: 'json' | 'csv') => {
+    toast.message(`Exportando em ${format.toUpperCase()}...`);
   };
 
   return (
-    <div className="rebrand-body flex flex-col min-h-screen bg-[#FFFFFF] dark:bg-fd-background p-4 md:p-8 overflow-hidden">
-      <main className="max-w-6xl mx-auto w-full flex flex-col min-h-0">
+    <div className="rebrand-body flex min-h-screen flex-col bg-[#FFFFFF] dark:bg-fd-background px-8 py-8 text-fd-foreground">
+      <main className="max-w-6xl mx-auto w-full flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-end mb-4 md:mb-8 w-full">
           <div className="stack">
             <p className="truncate text-sm text-fd-muted-foreground">
-              {isAdmin ? 'Administração' : 'Dashboard'} / CRM
+              Administração / CRM
             </p>
-            <h1 className="text-2xl md:text-3xl font-semibold text-fd-foreground mt-1">
+            <h1 className="text-2xl md:text-3xl font-bold text-fd-foreground mt-1">
               Gestão de Convidados
             </h1>
           </div>
-          <ThemeToggle mode="light-dark" />
+         <ThemeToggle />
         </div>
 
-        <div className="bg-white dark:bg-fd-background w-full flex flex-col flex-1">
-          <section className="flex flex-col gap-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <p className="text-[#74748D] dark:text-fd-muted-foreground text-sm max-w-2xl">
-                Base de dados de participantes, professores e especialistas.
-                Mantenha o histórico de participações sincronizado.
-              </p>
-              <ActionButtonRefined
-                label="Novo Convidado"
-                icon={<Plus className="size-5" />}
-                onClick={() => {
-                  setEditingGuest(null);
-                  setIsModalOpen(true);
-                }}
-              />
+        <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
+          <div className="flex items-center justify-between px-4 lg:px-0">
+            <TabsList className="bg-transparent gap-2 p-0 h-auto">
+              <TabsTrigger value="outline" className="rounded-full px-6 data-[state=active]:bg-fd-primary data-[state=active]:text-fd-primary-foreground border">
+                Geral
+              </TabsTrigger>
+              <TabsTrigger value="history" className="rounded-full px-6 data-[state=active]:bg-fd-primary data-[state=active]:text-fd-primary-foreground border">
+                Histórico <Badge variant="secondary" className="ml-2 bg-white/20 border-none text-current">3</Badge>
+              </TabsTrigger>
+            </TabsList>
+            
+            <div className="flex items-center gap-2">
+              <div className="hidden sm:flex relative">
+                <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Pesquisar..." 
+                  className="pl-9 h-9 w-64 bg-fd-accent/30 border-none"
+                  value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+                  onChange={(event) =>
+                    table.getColumn("name")?.setFilterValue(event.target.value)
+                  }
+                />
+              </div>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-9">
+                    <IconLayoutColumns className="mr-2 size-4"/> Colunas
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {table
+                    .getAllColumns()
+                    .filter((column) => column.getCanHide())
+                    .map((column) => (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(v) => column.toggleVisibility(!!v)}
+                      >
+                        {column.id}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                   <Button variant="outline" size="sm" className="h-9">
+                    <IconDownload className="mr-2 size-4"/> Exportar
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleExport('json')}>JSON</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button size="sm" className="h-9" onClick={() => { setEditingGuest(null); setIsModalOpen(true); }}>
+                <IconPlus className="mr-2 size-4" /> Novo Convidado
+              </Button>
+            </div>
+          </div>
+
+          <TabsContent value="outline" className="mt-6 flex flex-col gap-4">
+            <div className="overflow-hidden rounded-xl border bg-card/50 backdrop-blur-sm">
+              <DndContext
+                collisionDetection={closestCenter}
+                modifiers={[restrictToVerticalAxis]}
+                onDragEnd={handleDragEnd}
+                sensors={sensors}
+                id={sortableId}
+              >
+                <Table>
+                  <TableHeader className="bg-fd-muted/50 border-b">
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                        {headerGroup.headers.map((header) => (
+                          <TableHead key={header.id} className="h-10 text-[11px] font-bold">
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableHeader>
+                  <TableBody className="[&_td]:py-3">
+                    {loading ? (
+                       Array.from({ length: 5 }).map((_, i) => (
+                        <TableRow key={i}>
+                          <TableCell colSpan={columns.length} className="h-16 animate-pulse bg-fd-muted/20" />
+                        </TableRow>
+                      ))
+                    ) : table.getRowModel().rows?.length ? (
+                      <SortableContext
+                        items={dataIds}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        {table.getRowModel().rows.map((row) => (
+                          <DraggableRow key={row.id} row={row} />
+                        ))}
+                      </SortableContext>
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={columns.length}
+                          className="h-32 text-center text-muted-foreground"
+                        >
+                          Nenhum convidado encontrado.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </DndContext>
             </div>
 
-            <hr className="w-full h-px bg-fd-border border-none opacity-50" />
-
-            {/* Toolbar */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="relative w-full max-w-[400px]">
-                <input
-                  className="w-full bg-background border rounded-lg pl-3 pr-9 py-2 text-sm text-fd-foreground placeholder:text-[#6F6F88] focus:outline-none transition-colors"
-                  placeholder="Pesquisar por nome ou bio..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-fd-muted-foreground" />
+            {/* Pagination */}
+            <div className="flex items-center justify-between px-2">
+              <div className="text-xs text-muted-foreground">
+                {table.getFilteredSelectedRowModel().rows.length} de {" "}
+                {table.getFilteredRowModel().rows.length} linhas selecionadas
               </div>
-
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <div className="relative w-full sm:w-auto" ref={exportRef}>
-                  <button
-                    onClick={() => setIsExportOpen(!isExportOpen)}
-                    className="h-8 flex items-center justify-center gap-2 bg-[#FFFFFF] dark:bg-[#121212] border rounded-lg px-4 text-sm text-fd-foreground transition-colors w-full sm:w-auto"
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium">Linhas por página</span>
+                  <Select
+                    value={`${table.getState().pagination.pageSize}`}
+                    onValueChange={(v) => table.setPageSize(Number(v))}
                   >
-                    <Download className="size-4" /> Exportar{' '}
-                    <ChevronDown
-                      className={cn(
-                        'size-3 transition-transform ml-1',
-                        isExportOpen ? 'rotate-180' : '',
-                      )}
-                    />
-                  </button>
-
-                  {isExportOpen && (
-                    <div className="absolute top-[calc(100%+4px)] right-0 w-full sm:w-48 bg-white dark:bg-[#121212] border border-[#E2E7F1] dark:border-fd-border rounded-lg shadow-xl z-50 overflow-hidden">
-                      <button
-                        onClick={() => handleExport('json')}
-                        className="w-full h-10 flex items-center gap-3 px-4 text-sm font-semibold hover:bg-fd-accent transition-colors text-left border-b border-fd-border"
-                      >
-                        <FileJson className="size-4" /> JSON
-                      </button>
-                      <button
-                        onClick={() => handleExport('csv')}
-                        className="w-full h-10 flex items-center gap-3 px-4 text-sm font-semibold hover:bg-fd-accent transition-colors text-left"
-                      >
-                        <TableIcon className="size-4" /> CSV
-                      </button>
-                    </div>
-                  )}
+                    <SelectTrigger className="h-8 w-16 text-xs">
+                      <SelectValue placeholder={table.getState().pagination.pageSize} />
+                    </SelectTrigger>
+                    <SelectContent side="top">
+                      {[10, 20, 30, 40, 50].map((size) => (
+                        <SelectItem key={size} value={`${size}`}>{size}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="text-xs font-medium">
+                  Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+                    <IconChevronLeft size={16}/>
+                  </Button>
+                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+                    <IconChevronRight size={16}/>
+                  </Button>
                 </div>
               </div>
             </div>
-
-            {/* Table */}
-            <div className="overflow-x-auto mt-4">
-              <table className="w-full border-separate border-spacing-0 leading-[12px]">
-                <thead>
-                  <tr className="text-fd-foreground text-sm">
-                    <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border first:border-s first:rounded-s-xl last:rounded-e-xl last:border-e p-5 text-left whitespace-nowrap">
-                      Convidado
-                    </th>
-                    <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border p-5 text-left whitespace-nowrap">
-                      Episódios
-                    </th>
-                    <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border p-5 text-left whitespace-nowrap">
-                      Redes Sociais
-                    </th>
-                    <th className="bg-background border-y border-[#E2E7F1] dark:border-fd-border last:rounded-e-xl last:border-e p-5 text-right whitespace-nowrap">
-                      Ações
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="h-4" />
-                  {loading ? (
-                    Array.from({ length: 3 }).map((_, i) => (
-                      <tr key={i}>
-                        <td className="p-5 border-b border-fd-border">
-                          <Skeleton className="h-10 w-40" />
-                        </td>
-                        <td className="p-5 border-b border-fd-border">
-                          <Skeleton className="h-6 w-10" />
-                        </td>
-                        <td className="p-5 border-b border-fd-border">
-                          <Skeleton className="h-4 w-24" />
-                        </td>
-                        <td className="p-5 border-b border-fd-border text-right">
-                          <Skeleton className="h-8 w-8 ml-auto" />
-                        </td>
-                      </tr>
-                    ))
-                  ) : filtered.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={4}
-                        className="text-center py-20 text-[#74748D]"
-                      >
-                        Nenhum convidado encontrado.
-                      </td>
-                    </tr>
-                  ) : (
-                    filtered.map((g) => (
-                      <tr
-                        key={g.id}
-                        className="hover:bg-fd-accent/50 transition-colors group"
-                      >
-                        <td className="p-5 border-b border-fd-border">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-fd-primary/10 flex items-center justify-center overflow-hidden shrink-0 border border-fd-border">
-                              {g.avatar ? (
-                                <img
-                                  src={g.avatar}
-                                  alt={g.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <Users className="size-5 text-fd-primary" />
-                              )}
-                            </div>
-                            <div className="flex flex-col gap-1 min-w-0">
-                              <span className="font-bold text-fd-foreground truncate">
-                                {g.name}
-                              </span>
-                              <span className="text-[10px] text-fd-muted-foreground truncate max-w-[200px]">
-                                {g.bio || 'Sem biografia definida.'}
-                              </span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-5 border-b border-fd-border">
-                          <span className="inline-flex items-center justify-center bg-fd-primary/10 text-fd-primary font-bold text-xs px-2.5 py-1 rounded-full border border-fd-primary/20">
-                            {g.episodeCount}
-                          </span>
-                        </td>
-                        <td className="p-5 border-b border-fd-border">
-                          <div className="flex items-center gap-2">
-                            {g.social ? (
-                              <a
-                                href={g.social}
-                                target="_blank"
-                                className="p-1.5 rounded-lg hover:bg-fd-accent text-fd-muted-foreground hover:text-fd-primary transition-colors"
-                              >
-                                {g.social.includes('github') ? (
-                                  <Github className="size-4" />
-                                ) : g.social.includes('instagram') ? (
-                                  <Instagram className="size-4" />
-                                ) : g.social.includes('linkedin') ? (
-                                  <Linkedin className="size-4" />
-                                ) : (
-                                  <Globe className="size-4" />
-                                )}
-                              </a>
-                            ) : (
-                              <span className="text-[10px] text-fd-muted-foreground italic">
-                                Nenhuma
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="p-5 border-b border-fd-border text-right">
-                          <button
-                            className="p-1.5 rounded-lg hover:bg-fd-accent transition-colors"
-                            onClick={(e) => {
-                              const rect =
-                                e.currentTarget.getBoundingClientRect();
-                              setMenuOpen(
-                                menuOpen?.id === g.id
-                                  ? null
-                                  : { id: g.id, rect },
-                              );
-                            }}
-                          >
-                            <MoreHorizontal className="size-5 text-fd-muted-foreground" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+          </TabsContent>
+          
+          <TabsContent value="history" className="mt-6">
+            <div className="flex flex-col items-center justify-center h-64 border border-dashed rounded-xl bg-fd-muted/10">
+              <IconLoader className="animate-spin mb-2 size-6 text-muted-foreground"/>
+              <p className="text-sm text-muted-foreground">Carregando histórico de interações...</p>
             </div>
+          </TabsContent>
+        </Tabs>
 
-            {/* Actions Menu Portal */}
-            {menuOpen &&
-              createPortal(
-                <div
-                  className="fixed bg-white dark:bg-[#1A1A1A] rounded-xl border border-[#E2E7F1] dark:border-fd-border shadow-xl z-[9999] min-w-[160px] flex flex-col overflow-hidden actions-menu-portal"
-                  style={{
-                    top: menuOpen.rect.bottom + 8,
-                    left: menuOpen.rect.right - 160,
-                  }}
-                >
-                  <button
-                    className="px-4 py-2.5 hover:bg-fd-accent flex items-center gap-2 text-sm font-medium text-fd-foreground border-b border-fd-border text-left"
-                    onClick={() => {
-                      const guest = guests.find((g) => g.id === menuOpen.id);
-                      if (guest) {
-                        setEditingGuest(guest);
-                        setIsModalOpen(true);
-                      }
-                      setMenuOpen(null);
-                    }}
-                  >
-                    <Edit2 className="size-4 opacity-70" /> Editar Perfil
-                  </button>
-                  <button
-                    className="px-4 py-2.5 hover:bg-fd-accent flex items-center gap-2 text-sm font-medium text-red-600 text-left"
-                    onClick={() => handleDelete(menuOpen.id)}
-                  >
-                    <Trash2 className="size-4 opacity-70" /> Excluir Registro
-                  </button>
-                </div>,
-                document.body,
-              )}
-
-            <CreateGuestModal
-              isOpen={isModalOpen}
-              onClose={() => {
-                setIsModalOpen(false);
-                setEditingGuest(null);
-              }}
-              onSave={handleSave}
-              initialData={editingGuest}
-            />
-          </section>
-        </div>
+        <CreateGuestModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditingGuest(null);
+          }}
+          onSave={handleSave}
+          initialData={editingGuest}
+        />
       </main>
     </div>
   );

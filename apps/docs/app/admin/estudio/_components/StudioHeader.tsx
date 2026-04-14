@@ -13,6 +13,12 @@ interface StudioHeaderProps {
   isSaving?: boolean;
   projectTitle: string;
   onTitleChange?: (title: string) => void;
+  onSave?: () => Promise<void>;
+  status?: string;
+  scheduledAt?: Date | null;
+  onStatusChange?: (status: string, date?: Date | null) => Promise<void>;
+  onOpenShortcuts?: () => void;
+  onOpenShare?: () => void;
 }
 
 export function StudioHeader({
@@ -23,9 +29,13 @@ export function StudioHeader({
   isSaving,
   projectTitle,
   onTitleChange,
+  status,
+  scheduledAt,
+  onStatusChange,
+  onOpenShortcuts,
+  onOpenShare,
 }: StudioHeaderProps) {
   const [isProjectPopoverOpen, setIsProjectPopoverOpen] = React.useState(false);
-  const [isShortcutsModalOpen, setIsShortcutsModalOpen] = React.useState(false);
   const [triggerRect, setTriggerRect] = React.useState<DOMRect | null>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
 
@@ -237,7 +247,10 @@ export function StudioHeader({
           </svg>
         </button>
 
-        <button className="hidden sm:inline-flex relative items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring bg-transparent text-fd-foreground hover:bg-fd-accent h-8 px-2.5 rounded-lg text-xs">
+        <button 
+          onClick={onOpenShare}
+          className="hidden sm:inline-flex relative items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring bg-transparent text-fd-foreground hover:bg-fd-accent h-8 px-2.5 rounded-lg text-xs"
+        >
           Share
         </button>
 
@@ -249,13 +262,8 @@ export function StudioHeader({
       <ProjectPopover
         isOpen={isProjectPopoverOpen}
         onClose={() => setIsProjectPopoverOpen(false)}
-        onOpenShortcuts={() => setIsShortcutsModalOpen(true)}
+        onOpenShortcuts={onOpenShortcuts || (() => {})}
         triggerRect={triggerRect}
-      />
-
-      <ShortcutsModal
-        isOpen={isShortcutsModalOpen}
-        onClose={() => setIsShortcutsModalOpen(false)}
       />
     </div>
   );

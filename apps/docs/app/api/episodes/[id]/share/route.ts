@@ -65,7 +65,7 @@ export async function PATCH(
 
     await updateEpisode(id, {
       sharingConfig: newConfig
-    }, session.user.id);
+    }, session.user.id!);
 
     return NextResponse.json(newConfig);
   } catch (error: any) {

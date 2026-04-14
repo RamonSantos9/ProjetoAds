@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useRef, useCallback, memo } from 'react';
-import { ListEnd, Play, Mic, MicOff } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { toast } from 'sonner';
 
 interface TimelineTrack {
   id: string;
@@ -40,6 +40,7 @@ interface TimelineSectionProps {
   selectedTrackIds: string[];
   setSelectedTrackIds: React.Dispatch<React.SetStateAction<string[]>>;
   audioRef?: React.RefObject<HTMLAudioElement | null>;
+  currentTimeRef?: React.RefObject<number>;
   onOpenShortcuts?: () => void;
 }
 
@@ -143,6 +144,7 @@ export function TimelineSection({
   selectedTrackIds,
   setSelectedTrackIds,
   audioRef,
+  currentTimeRef,
   onOpenShortcuts,
 }: TimelineSectionProps) {
   const [viewportWidth, setViewportWidth] = React.useState(1366);
@@ -188,17 +190,29 @@ export function TimelineSection({
     let rafId: number;
     
     const updatePlayhead = () => {
-      const audio = audioRef?.current;
-      if (!audio || !playheadRef.current || !timeBadgeRef.current) return;
+      // Prioritize identifying time from the most accurate source:
+      // 1. Shared High-Precision Ref (Current composition clock)
+      // 2. Audio Element (Native hardware clock)
+      let time = 0;
+      if (currentTimeRef?.current !== undefined) {
+        time = currentTimeRef.current;
+      } else if (audioRef?.current) {
+        time = audioRef.current.currentTime;
+      } else {
+        return;
+      }
       
-      const time = audio.currentTime;
+      if (!playheadRef.current || !timeBadgeRef.current) return;
+      
       const x = time * 136.5;
       
       // Update DOM directly for zero-lag smooth glide
-      // Removed the +16 offset to keep it perfectly aligned with track 0:0 origin
-      if (playheadRef.current) playheadRef.current.style.transform = `translateX(${x}px)`;
+      // Using translate3d for hardware acceleration (GPU)
+      const transform = `translate3d(${x}px, 0, 0)`;
+      
+      if (playheadRef.current) playheadRef.current.style.transform = transform;
       if (timeBadgeRef.current) {
-        timeBadgeRef.current.style.transform = `translateX(${x}px)`;
+        timeBadgeRef.current.style.transform = transform;
         timeBadgeRef.current.innerText = formatTime(time);
       }
       
@@ -425,7 +439,7 @@ export function TimelineSection({
         break;
       }
       case 'comment': {
-        window.alert(action + ' is a placeholder interface');
+        toast.info(action + ' is a placeholder interface');
         break;
       }
     }
@@ -1038,7 +1052,8 @@ export function TimelineSection({
                       borderRadius: currentTime < 0.05 ? '0px 6px 6px 0px' : '6px',
                       backgroundColor: 'black',
                       color: 'white',
-                      transform: `translateX(${currentTime * 136.5}px)`,
+                      transform: `translate3d(${currentTime * 136.5}px, 0, 0)`,
+                      willChange: 'transform',
                     }}
                   >
                     {formatTime(currentTime)}
@@ -1058,7 +1073,8 @@ export function TimelineSection({
                     )}
                     style={{
                       backgroundColor: 'hsl(var(--foreground))',
-                      transform: `translateX(${currentTime * 136.5}px)`,
+                      transform: `translate3d(${currentTime * 136.5}px, 0, 0)`,
+                      willChange: 'transform',
                     }}
                   >
                     <div className="absolute top-0 left-[-4px] w-2 h-2 rounded-full bg-foreground" />
@@ -1678,7 +1694,7 @@ export function TimelineSection({
             <div
               role="menuitem"
               onClick={() =>
-                window.alert('You can hold CTRL/CMD and click tracks')
+                toast.info('You can hold CTRL/CMD and click tracks')
               }
               className="relative transition-colors focus:text-foreground w-full cursor-pointer select-none outline-none hover:bg-fd-accent/50 px-2 py-1.5 text-sm rounded-lg inline-flex justify-between items-center gap-2"
             >

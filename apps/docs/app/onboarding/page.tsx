@@ -219,8 +219,12 @@ export default function OnboardingPage() {
         toast.error(result.error);
         return;
       }
+      await updateSession({ 
+        onboarded: true,
+        hasIndividualWorkspace: createIndividual 
+      });
       localStorage.setItem('pca_onboarding_completed', 'true');
-      router.push('/admin/relatorios');
+      router.push('/admin/home');
     } catch (err) {
       console.error('[handleFinish]', err);
       toast.error('Erro ao finalizar onboarding. Tente novamente.');
@@ -436,11 +440,6 @@ export default function OnboardingPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm font-medium text-foreground">Workspace Global — Todos os Alunos</p>
-                    <span className="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 text-foreground/70">Obrigatório</span>
-                    <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                      Público
-                    </span>
                   </div>
                   <p className="text-xs text-black/50 dark:text-white/50 mt-1">
                     Espaço compartilhado com todos os alunos e professores. Você pode alternar entre o Workspace Global e o seu workspace individual a qualquer momento nas configurações.

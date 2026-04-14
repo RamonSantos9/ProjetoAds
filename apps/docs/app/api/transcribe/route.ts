@@ -11,6 +11,7 @@ import {
   EpisodeStatus,
 } from '@/lib/db';
 import { auth } from '@/lib/auth';
+import { getActiveWorkspaceId } from '@/lib/workspace';
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest) {
       'Geral') as EpisodeCategory;
     const status = ((formData.get('status') as string) ||
       'Produção') as EpisodeStatus;
+    const scheduledAt = formData.get('scheduledAt') as string | null;
 
     const sourceType = formData.get('sourceType') as string | null;
 
@@ -82,46 +84,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Process Audio (File OR External Link)
+    // Process Audio File
     let audioBuffer: Buffer | null = null;
     let audioFileName = '';
 
     if (audioFile && audioFile.name) {
       audioBuffer = Buffer.from(await audioFile.arrayBuffer());
       audioFileName = audioFile.name;
-    } else if (externalUrl && externalUrl.startsWith('http')) {
-      try {
-        console.log(`[API Transcribe] Downloading external audio from: ${externalUrl}`);
-        
-        if (externalUrl.includes('youtube.com') || externalUrl.includes('youtu.be')) {
-          console.error('[API Transcribe] YouTube downloading requires dedicated infrastructure.');
-          return NextResponse.json(
-            { error: 'Links do YouTube não podem ser baixados sem infraestrutura dedicada. Baixe o MP3 manualmente e envie como Arquivo.' },
-            { status: 400 }
-          );
-        } else {
-          // Normal HTTP File Check
-          const response = await fetch(externalUrl);
-          
-          const contentType = response.headers.get('content-type') || '';
-          if (contentType.includes('text/html')) {
-            console.log('[API Transcribe] URL is a webpage, skipping direct audio download.');
-          } else {
-            if (!response.ok) throw new Error(`Falha ao baixar áudio: ${response.statusText}`);
-            
-            const arrayBuffer = await response.arrayBuffer();
-            audioBuffer = Buffer.from(arrayBuffer);
-            
-            const extension = externalUrl.split('.').pop()?.split('?')[0] || 'mp3';
-            audioFileName = `external-${slug}-${crypto.randomUUID().slice(0, 8)}.${extension}`;
-          }
-        }
-      } catch (fetchErr) {
-        console.error('[API Transcribe] Error fetching external audio/video:', fetchErr);
-      }
     }
 
-    // If we have an audio buffer (from file or download), transcribe and save it
+    // If we have an audio buffer, transcribe and save it
     if (audioBuffer && audioFileName) {
       try {
         // Save file to public/uploads
@@ -143,10 +115,6 @@ export async function POST(req: NextRequest) {
       } catch (audioErr) {
         console.error('[API Transcribe] Error saving/transcribing audio:', audioErr);
       }
-    } else if (externalUrl) {
-      // Fallback if download skipped (like Spotify)
-      duration = 'Link Spotify/Externo';
-      audioUrl = ''; // Clear to force UI to use externalUrl
     }
 
     console.log('[API Transcribe] FormData Keys:', Array.from(formData.keys()));
@@ -167,6 +135,7 @@ export async function POST(req: NextRequest) {
         summary: summary || existing.summary,
         category: category || existing.category,
         status: status || existing.status,
+        scheduledAt: scheduledAt !== null ? scheduledAt : existing.scheduledAt,
         guests: guests.length > 0 ? guests : existing.guests,
         platforms: platforms.length > 0 ? platforms : existing.platforms,
       };
@@ -176,20 +145,9 @@ export async function POST(req: NextRequest) {
         finalEpisode.image = imageUrl;
       }
 
-      // Explicit logic for source replacement
-      if (sourceType === 'link') {
-        finalEpisode.externalUrl = externalUrl || undefined;
-        finalEpisode.audioUrl = audioUrl || undefined; // Clear if Spotify, set if downloaded MP3
-        if (!audioUrl) finalEpisode.duration = duration;
-        else finalEpisode.duration = duration;
-      } else if (sourceType === 'file' && formData.get('removeAudio') === 'true') {
-        finalEpisode.audioUrl = undefined;
-        finalEpisode.externalUrl = undefined;
-        finalEpisode.duration = '00:00';
-      } else if (audioUrl && audioFile) {
-        // Direct file upload Overrides any old link
+      if (audioUrl && audioFile) {
+        // Direct file upload
         finalEpisode.audioUrl = audioUrl;
-        finalEpisode.externalUrl = undefined;
         finalEpisode.duration = duration;
         finalEpisode.transcriptionText = transcriptionResult?.text || '';
         finalEpisode.segments = transcriptionResult?.segments || [];
@@ -202,24 +160,26 @@ export async function POST(req: NextRequest) {
         title,
         summary,
         category,
-        status,
+        status: status || 'Produção', // Default to 'Produção'
+        scheduledAt: scheduledAt || null,
         duration,
         guests,
         platforms,
         createdAt: new Date().toISOString(),
         image: imageUrl || undefined,
         audioUrl: audioUrl || undefined,
-        externalUrl: externalUrl || undefined,
         transcriptionText: transcriptionResult?.text || '',
         segments: transcriptionResult?.segments || [],
       };
     }
 
+    const workspaceId = await getActiveWorkspaceId();
+
     try {
       if (id) {
-        await updateEpisode(id, finalEpisode, session.user.id);
+        await updateEpisode(id, finalEpisode, session.user.id!, (session.user as any).role, workspaceId);
       } else {
-        await addEpisode(finalEpisode, session.user.id);
+        await addEpisode(finalEpisode, session.user.id!, workspaceId);
       }
     } catch (dbErr: any) {
       console.error('[API Transcribe] Database Error:', dbErr);

@@ -22,9 +22,13 @@ import {
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { ShareProjectModal } from './_components/ShareProjectModal';
 import { ProjectDetailsModal } from './_components/ProjectDetailsModal';
+import { EmptyEpisodesState } from '@/components/dashboard/EmptyEpisodesState';
 import { cn } from '@/lib/cn';
 import { Episode } from '@/lib/db';
 import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
+import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
+import { Badge } from '@/components/ui/Badge';
 
 type ScriptStatus = 'Em Pauta' | 'Em Redação' | 'Revisão' | 'Finalizado';
 
@@ -37,13 +41,21 @@ interface ScriptItem {
   status: ScriptStatus;
   version: string;
   transcriptionText?: string;
+  realStatus: string;
+  scheduledAt?: string | null;
+  ownerId?: string | null;
 }
 
 export default function TranscricoesAdminPage() {
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.id;
+  const userRole = (session?.user as any)?.role;
+  const isElevated = userRole === 'ADMIN' || userRole === 'PROFESSOR';
+  
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [scripts, setScripts] = useState<ScriptItem[]>([]);
-  const [activeTab, setActiveTab] = useState('biblioteca');
+  const [activeTab, setActiveTab] = useState<'biblioteca' | 'calendario'>('biblioteca');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -66,17 +78,20 @@ export default function TranscricoesAdminPage() {
         const res = await fetch('/api/episodes');
         if (res.ok) {
           const episodes: Episode[] = await res.json();
-          const derivedScripts = episodes.map((ep) => ({
+            const derivedScripts = episodes.map((ep) => ({
             id: `scr-${ep.id}`,
             episodeId: ep.id,
             title: ep.title,
-            author: 'Ramon (eu)',
-            lastEdited: ep.createdAt || new Date().toISOString(),
+            author: ep.ownerName || 'Ramon Santos',
+            lastEdited: ep.updatedAt || ep.createdAt || new Date().toISOString(),
             status: (ep.status === 'Publicado'
               ? 'Finalizado'
               : 'Em Pauta') as ScriptStatus,
             version: '1.2',
             transcriptionText: ep.transcriptionText || '',
+            realStatus: ep.status,
+            scheduledAt: ep.scheduledAt,
+            ownerId: ep.ownerId
           }));
           setScripts(derivedScripts);
         }
@@ -89,9 +104,35 @@ export default function TranscricoesAdminPage() {
     loadData();
   }, []);
 
-  const filtered = scripts.filter((s) =>
-    s.title.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = scripts.filter((s) => {
+    const matchesSearch = s.title.toLowerCase().includes(search.toLowerCase());
+    
+    if (activeTab === 'biblioteca') {
+       // Only show Production/Published (not Scheduled)
+       return matchesSearch && s.realStatus !== 'Agendado';
+    } else {
+       // Only show Scheduled in the Calendar tab
+       return matchesSearch && s.realStatus === 'Agendado';
+    }
+  });
+
+  const handleMoveToProduction = async (script: ScriptItem) => {
+    if (!script.episodeId) return;
+    try {
+      const res = await fetch(`/api/episodes/${script.episodeId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Produção', scheduledAt: null })
+      });
+      if (res.ok) {
+        // Update local state
+        setScripts(prev => prev.map(s => s.id === script.id ? { ...s, realStatus: 'Produção', scheduledAt: null } : s));
+        toast.success(`"${script.title}" movido para Produção!`);
+      }
+    } catch (err) {
+      toast.error('Erro ao atualizar status');
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-[#FFFFFF] dark:bg-fd-background transition-colors duration-300">
@@ -133,36 +174,118 @@ export default function TranscricoesAdminPage() {
           </button>
         </div>
 
-        <div className={cn("flex flex-col gap-6", activeTab !== 'biblioteca' && "opacity-50 pointer-events-none")}>
-          <div className="flex flex-col gap-4">
-            <div className="flex gap-2 items-center">
-              <div className="relative flex-1 group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-[18px] text-muted-foreground group-focus-within:text-foreground transition-colors" />
-                <input
-                  type="text"
-                  placeholder="Buscar transcrições e falas..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full h-10 pl-9 pr-4 bg-[#f6f8fa] dark:bg-[#1F2122] border border-[#E2E7F1] dark:border-[#2A2A38] rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-fd-primary transition-all"
-                />
-              </div>
+        <div className="flex gap-1 border-b border-[#E2E7F1] dark:border-[#2A2A38] mb-6">
+          <button
+            onClick={() => setActiveTab('biblioteca')}
+            className={cn(
+              "px-4 py-2 text-sm font-medium transition-all relative",
+              activeTab === 'biblioteca' ? "text-fd-primary" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Biblioteca
+            {activeTab === 'biblioteca' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-fd-primary animate-in fade-in slide-in-from-bottom-1" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('calendario')}
+            className={cn(
+              "px-4 py-2 text-sm font-medium transition-all relative",
+              activeTab === 'calendario' ? "text-fd-primary" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Calendário
+            {activeTab === 'calendario' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-fd-primary animate-in fade-in slide-in-from-bottom-1" />
+            )}
+          </button>
+        </div>
 
-              <div className="flex items-center border border-[#E2E7F1] dark:border-[#2A2A38] rounded-xl p-0.5 bg-[#f6f8fa] dark:bg-[#1F2122]">
-                <button 
-                  onClick={() => setViewMode('grid')}
-                  className={cn("p-2 rounded-lg transition-colors", viewMode === 'grid' ? "bg-white dark:bg-[#2A2A38] text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
-                >
-                  <LayoutGrid className="size-4" />
-                </button>
-                <button 
-                  onClick={() => setViewMode('list')}
-                  className={cn("p-2 rounded-lg transition-colors", viewMode === 'list' ? "bg-white dark:bg-[#2A2A38] text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
-                >
-                  <List className="size-4" />
-                </button>
+        <div className="flex flex-col gap-6">
+          {activeTab === 'biblioteca' ? (
+            <div className="flex flex-col gap-4">
+              <div className="flex gap-2 items-center">
+                <div className="relative flex-1 group">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-[18px] text-muted-foreground group-focus-within:text-foreground transition-colors" />
+                  <input
+                    type="text"
+                    placeholder="Buscar transcrições e falas..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full h-10 pl-9 pr-4 bg-[#f6f8fa] dark:bg-[#1F2122] border border-[#E2E7F1] dark:border-[#2A2A38] rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-fd-primary transition-all"
+                  />
+                </div>
+
+                <div className="flex items-center border border-[#E2E7F1] dark:border-[#2A2A38] rounded-xl p-0.5 bg-[#f6f8fa] dark:bg-[#1F2122]">
+                  <button 
+                    onClick={() => setViewMode('grid')}
+                    className={cn("p-2 rounded-lg transition-colors", viewMode === 'grid' ? "bg-white dark:bg-[#2A2A38] text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                  >
+                    <LayoutGrid className="size-4" />
+                  </button>
+                  <button 
+                    onClick={() => setViewMode('list')}
+                    className={cn("p-2 rounded-lg transition-colors", viewMode === 'list' ? "bg-white dark:bg-[#2A2A38] text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                  >
+                    <List className="size-4" />
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="w-full animate-in fade-in slide-in-from-top-4 duration-500">
+               <div className="bg-white dark:bg-[#121212] border border-[#E2E7F1] dark:border-[#2A2A38] rounded-2xl p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h3 className="text-xl font-bold text-foreground">Agendamentos</h3>
+                      <p className="text-sm text-muted-foreground">Episódios programados para lançamento futuro.</p>
+                    </div>
+                  </div>
+
+                  {filtered.length === 0 ? (
+                    <div className="w-full mt-4">
+                      <EmptyEpisodesState />
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {filtered.map(script => (
+                        <div key={script.id} className="group relative bg-white dark:bg-[#1A1A1A] border border-[#E2E7F1] dark:border-[#2A2A38] rounded-xl p-4 transition-all hover:shadow-md hover:border-amber-500/30">
+                           <div className="flex items-start justify-between mb-3">
+                              <Badge variant="purple" className="text-[10px] font-bold uppercase tracking-wider">
+                                 Agendado
+                              </Badge>
+                              <span className="text-[10px] font-mono text-muted-foreground">
+                                 {script.scheduledAt ? new Date(script.scheduledAt).toLocaleDateString() : 'Sem data'}
+                              </span>
+                           </div>
+                           <h4 className="font-semibold text-sm mb-1 truncate">{script.title}</h4>
+                           <p className="text-[11px] text-muted-foreground mb-4 line-clamp-1 italic">
+                              "{script.transcriptionText?.slice(0, 60)}..."
+                           </p>
+                           <div className="flex items-center gap-2">
+                              <button 
+                                onClick={() => handleMoveToProduction(script)}
+                                disabled={!isElevated && (!!currentUserId ? script.ownerId !== currentUserId : true)}
+                                className="flex-1 px-3 py-1.5 bg-fd-primary/10 text-fd-primary hover:bg-fd-primary hover:text-white rounded-lg text-[11px] font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                Mover para Produção
+                              </button>
+                               { (isElevated || (!!currentUserId && script.ownerId === currentUserId)) && (
+                                 <button 
+                                   onClick={() => router.push(`/admin/transcricoes/${script.id}`)}
+                                   className="px-3 py-1.5 border border-[#E2E7F1] dark:border-[#2A2A38] hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[11px] font-medium transition-all"
+                                 >
+                                   Editar
+                                 </button>
+                               )}
+                             </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+               </div>
+            </div>
+          )}
 
           <div className="w-full min-w-full transition-opacity duration-300 opacity-100">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
@@ -171,17 +294,23 @@ export default function TranscricoesAdminPage() {
                   <div key={i} className="aspect-[16/11] bg-gray-50 dark:bg-white/5 rounded-2xl animate-pulse" />
                 ))
               ) : filtered.length === 0 ? (
-                <div className="col-span-full py-12 text-center text-muted-foreground border-2 border-dashed border-[#E2E7F1] dark:border-[#2A2A38] rounded-2xl">
-                  Nenhuma transcrição encontrada.
+                <div className="col-span-full w-full">
+                  <EmptyEpisodesState />
                 </div>
               ) : (
                 filtered.map((script) => (
-                  <div 
-                    key={script.id} 
-                    className="block cursor-pointer" 
-                    onClick={() => router.push(`/admin/transcricoes/${script.id}`)}
-                  >
-                    <div className="flex w-full flex-col group">
+                   <div 
+                     key={script.id} 
+                     className="block cursor-pointer" 
+                     onClick={() => {
+                       if (isElevated || script.ownerId === currentUserId) {
+                         router.push(`/admin/transcricoes/${script.id}`);
+                       } else {
+                         handleOpenDetails(script);
+                       }
+                     }}
+                   >
+                     <div className="flex w-full flex-col group">
                       <div className="relative flex w-full flex-col rounded-2xl transition-all duration-150 border border-[#E2E7F1] dark:border-[#2A2A38] hover:border-black/20 dark:hover:border-white/20 bg-white dark:bg-[#121212]">
                         <div className="flex transition-all duration-100 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100 md:[&:has([data-state='open'])]:opacity-100 items-center justify-end gap-1.5 absolute top-3 right-3 z-20">
                           <div className="flex items-center gap-1">
@@ -225,12 +354,14 @@ export default function TranscricoesAdminPage() {
                                     </div>
                                   </DropdownMenu.Item>
 
-                                  <DropdownMenu.Item onSelect={() => router.push(`/admin/transcricoes/${script.id}`)} className="relative transition-colors focus:text-foreground w-full data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer select-none outline-none hover:bg-gray-100 dark:hover:bg-white/10 focus:bg-gray-100 dark:focus:bg-white/10 data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-white/10 px-2 py-1.5 text-sm rounded-lg inline-flex justify-between items-center gap-2">
-                                    <div className="flex items-center gap-2">
-                                      <LogIn className="shrink-0 w-4 h-4 opacity-70" />
-                                      <span>Abrir no Editor</span>
-                                    </div>
-                                  </DropdownMenu.Item>
+                                  {(isElevated || (!!currentUserId && script.ownerId === currentUserId)) && (
+                                     <DropdownMenu.Item onSelect={() => router.push(`/admin/transcricoes/${script.id}`)} className="relative transition-colors focus:text-foreground w-full data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer select-none outline-none hover:bg-gray-100 dark:hover:bg-white/10 focus:bg-gray-100 dark:focus:bg-white/10 data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-white/10 px-2 py-1.5 text-sm rounded-lg inline-flex justify-between items-center gap-2">
+                                       <div className="flex items-center gap-2">
+                                         <LogIn className="shrink-0 w-4 h-4 opacity-70" />
+                                         <span>Abrir no Editor</span>
+                                       </div>
+                                     </DropdownMenu.Item>
+                                   )}
                                   
                                   <DropdownMenu.Item onSelect={() => handleShare(script)} className="relative transition-colors focus:text-foreground w-full data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer select-none outline-none hover:bg-gray-100 dark:hover:bg-white/10 focus:bg-gray-100 dark:focus:bg-white/10 data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-white/10 px-2 py-1.5 text-sm rounded-lg inline-flex justify-between items-center gap-2">
                                     <div className="flex items-center gap-2">
@@ -246,14 +377,18 @@ export default function TranscricoesAdminPage() {
                                     </div>
                                   </DropdownMenu.Item>
                                   
-                                  <DropdownMenu.Separator className="h-px bg-[#E2E7F1] dark:bg-[#2A2A38] my-1" />
-                                  
-                                  <DropdownMenu.Item className="relative transition-colors focus:text-foreground w-full data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer select-none outline-none hover:bg-red-50 dark:hover:bg-red-900/20 focus:bg-red-50 dark:focus:bg-red-900/20 px-2 py-1.5 text-sm rounded-lg inline-flex justify-between items-center gap-2 text-red-600 focus:text-red-700">
-                                    <div className="flex items-center gap-2">
-                                      <Trash className="shrink-0 w-4 h-4 opacity-70" />
-                                      <span>Excluir</span>
-                                    </div>
-                                  </DropdownMenu.Item>
+                                  { (isElevated || (!!currentUserId && script.ownerId === currentUserId)) && (
+                                    <>
+                                      <DropdownMenu.Separator className="h-px bg-[#E2E7F1] dark:bg-[#2A2A38] my-1" />
+                                      
+                                      <DropdownMenu.Item className="relative transition-colors focus:text-foreground w-full data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer select-none outline-none hover:bg-red-50 dark:hover:bg-red-900/20 focus:bg-red-50 dark:focus:bg-red-900/20 px-2 py-1.5 text-sm rounded-lg inline-flex justify-between items-center gap-2 text-red-600 focus:text-red-700">
+                                        <div className="flex items-center gap-2">
+                                          <Trash className="shrink-0 w-4 h-4 opacity-70" />
+                                          <span>Excluir</span>
+                                        </div>
+                                      </DropdownMenu.Item>
+                                    </>
+                                  )}
                                 </DropdownMenu.Content>
                               </DropdownMenu.Portal>
                             </DropdownMenu.Root>

@@ -6,12 +6,25 @@ import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
 import { useSession, signOut } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { updateUserName } from '@/lib/actions/user';
 import { deleteUserAccount } from '@/lib/actions/delete-account';
+import { UpdateWorkspaceNameModal } from '@/components/dashboard/UpdateWorkspaceNameModal';
+import { Suspense } from 'react';
+import { Check, X as XIcon } from 'lucide-react';
+import { useSetBreadcrumbs } from '@/lib/breadcrumbs-context';
 
-export default function SettingsPage() {
-  const [activeTab, setActiveTab] = React.useState<'profile' | 'workspaces'>('profile');
+function SettingsContent() {
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get('tab') === 'workspaces' ? 'workspaces' : 'profile';
+  const [activeTab, setActiveTab] = React.useState<'profile' | 'workspaces'>(initialTab);
+
+  useSetBreadcrumbs([
+    { label: 'Configurações', href: '/admin/settings' },
+    { label: activeTab === 'profile' ? 'Perfil' : 'Espaços de Trabalho', active: true }
+  ]);
+
   const { data: session, update: updateSession } = useSession();
   const user = session?.user;
   
@@ -25,7 +38,110 @@ export default function SettingsPage() {
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = React.useState(false);
   const [isUpdateWorkspaceModalOpen, setIsUpdateWorkspaceModalOpen] = React.useState(false);
 
-  const [workspaceName, setWorkspaceName] = React.useState('Meu Workspace');
+  const [workspaceName, setWorkspaceName] = React.useState('Portal Administrativo');
+  
+  const [receivedInvites, setReceivedInvites] = React.useState<any[]>([]);
+  const [isLoadingInvites, setIsLoadingInvites] = React.useState(false);
+  const [membersCount, setMembersCount] = React.useState<number>(1);
+  const [workspacePlan, setWorkspacePlan] = React.useState('Plano Institucional');
+  const [isCreatingWorkspace, setIsCreatingWorkspace] = React.useState(false);
+  const [hasPersonalWorkspace, setHasPersonalWorkspace] = React.useState(false);
+  const [personalWorkspaceName, setPersonalWorkspaceName] = React.useState<string | null>(null);
+  const [personalWorkspaceRole, setPersonalWorkspaceRole] = React.useState<string>('ADMIN');
+
+  // Lê o workspace ativo do cookie (global | personal)
+  const [activeWorkspaceId, setActiveWorkspaceId] = React.useState<string>(() => {
+    if (typeof document === 'undefined') return 'global';
+    const match = document.cookie.match(/(?:^|;\s*)active-workspace=([^;]*)/);
+    return match ? match[1] : 'global';
+  });
+
+  const switchWorkspace = (id: string, displayName: string) => {
+    document.cookie = `active-workspace=${id}; path=/; max-age=86400`;
+    setActiveWorkspaceId(id);
+    toast.success(`Workspace "${displayName}" ativado!`);
+    window.location.reload();
+  };
+
+
+  const handleCreateWorkspace = async () => {
+    if (isCreatingWorkspace) return;
+    setIsCreatingWorkspace(true);
+    try {
+      const res = await fetch('/api/workspace/personal', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        setHasPersonalWorkspace(true);
+        setPersonalWorkspaceName(data.name);
+        if (data.workspaceRole) setPersonalWorkspaceRole(data.workspaceRole);
+        toast.success(`Workspace "${data.name}" criado com sucesso!`);
+        await loadWorkspaceData(); // atualiza a lista imediatamente
+      } else if (res.status === 409) {
+        toast.error('Você já atingiu o limite de 1 espaço de trabalho pessoal.');
+      } else {
+        toast.error('Erro ao criar workspace. Tente novamente.');
+      }
+    } catch {
+      toast.error('Erro ao criar workspace. Tente novamente.');
+    } finally {
+      setIsCreatingWorkspace(false);
+    }
+  };
+
+  const loadWorkspaceData = async () => {
+    setIsLoadingInvites(true);
+    try {
+      const [invitesRes, configRes, personalRes] = await Promise.all([
+        fetch('/api/workspace/invites?type=received'),
+        fetch('/api/workspace/config'),
+        fetch('/api/workspace/personal'),
+      ]);
+
+      if (invitesRes.ok) {
+        setReceivedInvites(await invitesRes.json());
+      }
+      if (configRes.ok) {
+        const configData = await configRes.json();
+        setMembersCount(configData.memberCount || 1);
+        setWorkspaceName(configData.name || 'Portal Administrativo');
+        setWorkspacePlan(configData.plan || 'Plano Institucional');
+      }
+      if (personalRes.ok) {
+        const personalData = await personalRes.json();
+        setHasPersonalWorkspace(personalData.hasIndividualWorkspace);
+        setPersonalWorkspaceName(personalData.name);
+        if (personalData.workspaceRole) setPersonalWorkspaceRole(personalData.workspaceRole);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoadingInvites(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (activeTab === 'workspaces') {
+      loadWorkspaceData();
+    }
+  }, [activeTab]);
+
+  const handleInviteAction = async (id: string, action: 'ACCEPT' | 'DECLINE') => {
+    try {
+      const res = await fetch(`/api/workspace/invites/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      });
+      if (res.ok) {
+        toast.success(action === 'ACCEPT' ? 'Convite aceito!' : 'Convite recusado!');
+        loadWorkspaceData();
+      } else {
+        toast.error('Erro ao processar convite');
+      }
+    } catch (e) {
+      toast.error('Erro inesperado');
+    }
+  };
 
   React.useEffect(() => {
     const saved = localStorage.getItem('pca_workspace_name');
@@ -112,10 +228,6 @@ export default function SettingsPage() {
                 onAction={() => setIsNameModalOpen(true)}
               />
 
-              <SettingsSection 
-                title="Nível de Acesso (Role)"
-                description={(user as any)?.role || 'Usuário'}
-              />
 
               <SettingsSection 
                 title="Compartilhar no Explore"
@@ -177,14 +289,15 @@ export default function SettingsPage() {
                   <p className="text-sm text-black/50 dark:text-white/50 font-medium">Os workspaces são ambientes independentes. Em cada workspace, você pode colaborar com outros membros e gerenciar seus próprios recursos.</p>
                 </div>
                 <button 
-                  onClick={() => setIsCreateWorkspaceModalOpen(true)}
-                  className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-black text-white dark:bg-white dark:text-black shadow-none hover:bg-gray-800 dark:hover:bg-gray-200 h-9 px-3 rounded-[10px]"
+                  onClick={handleCreateWorkspace}
+                  disabled={isCreatingWorkspace}
+                  className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-black text-white dark:bg-white dark:text-black shadow-none hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50 h-9 px-3 rounded-[10px]"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-plus shrink-0 w-[18px] h-[18px] text-[inherit] opacity-100 -ml-[3px] mr-[6px]">
                     <path d="M5 12h14"></path>
                     <path d="M12 5v14"></path>
                   </svg>
-                  Criar Novo Espaço de Trabalho
+                  {isCreatingWorkspace ? 'Criando...' : 'Criar Novo Espaço de Trabalho'}
                 </button>
               </section>
               <section className="mt-4">
@@ -196,96 +309,236 @@ export default function SettingsPage() {
                       <span className="sr-only">Ações</span>
                     </p>
                   </div>
-                  <div className="col-span-full grid grid-cols-[subgrid] transition-opacity duration-200">
-                    <div className="col-span-full grid grid-cols-[subgrid] grid-rows-1 border-b border-gray-100 dark:border-white/10 py-1.5">
-                      <div className="col-span-full grid grid-cols-[subgrid] grid-rows-1 py-1.5 rounded-xl cursor-pointer md:hover:bg-black/5 dark:md:hover:bg-white/5 focus-ring group/row px-0 md:px-2 md:h-13 items-center">
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm text-foreground font-medium">{workspaceName}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm text-black/50 dark:text-white/50 font-normal">Plano Free • 1 membro</p>
-                          </div>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          <p className="text-sm text-foreground font-medium">Administrador</p>
-                        </div>
-                        <div className="flex items-center gap-2 justify-start md:justify-end mt-2 md:mt-0">
-                          <button disabled className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-black text-white dark:bg-white dark:text-black shadow-none active:bg-gray-700 disabled:bg-gray-200 disabled:text-gray-400 dark:disabled:bg-white/10 dark:disabled:text-white/40 h-8 px-2.5 rounded-lg text-xs">
-                            Espaço de Trabalho Atual
-                          </button>
-                          <div className="relative">
-                            <button 
-                              type="button" 
-                              onClick={() => setIsWorkspaceMenuOpen(!isWorkspaceMenuOpen)}
-                              className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-transparent border border-gray-200 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 text-foreground shadow-none h-8 rounded-lg text-sm px-2"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings h-4 w-4">
-                                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                              </svg>
-                            </button>
-                            
-                            {isWorkspaceMenuOpen && (
-                              <>
-                                <div 
-                                  className="fixed inset-0 z-40" 
-                                  onClick={() => setIsWorkspaceMenuOpen(false)}
-                                ></div>
-                                <div className="absolute right-0 top-full mt-2 z-50 bg-white/90 dark:bg-black/90 backdrop-blur text-foreground border border-gray-100 dark:border-white/10 shadow-lg p-1 rounded-[10px] min-w-[max-content] animate-in fade-in-0 zoom-in-95">
-                                  <div 
-                                    role="menuitem" 
-                                    onClick={() => {
-                                      navigator.clipboard.writeText("ws_" + Math.random().toString(36).substr(2, 9));
-                                      toast.success("ID do workspace copiado com sucesso!");
-                                      setIsWorkspaceMenuOpen(false);
-                                    }}
-                                    className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none hover:bg-black/5 dark:hover:bg-white/5 px-2 py-1.5 text-sm rounded-lg"
+                  {(() => {
+                    const pendingInvites = receivedInvites.filter(i => i.status === 'PENDING');
+                    const acceptedInvites = receivedInvites.filter(i => i.status === 'ACCEPTED');
+
+                    return (
+                      <>
+                        <div className="col-span-full grid grid-cols-[subgrid] transition-opacity duration-200">
+                          {/* Current User Workspace */}
+                          <div className="col-span-full grid grid-cols-[subgrid] grid-rows-1 border-b border-gray-100 dark:border-white/10 py-1.5">
+                            <div className="col-span-full grid grid-cols-[subgrid] grid-rows-1 py-1.5 rounded-xl cursor-pointer md:hover:bg-black/5 dark:md:hover:bg-white/5 focus-ring group/row px-0 md:px-2 md:h-13 items-center">
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm text-foreground font-medium">{workspaceName}</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm text-black/50 dark:text-white/50 font-normal">{workspacePlan} • {membersCount} membro{membersCount > 1 || membersCount === 0 ? 's' : ''}</p>
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <p className="text-sm text-foreground font-medium">
+                                  {{
+                                    'ADMIN': 'Administrador',
+                                    'PROFESSOR': 'Professor',
+                                    'ALUNO': 'Aluno',
+                                    'USUARIO': 'Usuário'
+                                  }[(user as any)?.role as string] || 'Usuário'}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2 justify-start md:justify-end mt-2 md:mt-0">
+                                {activeWorkspaceId === 'global' ? (
+                                  <button disabled className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-black text-white dark:bg-white dark:text-black shadow-none active:bg-gray-700 disabled:bg-gray-200 disabled:text-gray-400 dark:disabled:bg-white/10 dark:disabled:text-white/40 h-8 px-2.5 rounded-lg text-xs">
+                                    Espaço de Trabalho Atual
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => switchWorkspace('global', 'Portal Administrativo')}
+                                    className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring bg-transparent border border-gray-200 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 text-foreground shadow-none h-8 px-2.5 rounded-lg text-xs"
                                   >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy mr-2 h-4 w-4">
-                                      <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
-                                      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
-                                    </svg>
-                                    Copiar ID do workspace
-                                  </div>
-                                  <div 
-                                    role="menuitem" 
-                                    onClick={() => {
-                                      setIsWorkspaceMenuOpen(false);
-                                      setIsUpdateWorkspaceModalOpen(true);
-                                    }}
-                                    className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none hover:bg-black/5 dark:hover:bg-white/5 px-2 py-1.5 text-sm rounded-lg mt-0.5"
+                                    Trocar
+                                  </button>
+                                )}
+                                <div className="relative">
+                                  <button 
+                                    type="button" 
+                                    onClick={() => setIsWorkspaceMenuOpen(!isWorkspaceMenuOpen)}
+                                    className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-transparent border border-gray-200 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 text-foreground shadow-none h-8 rounded-lg text-sm px-2"
                                   >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil mr-2 h-4 w-4">
-                                      <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path>
-                                      <path d="m15 5 4 4"></path>
-                                    </svg>
-                                    Alterar Nome do Workspace
-                                  </div>
-                                  <div className="h-[1px] bg-gray-100 dark:bg-white/10 my-1 mx-1" />
-                                  <Link 
-                                    href="/admin/workspace"
-                                    role="menuitem" 
-                                    onClick={() => setIsWorkspaceMenuOpen(false)}
-                                    className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none hover:bg-black/5 dark:hover:bg-white/5 px-2 py-1.5 text-sm rounded-lg"
-                                  >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings mr-2 h-4 w-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings h-4 w-4">
                                       <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
                                       <circle cx="12" cy="12" r="3"></circle>
                                     </svg>
-                                    Ir para Configurações do Workspace
-                                  </Link>
+                                  </button>
+                                  
+                                  {isWorkspaceMenuOpen && (
+                                    <>
+                                      <div 
+                                        className="fixed inset-0 z-40" 
+                                        onClick={() => setIsWorkspaceMenuOpen(false)}
+                                      ></div>
+                                      <div className="absolute right-0 top-full mt-2 z-50 bg-white/90 dark:bg-black/90 backdrop-blur text-foreground border border-gray-100 dark:border-white/10 shadow-lg p-1 rounded-[10px] min-w-[max-content] animate-in fade-in-0 zoom-in-95">
+                                        <div 
+                                          role="menuitem" 
+                                          onClick={() => {
+                                            navigator.clipboard.writeText("ws_" + Math.random().toString(36).substr(2, 9));
+                                            toast.success("ID do workspace copiado com sucesso!");
+                                            setIsWorkspaceMenuOpen(false);
+                                          }}
+                                          className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none hover:bg-black/5 dark:hover:bg-white/5 px-2 py-1.5 text-sm rounded-lg"
+                                        >
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy mr-2 h-4 w-4">
+                                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                                          </svg>
+                                          Copiar ID do workspace
+                                        </div>
+                                        <div 
+                                          role="menuitem" 
+                                          onClick={() => {
+                                            setIsUpdateWorkspaceModalOpen(true);
+                                            setIsWorkspaceMenuOpen(false);
+                                          }}
+                                          className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none hover:bg-black/5 dark:hover:bg-white/5 px-2 py-1.5 text-sm rounded-lg"
+                                        >
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil mr-2 h-4 w-4">
+                                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                                            <path d="m15 5 4 4"></path>
+                                          </svg>
+                                          Editar Perfil do Workspace
+                                        </div>
+                                        <Link 
+                                          href="/admin/settings"
+                                          onClick={() => setIsWorkspaceMenuOpen(false)}
+                                          className="relative transition-colors focus:text-foreground w-full flex cursor-pointer select-none items-center outline-none hover:bg-black/5 dark:hover:bg-white/5 px-2 py-1.5 text-sm rounded-lg text-foreground no-underline"
+                                        >
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings mr-2 h-4 w-4">
+                                            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                          </svg>
+                                          Ir para Configurações do Workspace
+                                        </Link>
+                                      </div>
+                                    </>
+                                  )}
                                 </div>
-                              </>
-                            )}
+                              </div>
+                            </div>
                           </div>
+
+                          {/* Personal Workspace (created by user) */}
+                          {hasPersonalWorkspace && personalWorkspaceName && (
+                            <div className="col-span-full grid grid-cols-[subgrid] grid-rows-1 border-b border-gray-100 dark:border-white/10 py-1.5">
+                              <div className="col-span-full grid grid-cols-[subgrid] grid-rows-1 py-1.5 rounded-xl cursor-default md:hover:bg-black/5 dark:md:hover:bg-white/5 focus-ring px-0 md:px-2 md:h-13 items-center">
+                                <div className="flex flex-col gap-1">
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-sm text-foreground font-medium">{personalWorkspaceName}</p>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-sm text-black/50 dark:text-white/50 font-normal">Plano Pessoal • {membersCount} membro{membersCount > 1 || membersCount === 0 ? 's' : ''}</p>
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                  <p className="text-sm text-foreground font-medium">
+                                    {({'ADMIN': 'Administrador', 'EDITOR': 'Editor', 'VIEWER': 'Visualizador'} as Record<string,string>)[personalWorkspaceRole] ?? personalWorkspaceRole}
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-2 justify-start md:justify-end mt-2 md:mt-0">
+                                  {activeWorkspaceId === 'personal' ? (
+                                    <button disabled className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-black text-white dark:bg-white dark:text-black shadow-none active:bg-gray-700 disabled:bg-gray-200 disabled:text-gray-400 dark:disabled:bg-white/10 dark:disabled:text-white/40 h-8 px-2.5 rounded-lg text-xs">
+                                      Espaço de Trabalho Atual
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={() => switchWorkspace('personal', personalWorkspaceName)}
+                                      className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring bg-transparent border border-gray-200 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 text-foreground shadow-none h-8 px-2.5 rounded-lg text-xs"
+                                    >
+                                      Trocar
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+
+                          {/* Accepted Invites Workspaces */}
+                          {acceptedInvites.map(invite => (
+                            <div key={invite.id} className="col-span-full grid grid-cols-[subgrid] grid-rows-1 border-b border-gray-100 dark:border-white/10 py-1.5">
+                              <div className="col-span-full grid grid-cols-[subgrid] grid-rows-1 py-1.5 rounded-xl cursor-default md:hover:bg-black/5 dark:md:hover:bg-white/5 focus-ring px-0 md:px-2 md:h-13 items-center">
+                                <div className="flex flex-col gap-1">
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-sm text-foreground font-medium">{invite.inviter?.name ? `Workspace de ${invite.inviter.name}` : `Workspace de ${invite.inviter?.email?.split('@')[0] || 'Administrador'}`}</p>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-sm text-black/50 dark:text-white/50 font-normal">Plano Free • Convite de {invite.inviter?.email}</p>
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                  <p className="text-sm text-foreground font-medium">
+                                    {invite.role ? ({
+                                      'ADMIN': 'Administrador',
+                                      'PROFESSOR': 'Professor',
+                                      'ALUNO': 'Aluno',
+                                      'USUARIO': 'Usuário'
+                                    }[invite.role as string] || invite.role) : 'Membro'}
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-2 justify-start md:justify-end mt-2 md:mt-0">
+                                  <button 
+                                    onClick={() => toast.success('Você agora está gerenciando este workspace! (Simulação)')}
+                                    className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring bg-transparent border border-gray-200 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 text-foreground shadow-none h-8 px-2.5 rounded-lg text-xs"
+                                  >
+                                    Trocar
+                                  </button>
+                                  <button 
+                                    className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring disabled:pointer-events-auto bg-transparent border border-gray-200 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 text-foreground shadow-none h-8 rounded-lg text-sm px-2"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings h-4 w-4">
+                                      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                                      <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      </div>
-                    </div>
-                    <div className="col-span-full justify-center items-center h-10 flex">
-                      <p className="text-sm text-black/50 dark:text-white/50 font-normal mt-4">Você não tem convites pendentes para espaços de trabalho.</p>
-                    </div>
-                  </div>
+
+                        {/* Sent/Received Invites Rendering */}
+                        {isLoadingInvites ? (
+                          <div className="col-span-full justify-center items-center h-10 flex mt-4">
+                            <p className="text-sm text-subtle font-normal">Verificando convites...</p>
+                          </div>
+                        ) : pendingInvites.length > 0 ? (
+                          pendingInvites.map(invite => (
+                            <div key={invite.id} className="col-span-full grid grid-cols-[subgrid] grid-rows-1 border-b border-gray-100 dark:border-white/10 py-1.5 mt-2">
+                              <div className="col-span-full grid grid-cols-[subgrid] grid-rows-1 py-1.5 rounded-xl cursor-default md:hover:bg-black/5 dark:md:hover:bg-white/5 focus-ring px-0 md:px-2 md:h-13 items-center">
+                                <div className="flex flex-col gap-1">
+                                  <p className="text-sm text-foreground font-medium">{invite.inviter?.name ? `Workspace de ${invite.inviter.name}` : `Workspace de ${invite.inviter?.email?.split('@')[0] || 'Administrador'}`}</p>
+                                  <p className="text-sm text-black/50 dark:text-white/50 font-normal">Convidado por: {invite.inviter?.email}</p>
+                                </div>
+                                <div className="flex flex-col">
+                                  <p className="text-sm text-foreground font-medium">Convite (Pendente)</p>
+                                </div>
+                                <div className="flex justify-start md:justify-end gap-3 mt-2 md:mt-0">
+                                  <button 
+                                    onClick={() => handleInviteAction(invite.id, 'DECLINE')}
+                                    className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring bg-background border border-gray-200 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 text-foreground h-8 px-2.5 rounded-lg text-sm"
+                                  >
+                                    <XIcon className="w-4 h-4 mr-1.5" />
+                                    Recusar
+                                  </button>
+                                  <button 
+                                    onClick={() => handleInviteAction(invite.id, 'ACCEPT')}
+                                    className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-8 px-2.5 rounded-lg text-sm"
+                                  >
+                                    <Check className="w-4 h-4 mr-1.5" />
+                                    Aceitar
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="col-span-full justify-center items-center h-10 flex mt-4">
+                            <p className="text-sm text-subtle font-normal text-black/50 dark:text-white/50">Você não tem convites pendentes para espaços de trabalho.</p>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </section>
             </div>
@@ -351,6 +604,14 @@ export default function SettingsPage() {
         }}
       />
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen hstack items-center justify-center">Carregando configurações...</div>}>
+      <SettingsContent />
+    </Suspense>
   );
 }
 
@@ -753,94 +1014,6 @@ function CreateWorkspaceModal({
           type="button" 
           onClick={onClose}
           className="absolute right-5 top-5 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus-ring disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground outline-none"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x h-4 w-4">
-            <path d="M18 6 6 18"></path>
-            <path d="m6 6 12 12"></path>
-          </svg>
-          <span className="sr-only">Fechar</span>
-        </button>
-      </div>
-    </>,
-    document.body
-  );
-}
-
-function UpdateWorkspaceNameModal({ 
-  isOpen, 
-  onClose, 
-  currentName,
-  onUpdate
-}: { 
-  isOpen: boolean; 
-  onClose: () => void; 
-  currentName: string;
-  onUpdate?: (name: string) => void;
-}) {
-  const [newName, setNewName] = React.useState(currentName);
-
-  React.useEffect(() => {
-    if (isOpen) {
-      setNewName(currentName);
-    }
-  }, [currentName, isOpen]);
-
-  if (!isOpen || typeof document === 'undefined') return null;
-
-  return createPortal(
-    <>
-      <div 
-        className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" 
-        data-state="open"
-        onClick={onClose}
-      ></div>
-      
-      <div 
-        role="dialog" 
-        data-state="open" 
-        className="fixed left-[50%] top-[50%] z-[100] grid w-full max-w-lg max-h-[90vh] overflow-y-auto translate-x-[-50%] translate-y-[-50%] gap-5 bg-white dark:bg-black p-5 shadow-natural-md duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-3xl focus-visible:outline-0" 
-        tabIndex={-1} 
-      >
-        <div className="flex flex-col space-y-1.5 text-center sm:text-left">
-          <h2 className="text-lg font-semibold leading-6 tracking-tight">Alterar Nome do Workspace</h2>
-          <p className="text-sm text-black/50 dark:text-white/50">Insira um novo nome para o seu espaço de trabalho.</p>
-        </div>
-        
-        <div>
-          <span className="block text-sm font-normal text-gray-700 dark:text-gray-300 mb-1">Novo nome do workspace</span>
-          <input 
-            className="block w-full rounded-md bg-transparent border sm:text-sm px-3 py-2 outline-none dark:border-white/10" 
-            placeholder="Exemplo: Empresa X" 
-            type="text" 
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-          />
-        </div>
-        
-        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5">
-          <button 
-            onClick={onClose}
-            className="relative items-center justify-center whitespace-nowrap text-sm font-medium transition-colors bg-background border border-gray-100 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 text-foreground h-9 px-3 rounded-[10px] inline-flex"
-          >
-            Cancelar
-          </button>
-          <button 
-            disabled={!newName.trim() || newName.trim() === currentName}
-            className="relative items-center justify-center whitespace-nowrap text-sm font-medium transition-colors bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-9 px-3 rounded-[10px] inline-flex disabled:opacity-50"
-            onClick={() => {
-              if (onUpdate && newName.trim() !== currentName) {
-                onUpdate(newName);
-              }
-              onClose();
-            }}
-          >
-            Atualizar
-          </button>
-        </div>
-        
-        <button 
-          onClick={onClose}
-          className="absolute right-5 top-5 rounded-sm opacity-70 hover:opacity-100 outline-none"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x h-4 w-4">
             <path d="M18 6 6 18"></path>

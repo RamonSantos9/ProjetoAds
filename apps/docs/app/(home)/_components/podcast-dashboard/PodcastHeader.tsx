@@ -8,6 +8,8 @@ import { PodcastUserMenu } from './PodcastUserMenu';
 import { cn } from '@xispedocs/ui/utils/cn';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { useBreadcrumbs } from '@/lib/breadcrumbs-context';
+import { Breadcrumbs } from '@/components/dashboard/Breadcrumbs';
 
 const PAGE_TITLES: Record<string, string> = {
   '/admin/home': 'Página Inicial',
@@ -53,6 +55,7 @@ export function getInitials(name: string) {
 export function PodcastHeader() {
   const { data: session } = useSession();
   const { collapsed, setCollapsed, setOpen } = useSidebar();
+  const { items } = useBreadcrumbs();
   const [isDesktopMenuOpen, setIsDesktopMenuOpen] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [isHovered, setIsHovered] = React.useState(false);
@@ -254,14 +257,18 @@ export function PodcastHeader() {
           </button>
 
           <div className="hstack gap-1.5 items-center whitespace-nowrap min-w-0 overflow-hidden w-full py-1 px-1 -mr-1">
-            <div className="shrink-0">
-              <p
-                data-testid="page-title"
-                className="text-sm text-foreground font-medium truncate"
-              >
-                {usePageTitle()}
-              </p>
-            </div>
+            {items && items.length > 0 ? (
+              <Breadcrumbs items={items} />
+            ) : (
+              <div className="shrink-0">
+                <p
+                  data-testid="page-title"
+                  className="text-sm text-foreground font-medium truncate"
+                >
+                  {usePageTitle()}
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="flex-1"></div>
@@ -368,13 +375,17 @@ export function PodcastHeader() {
                 ></rect>
               </svg>
             </button>
-            <div className="hstack gap-2 items-center">
-              <p
-                data-testid="page-title"
-                className="text-sm text-foreground whitespace-nowrap font-medium"
-              >
-                {usePageTitle()}
-              </p>
+            <div className="hstack gap-2 items-center min-w-0 flex-1 overflow-hidden">
+               {items && items.length > 0 ? (
+                <Breadcrumbs items={items} />
+              ) : (
+                <p
+                  data-testid="page-title"
+                  className="text-sm text-foreground whitespace-nowrap font-medium"
+                >
+                  {usePageTitle()}
+                </p>
+              )}
             </div>
           </div>
 

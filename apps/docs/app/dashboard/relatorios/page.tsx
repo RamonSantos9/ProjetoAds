@@ -489,7 +489,7 @@ export default function RelatoriosPage() {
                                 item.status === 'Publicado'
                                   ? 'success'
                                   : item.status === 'Agendado'
-                                    ? 'info'
+                                    ? 'purple'
                                     : 'warning'
                               }
                             >

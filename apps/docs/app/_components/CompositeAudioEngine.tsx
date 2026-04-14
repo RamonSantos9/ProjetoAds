@@ -9,16 +9,19 @@ interface TrackAudioProps {
   isPlaying: boolean;
   playbackRate: number;
   onDurationUpdate?: (id: string, duration: number) => void;
+  forwardedRef?: React.RefObject<HTMLAudioElement | null>;
 }
 
-export const TrackAudio = memo(({ 
+const TrackAudioComponent = ({ 
   track, 
   globalTime, 
   isPlaying, 
   playbackRate,
-  onDurationUpdate
+  onDurationUpdate,
+  forwardedRef
 }: TrackAudioProps) => {
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const internalRef = useRef<HTMLAudioElement>(null);
+  const audioRef = forwardedRef || internalRef;
 
   // Sync playback rate
   useEffect(() => {
@@ -35,8 +38,10 @@ export const TrackAudio = memo(({
 
     if (globalTime >= start && globalTime < end) {
       const localTime = globalTime - start;
-      // Seek if drift is > 150ms to avoid micro-stuttering
-      if (Math.abs(audio.currentTime - localTime) > 0.15) {
+      // Seek if drift is > 300ms to avoid micro-stuttering
+      // CRITICAL: We only sync secondary tracks. The Master track (forwardedRef) 
+      // is the clock source and should NEVER be "corrected" during playback.
+      if (!forwardedRef && Math.abs(audio.currentTime - localTime) > 0.3) {
         audio.currentTime = localTime;
       }
       
@@ -54,10 +59,17 @@ export const TrackAudio = memo(({
     }
   }, [globalTime, isPlaying, track.startTime, track.duration, track.url]);
 
+  if (!track.url || (!track.url.startsWith('http') && !track.url.startsWith('/') && !track.url.startsWith('blob:'))) {
+    return null;
+  }
+
+  // Use the raw URL to avoid double-encoding issues
+  const audioSrc = track.url;
+
   return (
     <audio 
-      ref={audioRef} 
-      src={track.url} 
+      ref={audioRef as any} 
+      src={audioSrc} 
       preload="auto" 
       style={{ display: 'none' }} 
       onLoadedMetadata={(e) => {
@@ -66,9 +78,14 @@ export const TrackAudio = memo(({
           onDurationUpdate?.(track.id, dur);
         }
       }}
+      onError={(e) => {
+        console.error(`Audio Track Error (${track.id}):`, e);
+      }}
     />
   );
-});
+};
+
+export const TrackAudio = memo(TrackAudioComponent);
 TrackAudio.displayName = 'TrackAudio';
 
 interface CompositeAudioEngineProps {
@@ -77,6 +94,7 @@ interface CompositeAudioEngineProps {
   isPlaying: boolean;
   playbackSpeed: number;
   onDurationUpdate?: (id: string, duration: number) => void;
+  masterAudioRef?: React.RefObject<HTMLAudioElement | null>;
 }
 
 export function CompositeAudioEngine({ 
@@ -84,7 +102,8 @@ export function CompositeAudioEngine({
   currentTime, 
   isPlaying, 
   playbackSpeed,
-  onDurationUpdate 
+  onDurationUpdate,
+  masterAudioRef
 }: CompositeAudioEngineProps) {
   return (
     <>
@@ -96,6 +115,7 @@ export function CompositeAudioEngine({
           isPlaying={isPlaying}
           playbackRate={playbackSpeed}
           onDurationUpdate={onDurationUpdate}
+          forwardedRef={track.id === 'audio-main' ? masterAudioRef : undefined}
         />
       ))}
     </>

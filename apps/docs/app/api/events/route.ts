@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { recordPlayEvent, getPlayEvents } from '@/lib/db';
+import { auth } from '@/lib/auth';
+import { getActiveWorkspaceId, validateWorkspaceAccess } from '@/lib/workspace';
 
 // POST /api/events — Registra um evento de play do ouvinte
 export async function POST(req: NextRequest) {
@@ -18,10 +20,22 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET /api/events — Retorna todos os eventos registrados
+// GET /api/events — Retorna os eventos registrados do workspace ativo
 export async function GET() {
+  const activeWorkspaceId = await getActiveWorkspaceId();
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
+  const hasAccess = await validateWorkspaceAccess(session.user.id!, activeWorkspaceId);
+  if (!hasAccess) {
+    return NextResponse.json({ error: 'Acesso Negado' }, { status: 403 });
+  }
+
   try {
-    const events = await getPlayEvents();
+    const events = await getPlayEvents(activeWorkspaceId);
     return NextResponse.json(events);
   } catch {
     return NextResponse.json({ error: 'Erro ao ler eventos' }, { status: 500 });

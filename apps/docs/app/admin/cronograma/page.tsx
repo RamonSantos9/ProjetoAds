@@ -16,6 +16,7 @@ import { ActionButtonRefined } from '@/components/ui/RefinedComponents';
 import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
 import { cn } from '@/lib/cn';
 import { usePathname } from 'next/navigation';
+import { toast } from 'sonner';
 
 interface CalendarEvent {
   id: string;
@@ -105,7 +106,9 @@ export default function CronogramaAdminPage() {
               <ActionButtonRefined
                 label="Agendar Evento"
                 icon={<Plus className="size-5" />}
-                onClick={() => alert('Abrindo seletor de data...')}
+                onClick={() =>
+                  toast.info('Criar novo evento no calendário...')
+                }
               />
             </div>
 

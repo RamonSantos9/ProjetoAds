@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { CompositeAudioEngine } from '@/app/_components/CompositeAudioEngine';
 import { TimelineTrack } from './db';
+import { toast } from 'sonner';
 
 interface Voice {
   name: string;
@@ -168,13 +169,24 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       setCurrentTime(0);
       setIsPlaying(true);
       audio.src = ''; // Clear single-track source
-    } else if (url) {
-      // Single-track mode
-      audio.src = url;
+    } else if (url && (url.startsWith('http') || url.startsWith('/') || url.startsWith('blob:'))) {
+      // Single-track mode - Only set if url looks valid
+      const encodedUrl = encodeURI(url);
+      audio.src = encodedUrl;
       playPromiseRef.current = audio.play();
       playPromiseRef.current.catch((e) => {
-        if (e.name !== 'AbortError') console.error(e);
+        if (e.name !== 'AbortError') {
+          console.error('Audio Playback Error:', e);
+          toast.error("Não foi possível reproduzir o áudio. Verifique se o arquivo ainda existe.", {
+            description: "Erro: " + (e.message || "Arquivo não encontrado"),
+            duration: 5000
+          });
+          setIsPlaying(false);
+        }
       });
+    } else {
+      console.warn('Invalid or unsupported audio URL:', url);
+      toast.error("Link de áudio inválido ou indisponível.");
     }
   };
 
@@ -202,7 +214,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     if (audio) {
       playPromiseRef.current = audio.play();
-      playPromiseRef.current.catch(console.error);
+      playPromiseRef.current.catch((e) => {
+        console.error('Resume playback error:', e);
+        toast.error("Erro ao retomar o áudio.", {
+          description: "O arquivo pode estar inacessível."
+        });
+        setIsPlaying(false);
+      });
     }
   };
 

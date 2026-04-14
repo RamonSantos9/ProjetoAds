@@ -113,7 +113,7 @@ export async function POST(
     await updateEpisode(id, {
       transcriptionText,
       segments: allSegments,
-    }, session.user.id);
+    }, session.user.id!);
 
     return NextResponse.json({
       success: true,

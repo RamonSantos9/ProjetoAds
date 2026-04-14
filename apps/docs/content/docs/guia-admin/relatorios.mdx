@@ -32,7 +32,7 @@ Os dados são apresentados de forma clara e visual:
 
 Se você é um desenvolvedor trabalhando nos relatórios, aqui estão os detalhes da arquitetura de dados:
 
-- **Data Transformation**: Pegamos os dados crus de `db.json` e os processamos no servidor para gerar as agregações necessárias.
+- **Data Transformation**: Pegamos os dados crus do banco de dados (Prisma) e os processamos no servidor para gerar as agregações necessárias.
 - **Chart.js / Recharts**: Utilizamos bibliotecas de visualização para renderizar os gráficos de forma responsiva.
 - **Agregação de Categorias**: Calculamos a frequência de cada categoria (`Map` de JS) para gerar as fatias do gráfico de pizza.
 - **Filtragem Dinâmica**: Os dados podem ser filtrados por período ou status, reagindo instantaneamente às mudanças de estado.

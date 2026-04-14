@@ -20,6 +20,7 @@ import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { cn } from '@/lib/cn';
 import { usePathname } from 'next/navigation';
+import { toast } from 'sonner';
 
 interface InterviewRecord {
   id: string;
@@ -103,7 +104,7 @@ export default function EntrevistasAdminPage() {
               <ActionButtonRefined
                 label="Nova Entrevista"
                 icon={<Plus className="size-5" />}
-                onClick={() => alert('Abrindo formulário de planejamento...')}
+                onClick={() => toast.info('Abrindo formulário de planejamento...')}
               />
             </div>
 

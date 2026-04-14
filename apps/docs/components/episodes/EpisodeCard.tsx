@@ -72,7 +72,8 @@ interface EpisodeCardProps {
   href: string;
   onEdit?: () => void;
   onDelete?: () => void;
-  isAdmin?: boolean;
+  currentUserId?: string;
+  userRole?: string;
   className?: string;
 }
 
@@ -81,9 +82,14 @@ export function EpisodeCard({
   href,
   onEdit,
   onDelete,
-  isAdmin,
+  currentUserId,
+  userRole,
   className,
 }: EpisodeCardProps) {
+  const isElevated = userRole === 'ADMIN' || userRole === 'PROFESSOR';
+  const isOwner = !!currentUserId && episode.ownerId === currentUserId;
+  const canManage = isElevated || isOwner;
+
   return (
     <div className={cn('h-full', className)}>
       <div className="flex flex-col w-full h-[280px] rounded-2xl border overflow-hidden cursor-pointer hover:bg-[#F6F8FA] dark:hover:bg-[#1F2122] transition-all duration-300 relative group bg-background">
@@ -129,9 +135,9 @@ export function EpisodeCard({
                 Criado por:
               </span>
               <span className="text-[11px] text-[#6F6F88] dark:text-[#8A8AA3] truncate flex-1 min-w-0">
-                {episode.ownerName || 'Sistema'}
+                {episode.ownerName || (episode as any).owner?.name || (episode as any).owner?.email || 'Sistema'}
               </span>
-            </div>
+            </div> 
           </div>
           <div className="text-xs truncate text-[#6F6F88] dark:text-[#8A8AA3]">
             {episode.summary}
@@ -140,7 +146,13 @@ export function EpisodeCard({
           <footer className="flex items-center justify-between w-full">
             <div className="flex items-center gap-2">
               <Badge
-                variant={episode.status === 'Publicado' ? 'success' : 'warning'}
+                variant={
+                  episode.status === 'Publicado' 
+                    ? 'success' 
+                    : episode.status === 'Agendado' 
+                      ? 'purple' 
+                      : 'warning'
+                }
                 className="text-[10px] font-bold"
               >
                 {episode.status}
@@ -151,7 +163,7 @@ export function EpisodeCard({
             </div>
 
             <div className="flex items-center gap-1">
-              {isAdmin && onEdit && (
+              {canManage && onEdit && (
                 <button
                   onClick={(e) => {
                     e.preventDefault();
@@ -164,7 +176,7 @@ export function EpisodeCard({
                   <EditIcon />
                 </button>
               )}
-              {isAdmin && onDelete && (
+              {canManage && onDelete && (
                 <button
                   onClick={(e) => {
                     e.preventDefault();
@@ -190,8 +202,13 @@ export function EpisodeListItem({
   href,
   onEdit,
   onDelete,
-  isAdmin,
+  currentUserId,
+  userRole,
 }: EpisodeCardProps) {
+  const isElevated = userRole === 'ADMIN' || userRole === 'PROFESSOR';
+  const isOwner = !!currentUserId && episode.ownerId === currentUserId;
+  const canManage = isElevated || isOwner;
+
   return (
     <div className="w-full">
       <Link
@@ -229,20 +246,26 @@ export function EpisodeListItem({
               {episode.duration}
             </span>
             <span className="truncate flex-1 min-w-0">
-              Criado por: {episode.ownerName || 'Sistema'}
+              Criado por: {episode.ownerName || (episode as any).owner?.name || (episode as any).owner?.email || 'Sistema'}
             </span>
           </div>
         </div>
 
         <Badge
-          variant={episode.status === 'Publicado' ? 'success' : 'warning'}
+          variant={
+            episode.status === 'Publicado' 
+              ? 'success' 
+              : episode.status === 'Agendado' 
+                ? 'purple' 
+                : 'warning'
+          }
           className="hidden sm:inline-flex shrink-0 text-[10px]"
         >
           {episode.status}
         </Badge>
 
         <div className="flex items-center gap-1 shrink-0 ml-2">
-          {isAdmin && onEdit && (
+          {canManage && onEdit && (
             <button
               onClick={(e) => {
                 e.preventDefault();
@@ -254,7 +277,7 @@ export function EpisodeListItem({
               <EditIcon />
             </button>
           )}
-          {isAdmin && onDelete && (
+          {canManage && onDelete && (
             <button
               onClick={(e) => {
                 e.preventDefault();

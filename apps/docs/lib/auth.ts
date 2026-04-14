@@ -109,18 +109,65 @@ export const {
         // Se o usuário veio do login inicial, tentamos pegar as flags se disponíveis no objeto
         if ('joinedGlobalWorkspace' in user) token.isGlobal = (user as any).joinedGlobalWorkspace;
         if ('hasIndividualWorkspace' in user) token.isIndividual = (user as any).hasIndividualWorkspace;
+        if ('onboardingCompletedAt' in user) token.onboarded = !!(user as any).onboardingCompletedAt;
+      }
+
+      // Se temos o sub (ID do usuário), garantimos que ele está no Workspace Global
+      // Otimização: Só tentamos sincronizar se o token ainda não tiver a flag isGlobal ou se houver um trigger específico
+      if (token.sub && !token.isGlobal) {
+        try {
+          // 1. Verificamos se o usuário existe ANTES de qualquer operação
+          const userExists = await prisma.user.findUnique({
+             where: { id: token.sub as string },
+             select: { id: true, joinedGlobalWorkspace: true }
+          });
+
+          if (userExists) {
+            // 2. Garante que o workspace 'global' existe
+            await prisma.$executeRaw`
+              INSERT INTO "GlobalWorkspace" ("id", "name", "type", "plan")
+              VALUES ('global', 'Portal Administrativo', 'Acesso Geral', 'Plano Institucional')
+              ON CONFLICT ("id") DO NOTHING
+            `;
+
+            // 3. Atualiza o usuário se ele ainda não estiver marcado
+            if (!userExists.joinedGlobalWorkspace) {
+              await prisma.user.update({
+                where: { id: token.sub as string },
+                data: { joinedGlobalWorkspace: true }
+              });
+              token.isGlobal = true;
+            } else {
+              token.isGlobal = true;
+            }
+
+            // 4. Garante que é membro do workspace 'global'
+            await prisma.$executeRaw`
+              INSERT INTO "WorkspaceMember" ("id", "userId", "workspaceId", "role", "createdAt")
+              SELECT ${`wm_auth_${Math.random().toString(36).substr(2, 9)}`}, u.id, 'global', 
+                     CASE WHEN u.role = 'ADMIN' THEN 'ADMIN'::"WorkspaceRole" ELSE 'EDITOR'::"WorkspaceRole" END, 
+                     NOW()
+              FROM "User" u
+              WHERE u.id = ${token.sub}
+              ON CONFLICT ("userId", "workspaceId") DO NOTHING
+            `;
+          }
+        } catch (e) {
+          console.error("[Auth] Erro ao sincronizar membro global no JWT:", e);
+        }
       }
 
       // Se não temos as flags no token, buscamos no banco para garantir consistência
-      if (token.sub && (token.isGlobal === undefined || token.isIndividual === undefined)) {
+      if (token.sub && (token.isGlobal === undefined || token.isIndividual === undefined || token.onboarded === undefined)) {
         try {
           const dbUser = await prisma.user.findUnique({
             where: { id: token.sub as string },
-            select: { joinedGlobalWorkspace: true, hasIndividualWorkspace: true }
+            select: { joinedGlobalWorkspace: true, hasIndividualWorkspace: true, onboardingCompletedAt: true }
           });
           if (dbUser) {
             token.isGlobal = dbUser.joinedGlobalWorkspace;
             token.isIndividual = dbUser.hasIndividualWorkspace;
+            token.onboarded = !!dbUser.onboardingCompletedAt;
           }
         } catch (e) {
           console.error("Erro ao buscar info de workspace no JWT:", e);
@@ -133,6 +180,8 @@ export const {
         if (session.name) token.name = session.name;
         if (session.image) token.picture = session.image;
         if (session.isGlobal !== undefined) token.isGlobal = session.isGlobal;
+        if (session.onboarded !== undefined) token.onboarded = session.onboarded;
+        if (session.hasIndividualWorkspace !== undefined) token.isIndividual = session.hasIndividualWorkspace;
       }
       return token;
     },
@@ -142,6 +191,7 @@ export const {
         (session.user as any).id = token.sub;
         (session.user as any).joinedGlobalWorkspace = token.isGlobal;
         (session.user as any).hasIndividualWorkspace = token.isIndividual;
+        (session.user as any).onboarded = token.onboarded;
         if (token.name) session.user.name = token.name;
         if (token.picture) session.user.image = token.picture;
       }

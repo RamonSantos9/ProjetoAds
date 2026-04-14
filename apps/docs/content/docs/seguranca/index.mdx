@@ -42,7 +42,7 @@ return (
 
 ### Segurança na Camada de Dados
 
-Toda mutação de dados (POST, PUT, DELETE) é validada nos _API Routes_ do Next.js. Mesmo que um usuário tente forçar uma ação via console, o servidor verifica a origem da requisição e as credenciais associadas à sessão antes de persistir alterações no `db.json`.
+Toda mutação de dados (POST, PUT, DELETE) é validada nos _API Routes_ do Next.js. Mesmo que um usuário tente forçar uma ação via console, o servidor verifica a origem da requisição e as credenciais associadas à sessão antes de persistir alterações no banco de dados.
 
 <Callout type="error">
   Nenhuma funcionalidade de exclusão ou alteração de pauta é exposta fora do

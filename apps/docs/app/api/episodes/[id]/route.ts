@@ -51,7 +51,7 @@ export async function PATCH(
       ...(status && { status }),
       ...(tracks && { tracks }),
       ...(assets && { assets }),
-    }, session.user.id);
+    }, session.user.id!, (session.user as any).role);
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
@@ -70,7 +70,7 @@ export async function DELETE(
 
   try {
     const { id } = await params;
-    await deleteEpisode(id, session.user.id);
+    await deleteEpisode(id, session.user.id!, (session.user as any).role);
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('[API Delete Episode] Error:', error);

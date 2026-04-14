@@ -2,18 +2,54 @@
 
 import React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { toast } from 'sonner';
 
 interface InviteMembersModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
 export function InviteMembersModal({ 
   isOpen, 
-  onOpenChange 
+  onOpenChange,
+  onSuccess
 }: InviteMembersModalProps) {
+  const [email, setEmail] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!isOpen) setEmail('');
+  }, [isOpen]);
+
+  async function handleInvite() {
+    if (!email) return;
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/workspace/invites', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || 'Erro ao enviar convite');
+      } else {
+        toast.success('Convite enviado com sucesso!');
+        onOpenChange(false);
+        if (onSuccess) onSuccess();
+      }
+    } catch (error) {
+      toast.error('Ocorreu um erro inesperado.');
+    } finally {
+      setIsLoading(false);
+    }
+  }
   return (
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -53,7 +89,10 @@ export function InviteMembersModal({
                       <label className="text-sm text-foreground font-medium">Convidar colega</label>
                       <input 
                         type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         placeholder="Endereço de e-mail"
+                        disabled={isLoading}
                         className="flex w-full border border-gray-alpha-200 bg-transparent shadow-none transition-colors placeholder:text-[#5b5b64] dark:placeholder:text-gray-400 focus-ring focus-visible:border-foreground hover:border-gray-alpha-300 h-9 px-3 py-1 text-sm rounded-[10px] outline-none"
                       />
                     </div>
@@ -70,9 +109,11 @@ export function InviteMembersModal({
                       Cancelar
                     </button>
                     <button 
-                      disabled
-                      className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors bg-foreground text-background shadow-none hover:bg-gray-800 disabled:bg-gray-400 disabled:text-gray-100 h-9 px-4 rounded-[10px]"
+                      disabled={isLoading || !email}
+                      onClick={handleInvite}
+                      className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors bg-foreground text-background shadow-none hover:bg-gray-800 disabled:bg-gray-400 disabled:text-gray-100 h-9 px-4 rounded-[10px] gap-2"
                     >
+                      {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                       Convidar
                     </button>
                   </div>

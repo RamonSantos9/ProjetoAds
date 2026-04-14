@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
-import { addEpisode, Episode } from '@/lib/db';
+import { getActiveWorkspaceId, validateWorkspaceAccess } from '@/lib/workspace';
 
 export async function GET() {
   const session = await auth();
@@ -9,17 +9,17 @@ export async function GET() {
     return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
   }
 
-  const userId = session.user.id;
-  const userObj = session.user as any;
-  const role = userObj.role;
-  const isGlobal = userObj.joinedGlobalWorkspace === true;
-  
-  // Perfil elevado (Admin/Professor) ou quem faz parte do Workspace Global vê tudo
-  const canSeeAll = role === 'ADMIN' || role === 'PROFESSOR' || isGlobal;
+  const activeWorkspaceId = await getActiveWorkspaceId();
+
+  // VALIDAR ACESSO
+  const hasAccess = await validateWorkspaceAccess(session.user.id!, activeWorkspaceId);
+  if (!hasAccess) {
+    return NextResponse.json({ error: 'Acesso Negado' }, { status: 403 });
+  }
 
   try {
     const episodes = await prisma.episode.findMany({
-      where: canSeeAll ? {} : { ownerId: userId },
+      where: { workspaceId: activeWorkspaceId },
       include: { 
         guests: { include: { guest: true } },
         owner: { select: { id: true, name: true, email: true, image: true } }
@@ -27,9 +27,9 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
     
-    // Simplificar o mapeamento aqui ou usar a função helper se estivesse disponível globalmente
     return NextResponse.json(episodes);
   } catch (error) {
+    console.error('[GET /api/episodes]', error);
     return NextResponse.json({ error: 'Falha ao buscar episódios' }, { status: 500 });
   }
 }
@@ -41,10 +41,29 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body: Episode = await request.json();
-    await addEpisode(body, session.user.id);
-    return NextResponse.json({ success: true, episode: body });
+    const activeWorkspaceId = await getActiveWorkspaceId();
+
+    // VALIDAR ACESSO
+    const hasAccess = await validateWorkspaceAccess(session.user.id!, activeWorkspaceId);
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Acesso Negado' }, { status: 403 });
+    }
+    
+    const body = await request.json();
+
+    const episode = await prisma.episode.create({
+      data: {
+        ...body,
+        ownerId: session.user.id!,
+        workspaceId: activeWorkspaceId,
+        // Limpar campos que não pertencem ao modelo direto se necessário
+        guests: undefined, 
+      }
+    });
+
+    return NextResponse.json({ success: true, episode });
   } catch (error: any) {
+    console.error('[POST /api/episodes]', error);
     return NextResponse.json(
       { error: error.message || 'Falha ao salvar episódio' },
       { status: 500 },

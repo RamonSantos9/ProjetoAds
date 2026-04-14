@@ -3,13 +3,34 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
+import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
+import { UpdateWorkspaceNameModal } from '@/components/dashboard/UpdateWorkspaceNameModal';
+import { updateWorkspaceName } from '@/lib/actions/workspace';
 
 export default function WorkspaceSettingsPage() {
-  const [workspaceName, setWorkspaceName] = React.useState('Meu Workspace');
+  const { data: session } = useSession();
+  const [workspaceName, setWorkspaceName] = React.useState('Portal Administrativo');
+  const [workspaceType, setWorkspaceType] = React.useState('Acesso Geral');
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = React.useState(false);
+
+  const userRole = (session?.user as any)?.role;
+  const isAdmin = userRole === 'ADMIN';
 
   React.useEffect(() => {
-    const saved = localStorage.getItem('pca_workspace_name');
-    if (saved) setWorkspaceName(saved);
+    async function loadWorkspace() {
+      try {
+        const res = await fetch('/api/workspace/config');
+        if (res.ok) {
+          const data = await res.json();
+          setWorkspaceName(data.name);
+          setWorkspaceType(data.type);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar workspace:', err);
+      }
+    }
+    loadWorkspace();
   }, []);
 
   return (
@@ -66,95 +87,37 @@ export default function WorkspaceSettingsPage() {
                   <p className="text-md text-foreground font-medium">Nome do Espaço de Trabalho</p>
                   <p className="text-sm text-black/50 dark:text-white/50 font-normal">{workspaceName}</p>
                 </div>
-                <button className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors duration-75 bg-transparent border border-gray-200 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 text-foreground h-9 px-3 rounded-[10px]">
-                  Alterar Nome do Workspace
-                </button>
-              </section>
-
-              {/* Seção Acesso */}
-              <section className="relative flex gap-6 items-center justify-between py-4">
-                <div className="flex flex-col gap-1">
-                  <p className="text-md text-foreground font-medium">Acesso Padrão para Novos Recursos</p>
-                  <p className="text-sm text-black/50 dark:text-white/50 font-normal">Somente administradores em {workspaceName} podem acessar vozes, projetos e outros recursos recém-criados.</p>
-                </div>
-                <button className="flex gap-0.5 items-center justify-between whitespace-nowrap transition-colors bg-transparent border border-gray-200 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 text-foreground h-9 pl-3 pr-2 py-2 text-sm rounded-[10px] shrink-0 w-auto">
-                  <span>Restrito</span>
-                  <div className="flex h-4 w-4 items-center justify-center opacity-50">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down h-4 w-4 min-w-fit">
-                      <path d="m6 9 6 6 6-6"></path>
-                    </svg>
-                  </div>
-                </button>
-              </section>
-
-              {/* Seção Uso */}
-              <section className="relative flex items-center justify-between gap-3 py-4">
-                <div className="flex flex-col">
-                  <p className="text-md text-foreground font-medium">Unidades de Exibição de Uso</p>
-                  <p className="text-sm text-black/50 dark:text-white/50 font-normal">Escolha como o uso é exibido no workspace</p>
-                </div>
-                <button className="flex gap-0.5 items-center justify-between whitespace-nowrap transition-colors bg-transparent border border-gray-200 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 text-foreground h-9 pl-3 pr-2 py-2 text-sm rounded-[10px] w-32">
-                  <span>Créditos</span>
-                  <div className="flex h-4 w-4 items-center justify-center opacity-50">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down h-4 w-4 min-w-fit">
-                      <path d="m6 9 6 6 6-6"></path>
-                    </svg>
-                  </div>
-                </button>
-              </section>
-
-              {/* Seção Assentos */}
-              <section className="relative flex items-center justify-between gap-3 py-4">
-                <div className="flex items-center gap-2">
-                  <div className="flex flex-col">
-                    <p className="text-md text-foreground font-medium">Assentos</p>
-                    <p className="text-sm text-black/50 dark:text-white/50 font-normal">1 Assentos Completos, 20 Assentos Básicos</p>
-                  </div>
-                </div>
-                <button className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors duration-75 bg-transparent border border-gray-200 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 text-foreground h-9 px-3 rounded-[10px]">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 mr-2 text-black/50 dark:text-white/50">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"></path>
-                  </svg> 
-                  Adicionar Mais Vagas
-                </button>
-              </section>
-
-              {/* Seção Clones */}
-              <section className="relative flex items-center justify-between gap-3 py-4">
-                <div className="flex items-center gap-2">
-                  <div className="flex flex-col">
-                    <p className="text-md text-foreground font-medium">Clones de Voz Profissionais</p>
-                    <p className="text-sm text-black/50 dark:text-white/50 font-normal">0 slots PVC</p>
-                  </div>
-                </div>
-                <button className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors duration-75 bg-transparent border border-gray-200 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 text-foreground h-9 px-3 rounded-[10px]">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-5 h-5 mr-2 text-black/50 dark:text-white/50">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 10v4m4.5-3v2M12 6v12m4.5-15v18M21 10v4"></path>
-                  </svg> 
-                  Adicionar Mais Slots PVC
-                </button>
-              </section>
-
-              {/* Seção Inatividade */}
-              <section className="relative flex items-center justify-between gap-3 py-4">
-                <div className="flex items-center gap-2">
-                  <div className="flex flex-col">
-                    <p className="text-md text-foreground font-medium">Tempo de Inatividade da Sessão</p>
-                    <p className="text-sm text-black/50 dark:text-white/50 font-normal">Não habilitado</p>
-                  </div>
-                </div>
-                <button className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors duration-75 bg-transparent border border-gray-200 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 text-foreground h-9 px-3 rounded-[10px]">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 mr-2 text-black/50 dark:text-white/50">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
-                  </svg> 
-                  Alterar Tempo de Inatividade da Sessão
-                </button>
+                {isAdmin && (
+                  <button 
+                    onClick={() => setIsUpdateModalOpen(true)}
+                    className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors duration-75 bg-transparent border border-gray-200 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 text-foreground h-9 px-3 rounded-[10px]"
+                  >
+                    Alterar Nome do Workspace
+                  </button>
+                )}
               </section>
 
             </main>
           </div>
         </main>
       </div>
+
+      <UpdateWorkspaceNameModal
+        isOpen={isUpdateModalOpen}
+        onClose={() => setIsUpdateModalOpen(false)}
+        currentName={workspaceName}
+        onUpdate={async (newName) => {
+          const res = await updateWorkspaceName(newName);
+          if (res.error) {
+            toast.error(res.error);
+          } else {
+            setWorkspaceName(newName);
+            toast.success("Nome do workspace global atualizado com sucesso!");
+            // Sincroniza localstorage por compatibilidade legada se necessário
+            localStorage.setItem('pca_workspace_name', newName);
+          }
+        }}
+      />
     </div>
   );
 }

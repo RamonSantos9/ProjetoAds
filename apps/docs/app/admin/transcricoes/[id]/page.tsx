@@ -11,6 +11,7 @@ import { TranscriptionShortcutsModal } from '../_components/TranscriptionShortcu
 import { TimelineTrack, UploadedFile, TranscriptionSegment, Episode, SharingConfig } from '@/lib/db';
 import { toast } from 'sonner';
 import { ShareProjectModal } from '../_components/ShareProjectModal';
+import { useSession } from 'next-auth/react';
 
 // ── Inline styles ──────────────────────────────────────────────────────────────
 const studioStyles = `
@@ -112,6 +113,7 @@ import { CompositeAudioEngine, TrackAudio } from '@/app/_components/CompositeAud
 
 export default function TranscriptionStudioPage() {
   const params = useParams();
+  const { data: session } = useSession();
   const router = useRouter();
   const id = params?.id as string;
 
@@ -188,36 +190,52 @@ export default function TranscriptionStudioPage() {
   const isDraggingRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // ── High Accuracy Global Clock Loop ──
+  // ── High Accuracy Global Clock Loop (INTERNAL ONLY) ──
+  // This loop keeps the INTERNAL timer precise at 60fps but updates 
+  // the React state ONLY at 10fps to avoid "Main Thread Blocking".
+  const lastStateUpdateTimeRef = useRef(0);
+  
   useEffect(() => {
     let rafId: number;
     let lastTime = performance.now();
 
     const loop = (now: number) => {
+      const audio = audioRef.current;
+      
       if (isPlaying && !isDragging) {
-        const delta = (now - lastTime) / 1000;
-        setCurrentTime(prev => {
-          const next = prev + delta * playbackSpeed;
-          
-          // Calculate max duration based only on tracks for stopping logic
-          const audioDuration = tracks.length > 0 
-            ? Math.max(...tracks.map(t => t.startTime + t.duration)) 
-            : 0;
+        // SOURCE OF TRUTH: Read from hardware audio clock whenever possible
+        // This ensures zero stuttering and perfect sync with the sound
+        let next = currentTimeRef.current;
+        
+        if (audio && !audio.paused) {
+          next = audio.currentTime;
+        } else {
+          // Fallback to manual delta only if audio isn't active/ready
+          const delta = (now - lastTime) / 1000;
+          next = currentTimeRef.current + delta * playbackSpeed;
+        }
 
-          // If we reached the end of the last track, stop and reset (looping or sticking at 0 is common)
-          if (audioDuration > 0 && next >= audioDuration) {
-            setIsPlaying(false);
-            return audioDuration; // Stop exactly at the end
-          }
-          
-          // If no tracks, use a default 60s cap for the playhead if play is clicked
-          if (tracks.length === 0 && next >= 60) {
-            setIsPlaying(false);
-            return 0;
-          }
+        currentTimeRef.current = next;
+        
+        // Precision Stopping Logic
+        const audioDuration = tracksRef.current.length > 0 
+          ? Math.max(...tracksRef.current.map(t => t.startTime + t.duration)) 
+          : 0;
 
-          return next;
-        });
+        if (audioDuration > 0 && next >= audioDuration) {
+          setIsPlaying(false);
+          if (audio) audio.pause();
+          currentTimeRef.current = audioDuration;
+          setCurrentTime(audioDuration);
+          return;
+        }
+
+        // THROTLED React State Update (30fps / ~33ms)
+        // Balanced for smooth individual word highlights without lag
+        if (now - lastStateUpdateTimeRef.current > 33) {
+          setCurrentTime(next);
+          lastStateUpdateTimeRef.current = now;
+        }
       }
       lastTime = now;
       rafId = requestAnimationFrame(loop);
@@ -225,26 +243,25 @@ export default function TranscriptionStudioPage() {
 
     rafId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafId);
-  }, [isPlaying, isDragging, playbackSpeed, tracks]);
-
-  useEffect(() => {
-    console.log('[Studio] State Update - Tracks:', tracks.length, 'Segments:', segments.length);
-  }, [tracks, segments]);
+  }, [isPlaying, isDragging, playbackSpeed]); // Simplified deps
 
   // ── Sync state to refs for stable keyboard listener ──
+  // Consolidated into a single effect to reduce overhead
   const tracksRef = useRef(tracks);
   const segmentsRef = useRef(segments);
   const currentTimeRef = useRef(currentTime);
   const projectTitleRef = useRef(projectTitle);
-  const isSavingRefState = useRef(isSaving); // renamed from isSaving to avoid clash if any
+  const isSavingRefState = useRef(isSaving);
   const isLoadingRef = useRef(isLoading);
 
-  useEffect(() => { tracksRef.current = tracks; }, [tracks]);
-  useEffect(() => { segmentsRef.current = segments; }, [segments]);
-  useEffect(() => { currentTimeRef.current = currentTime; }, [currentTime]);
-  useEffect(() => { projectTitleRef.current = projectTitle; }, [projectTitle]);
-  useEffect(() => { isSavingRefState.current = isSaving; }, [isSaving]);
-  useEffect(() => { isLoadingRef.current = isLoading; }, [isLoading]);
+  useEffect(() => {
+    tracksRef.current = tracks;
+    segmentsRef.current = segments;
+    projectTitleRef.current = projectTitle;
+    isSavingRefState.current = isSaving;
+    isLoadingRef.current = isLoading;
+    // currentTimeRef is updated inside the loop for high precision
+  }, [tracks, segments, projectTitle, isSaving, isLoading]);
 
   useEffect(() => { isLoadingRef.current = isLoading; }, [isLoading]);
 
@@ -260,8 +277,17 @@ export default function TranscriptionStudioPage() {
         const res = await fetch(`/api/episodes/${cleanId}`, { cache: 'no-store' });
         if (res.ok) {
           const ep: Episode = await res.json();
-          console.log('[Studio] Episódio carregado:', ep.id, ep.title);
           
+          // ── Permission Check ──
+          const userRole = (session?.user as any)?.role;
+          const isElevated = userRole === 'ADMIN' || userRole === 'PROFESSOR';
+          const isOwner = !!session?.user?.id && ep.ownerId === session?.user?.id;
+          
+          if (!isElevated && !isOwner) {
+            setIsLocked(true);
+            console.log('[Studio] Bloqueando edição: Usuário não é proprietário nem admin/prof.');
+          }
+
           setEpisode(ep);
           setProjectTitle(ep.title || 'Projeto de Transcrição');
           
@@ -509,7 +535,11 @@ export default function TranscriptionStudioPage() {
 
   const togglePlaybackSpeed = () => {
     const speeds = [0.8, 1.0, 1.2, 1.5, 2.0];
-    setPlaybackSpeed((p) => speeds[(speeds.indexOf(p) + 1) % speeds.length]);
+    const newSpeed = speeds[(speeds.indexOf(playbackSpeed) + 1) % speeds.length];
+    setPlaybackSpeed(newSpeed);
+    if (audioRef.current) {
+      audioRef.current.playbackRate = newSpeed;
+    }
   };
 
   // ── Native Audio Sync ──
@@ -593,9 +623,10 @@ export default function TranscriptionStudioPage() {
 
   const onSeek = (newTime: number) => {
     setCurrentTime(newTime);
+    currentTimeRef.current = newTime;
+    lastTimeUpdateRef.current = newTime;
     if (audioRef.current) {
       audioRef.current.currentTime = newTime;
-      lastTimeUpdateRef.current = newTime;
     }
   };
 
@@ -632,7 +663,8 @@ export default function TranscriptionStudioPage() {
     const maxTime = tracks.length > 0
       ? Math.max(...tracks.map((t) => t.startTime + t.duration), 60)
       : 60;
-    setCurrentTime(Math.max(0, Math.min(maxTime, (clientX - rect.left) / 136.5)));
+    const newTime = Math.max(0, Math.min(maxTime, (clientX - rect.left) / 136.5));
+    onSeek(newTime);
   };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -669,6 +701,28 @@ export default function TranscriptionStudioPage() {
         projectTitle={projectTitle}
         onTitleChange={setProjectTitle}
         onSave={handleSaveTranscription}
+        status={episode?.status || 'Produção'}
+        scheduledAt={episode?.scheduledAt}
+        onStatusChange={async (newStatus, newDate) => {
+          if (!episode) return;
+          const cleanId = id.startsWith('scr-') ? id.replace('scr-', '') : id;
+          try {
+            const res = await fetch(`/api/episodes/${cleanId}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                status: newStatus,
+                scheduledAt: newDate || null
+              })
+            });
+            if (res.ok) {
+              setEpisode(prev => prev ? { ...prev, status: newStatus as any, scheduledAt: newDate || null } : null);
+              toast.success(`Status atualizado para ${newStatus}`);
+            }
+          } catch (err) {
+            toast.error('Erro ao atualizar status');
+          }
+        }}
         onOpenShortcuts={() => setIsShortcutsModalOpen(true)}
         onOpenShare={() => {
            console.log('[Studio] Triggering share modal state');
@@ -791,12 +845,11 @@ export default function TranscriptionStudioPage() {
                                    seg={seg}
                                    isActive={seg.id === activeSegmentId}
                                    isLocked={isLocked}
-                                   currentTime={currentTime}
+                                   currentTime={seg.id === activeSegmentId ? currentTime : -1}
                                    forceCapitalize={sIdx === 0 || needsLineBreak}
                                    onBlur={updateSegmentText}
                                    onClick={(start) => {
-                                      setCurrentTime(start);
-                                      if (audioRef.current) audioRef.current.currentTime = start;
+                                      onSeek(start);
                                    }}
                                  />
                                </React.Fragment>
@@ -823,6 +876,7 @@ export default function TranscriptionStudioPage() {
         setIsPlaying={setIsPlaying}
         isDragging={isDragging}
         currentTime={currentTime}
+        currentTimeRef={currentTimeRef}
         playbackSpeed={playbackSpeed}
         togglePlaybackSpeed={togglePlaybackSpeed}
         timelineRef={timelineRef}
@@ -855,6 +909,7 @@ export default function TranscriptionStudioPage() {
         onDurationUpdate={(id, dur) => {
           setTracks(prev => prev.map(t => t.id === id ? { ...t, duration: dur } : t));
         }}
+        masterAudioRef={audioRef}
       />
 
       <ShareProjectModal 
@@ -865,6 +920,7 @@ export default function TranscriptionStudioPage() {
         sharingConfig={sharingConfig}
         onSaveSharing={handleUpdateSharing}
       />
+
     </div>
   );
 }

@@ -22,6 +22,7 @@ import { ThemeToggle } from '@xispedocs/ui/components/layout/theme-toggle';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { cn } from '@/lib/cn';
 import { usePathname } from 'next/navigation';
+import { toast } from 'sonner';
 
 interface SoundAsset {
   id: string;
@@ -116,7 +117,7 @@ export default function VinhetasAdminPage() {
                 label="Novo Áudio"
                 icon={<Plus className="size-5" />}
                 onClick={() =>
-                  alert('Selecione um arquivo .mp3 ou .wav para upload.')
+                  toast.info('Selecione um arquivo .mp3 ou .wav para upload.')
                 }
               />
             </div>

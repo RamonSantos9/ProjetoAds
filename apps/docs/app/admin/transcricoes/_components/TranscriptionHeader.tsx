@@ -16,6 +16,10 @@ interface TranscriptionHeaderProps {
   onSave?: (newTitle?: string) => void;
   onOpenShortcuts?: () => void;
   onOpenShare?: () => void;
+  status: string;
+  scheduledAt?: string | null;
+  onStatusChange?: (newStatus: string, scheduledAt?: string | null) => void;
+  isLocked?: boolean;
 }
 
 export function TranscriptionHeader({
@@ -29,11 +33,16 @@ export function TranscriptionHeader({
   onSave,
   onOpenShortcuts,
   onOpenShare,
+  status: currentStatus,
+  scheduledAt,
+  onStatusChange,
+  isLocked,
 }: TranscriptionHeaderProps) {
   const [isProjectPopoverOpen, setIsProjectPopoverOpen] = useState(false);
   const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [titleInput, setTitleInput] = useState(projectTitle);
+  const [isStatusPopoverOpen, setIsStatusPopoverOpen] = useState(false);
 
   React.useEffect(() => {
     setTitleInput(projectTitle);
@@ -113,8 +122,9 @@ export function TranscriptionHeader({
               <div className="grid items-center w-full relative">
                 <span className="invisible col-start-1 row-start-1 whitespace-pre truncate px-0">{titleInput || 'Projeto Sem Título'}</span>
                 <input 
-                  className="col-start-1 row-start-1 bg-transparent outline-none w-full relative z-10 text-xm font-medium truncate"
+                  className="col-start-1 row-start-1 bg-transparent outline-none w-full relative z-10 text-xm font-medium truncate disabled:cursor-default"
                   value={titleInput}
+                  disabled={isLocked}
                   onChange={(e) => setTitleInput(e.target.value)}
                   onBlur={() => {
                     const finalTitle = titleInput.trim() || 'Projeto Sem Título';
@@ -178,20 +188,80 @@ export function TranscriptionHeader({
           Compartilhar
         </button>
         
-        <div className="flex items-center gap-2">
-          <button type="button" className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 text-foreground h-8 px-2.5 rounded-lg text-xm">
-            <span className="flex items-center gap-1.5 text-[12px]">
-              <span className="block h-2 w-2 shrink-0 rounded-full bg-gray-400"></span>Rascunho
-            </span>
-          </button>
-          <button 
-            type="button" 
-            onClick={() => onSave && onSave(titleInput)}
-            disabled={isSaving}
-            className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring bg-black text-white dark:bg-white dark:text-black shadow-none hover:bg-gray-800 h-8 px-2.5 rounded-lg text-xm disabled:opacity-50"
-          >
-            {isSaving ? 'Salvando...' : 'Publicar'}
-          </button>
+        <div className="flex items-center gap-2 relative">
+          {/* Status Picker */}
+          <div className="relative">
+            <button 
+              type="button" 
+              disabled={isLocked}
+              onClick={() => setIsStatusPopoverOpen(!isStatusPopoverOpen)}
+              className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring bg-background border border-gray-alpha-200 hover:bg-gray-alpha-50 text-foreground h-8 px-2.5 rounded-lg text-xm disabled:opacity-70 disabled:cursor-default"
+            >
+              <span className="flex items-center gap-1.5 text-[12px]">
+                <span className={cn(
+                  "block h-2 w-2 shrink-0 rounded-full",
+                  currentStatus === 'Publicado' ? "bg-green-500" : 
+                  currentStatus === 'Agendado' ? "bg-purple-600" : "bg-blue-500 animate-pulse"
+                )}></span>
+                {currentStatus}
+                {currentStatus === 'Agendado' && scheduledAt && (
+                   <span className="opacity-50 font-normal">({new Date(scheduledAt).toLocaleDateString([], { day: '2-digit', month: '2-digit' })})</span>
+                )}
+              </span>
+            </button>
+
+            {/* Status Dropdown Popover */}
+            {isStatusPopoverOpen && (
+              <div className="absolute top-full right-0 mt-1 w-48 bg-white dark:bg-[#121212] border border-[#E2E7F1] dark:border-[#2A2A38] rounded-xl shadow-xl z-50 p-1 animate-in fade-in zoom-in-95 duration-100">
+                <button 
+                  onClick={() => {
+                    onStatusChange?.('Produção');
+                    setIsStatusPopoverOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg flex items-center gap-2"
+                >
+                  <div className="h-2 w-2 rounded-full bg-blue-500" />
+                  Produção
+                </button>
+                <button 
+                  onClick={() => {
+                    onStatusChange?.('Publicado');
+                    setIsStatusPopoverOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg flex items-center gap-2"
+                >
+                  <div className="h-2 w-2 rounded-full bg-green-500" />
+                  Publicado
+                </button>
+                <div className="h-px bg-[#E2E7F1] dark:bg-[#2A2A38] my-1" />
+                <div className="px-3 py-2">
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold mb-2">Agendar Publicação</p>
+                  <input 
+                    type="date" 
+                    className="w-full bg-transparent border border-[#E2E7F1] dark:border-[#2A2A38] rounded-lg px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-fd-primary"
+                    value={scheduledAt ? new Date(scheduledAt).toISOString().split('T')[0] : ''}
+                    onChange={(e) => {
+                      const date = e.target.value;
+                      if (date) {
+                         onStatusChange?.('Agendado', new Date(date).toISOString());
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          { !isLocked && (
+            <button 
+              type="button" 
+              onClick={() => onSave && onSave(titleInput)}
+              disabled={isSaving}
+              className="relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors duration-75 focus-ring bg-black text-white dark:bg-white dark:text-black shadow-none hover:bg-gray-800 h-8 px-2.5 rounded-lg text-xm disabled:opacity-50"
+            >
+              {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+            </button>
+          )}
         </div>
         
         <div className="h-4 w-px bg-[#E2E7F1] dark:bg-[#2A2A38] mx-1"></div>

@@ -7,6 +7,7 @@ import {
   type Language,
   languages,
 } from '../_data/landing';
+import { toast } from 'sonner';
 
 export interface CharAlignment {
   characters: string[];
@@ -203,7 +204,7 @@ export function usePodcastVoice() {
             id,
           );
         } catch {
-          alert('Sem áudio: verifique sua Chave da API do PodcastAds.');
+          toast.error('Sem áudio: verifique sua Chave da API do PodcastAds.');
           setCurrentPreviewingId(null);
         }
         return;

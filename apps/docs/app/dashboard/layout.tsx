@@ -4,6 +4,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { SidebarProvider, useSidebar } from '@xispedocs/ui/contexts/sidebar';
 import { PodcastSidebar } from '@/app/(home)/_components/podcast-dashboard/PodcastSidebar';
 import { PodcastHeader } from '@/app/(home)/_components/podcast-dashboard/PodcastHeader';
+import { BreadcrumbProvider } from '@/lib/breadcrumbs-context';
 
 function GridLayout({ children }: { children: ReactNode }) {
   const { collapsed } = useSidebar();
@@ -32,7 +33,9 @@ function GridLayout({ children }: { children: ReactNode }) {
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider>
-      <GridLayout>{children}</GridLayout>
+      <BreadcrumbProvider>
+        <GridLayout>{children}</GridLayout>
+      </BreadcrumbProvider>
     </SidebarProvider>
   );
 }

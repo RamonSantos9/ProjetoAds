@@ -33,7 +33,14 @@ export interface Guest {
   social?: string;
   avatar?: string;
   email?: string;
+  role?: string;
+  company?: string;
+  phone?: string;
+  linkedin?: string;
+  instagram?: string;
+  website?: string;
   ownerId?: string | null;
+  workspaceId?: string;
 }
 
 export interface WordItem {
@@ -92,10 +99,13 @@ export interface Episode {
   category: EpisodeCategory;
   status: EpisodeStatus;
   duration: string;
+  scheduledAt?: string | null;
   guests: Guest[];
   platforms: string[];
   createdAt: string;
+  updatedAt?: string | null;
   ownerId?: string | null;
+  workspaceId?: string;
 
   audioUrl?: string;
   externalUrl?: string;
@@ -119,6 +129,7 @@ export interface StudioProject {
   lastModified: string;
   createdAt?: string;
   ownerId?: string | null;
+  workspaceId?: string;
 }
 
 export interface Feedback {
@@ -128,6 +139,7 @@ export interface Feedback {
   role: string;
   message: string;
   ownerId?: string | null;
+  workspaceId?: string;
 }
 
 export interface VisualAsset {
@@ -138,11 +150,13 @@ export interface VisualAsset {
   url: string;
   createdAt: string;
   ownerId?: string | null;
+  workspaceId?: string;
 }
 
 export interface PlayEvent {
   id: string;
   episodeId: string;
+  workspaceId?: string;
   device: 'desktop' | 'mobile';
   createdAt: string;
 }
@@ -158,9 +172,17 @@ export interface DbSchema {
 
 // ------ HELPER PARSERS (Simplified for Native PostgreSQL JSON) ------ //
 function mapEpisode(ep: any): Episode {
+  const now = new Date();
+  let status = ep.status as EpisodeStatus;
+
+  // Auto-resolve Agendado to Produção if the scheduled time has passed
+  if (status === 'Agendado' && ep.scheduledAt && new Date(ep.scheduledAt) <= now) {
+    status = 'Produção';
+  }
+
   return {
     ...ep,
-    status: ep.status as EpisodeStatus,
+    status,
     category: ep.category as EpisodeCategory,
     createdAt: ep.createdAt.toISOString(),
     // Prisma maps native PgSQL Json to JS objects/arrays automatically
@@ -170,25 +192,54 @@ function mapEpisode(ep: any): Episode {
     assets: ((ep as any).assets as UploadedFile[]) || [],
     sharingConfig: ((ep as any).sharingConfig as SharingConfig) || undefined,
     guests: ep.guests?.map((g: any) => g.guest) || [],
-    ownerName: ep.owner?.name || undefined,
+    ownerName: ep.owner?.name || ep.owner?.email || undefined,
+    scheduledAt: ep.scheduledAt ? ep.scheduledAt.toISOString() : null,
+    updatedAt: ep.updatedAt ? ep.updatedAt.toISOString() : null,
   };
 }
 
 // ------ READ FULL DB (Mocking legacy behavior) ------ //
-export async function readDb(): Promise<DbSchema> {
+export async function readDb(workspaceId: string = 'global'): Promise<DbSchema> {
   const episodesData = await prisma.episode.findMany({
+    where: { workspaceId },
     include: { 
-      guests: { include: { guest: true } },
+      guests: { 
+        include: { 
+          guest: {
+            select: {
+              id: true,
+              name: true,
+              bio: true,
+              social: true,
+              avatar: true,
+              email: true,
+              company: true,
+              phone: true,
+              linkedin: true,
+              website: true,
+              ownerId: true,
+              workspaceId: true,
+              createdAt: true
+            }
+          } 
+        } 
+      },
       owner: { select: { name: true } }
     },
     orderBy: { createdAt: 'desc' },
   });
   
-  const feedbacks = await prisma.feedback.findMany();
-  const projectsData = await prisma.studioProject.findMany({ orderBy: { lastModified: 'desc' } });
-  const guests = await prisma.guest.findMany();
-  const assetsData = await prisma.visualAsset.findMany({ orderBy: { createdAt: 'desc' } });
-  const eventsData = await prisma.playEvent.findMany();
+  const feedbacks = await prisma.feedback.findMany({ where: { workspaceId } });
+  const projectsData = await prisma.studioProject.findMany({ 
+    where: { workspaceId },
+    orderBy: { lastModified: 'desc' } 
+  });
+  const guests = await prisma.guest.findMany({ where: { workspaceId } });
+  const assetsData = await prisma.visualAsset.findMany({ 
+    where: { workspaceId },
+    orderBy: { createdAt: 'desc' } 
+  });
+  const eventsData = await prisma.playEvent.findMany({ where: { workspaceId } });
 
   return {
     episodes: episodesData.map(mapEpisode),
@@ -200,39 +251,80 @@ export async function readDb(): Promise<DbSchema> {
       tracks: ((p as any).tracks as TimelineTrack[]) || [],
       assets: ((p as any).assets as UploadedFile[]) || [],
     })),
-    guests: guests.map((g: any) => ({
+    guests: (await prisma.$queryRaw<any[]>`SELECT "id", "name", "bio", "social", "avatar", "email", "company", "phone", "linkedin", "website", "ownerId", "workspaceId" FROM "Guest" WHERE "workspaceId" = ${workspaceId}`).map((g: any) => ({
       ...g,
       email: g.email || undefined,
       avatar: g.avatar || undefined,
       bio: g.bio || undefined,
       social: g.social || undefined,
+      company: g.company || undefined,
+      phone: g.phone || undefined,
+      linkedin: g.linkedin || undefined,
+      website: g.website || undefined,
     })),
     assets: assetsData.map((a: any) => ({ ...a, createdAt: a.createdAt.toISOString() }) as VisualAsset),
     events: eventsData.map((e: any) => ({ ...e, device: e.device as 'desktop'|'mobile', createdAt: e.createdAt.toISOString() })),
   };
 }
 
+// ------ WORKSPACE HELPERS ------ //
+
+async function ensureWorkspaceExists(workspaceId: string) {
+  if (!workspaceId) return;
+  
+  // Try to find if workspace exists
+  const results = await prisma.$queryRaw<any[]>`
+    SELECT id FROM "GlobalWorkspace" WHERE id = ${workspaceId}
+  `;
+  
+  if (results.length === 0) {
+    console.log(`[WorkspaceGuard] Creating missing workspace entry: ${workspaceId}`);
+    try {
+      await prisma.$executeRaw`
+        INSERT INTO "GlobalWorkspace" ("id", "name", "type", "plan")
+        VALUES (${workspaceId}, 'Área de Trabalho', 'Individual', 'Personal')
+        ON CONFLICT (id) DO NOTHING
+      `;
+    } catch (e) {
+      console.error(`[WorkspaceGuard] Failed to create workspace ${workspaceId}:`, e);
+    }
+  }
+}
+
 // ------ EPISODE CRUD ------ //
 
-export async function addEpisode(record: Episode, userId: string) {
+export async function addEpisode(record: Episode, userId: string, workspaceId: string = 'global') {
   const { guests, platforms, segments, tracks, assets, sharingConfig, createdAt, ownerId, ...rest } = record;
   const id = record.id || `ep_${Math.random().toString(36).substring(2, 11)}`;
   const now = new Date().toISOString();
   
+  // Guard against ghost sessions (JWT exists but user was deleted from DB)
+  const userExists = await prisma.user.findUnique({ where: { id: userId } });
+  const safeUserId = userExists ? userId : null;
+  
+  // 1. Garantir que o Workspace existe (FK constraint protection)
+  await ensureWorkspaceExists(workspaceId);
+
+  // Auto-transition status based on scheduledAt
+  let finalStatus = record.status || 'Produção';
+  if (record.scheduledAt && new Date(record.scheduledAt) > new Date()) {
+    finalStatus = 'Agendado';
+  }
+
   // 1. Inserir o Episódio
   await prisma.$executeRaw`
     INSERT INTO "Episode" (
       "id", "slug", "title", "summary", "category", "status", "duration", 
       "createdAt", "updatedAt", "audioUrl", "externalUrl", "transcriptionText",
       "language", "confidence", "image", "platforms", "segments", "tracks",
-      "sharingConfig", "assets", "ownerId"
+      "sharingConfig", "assets", "ownerId", "workspaceId", "scheduledAt"
     ) VALUES (
       ${id}, 
       ${rest.slug}, 
       ${rest.title}, 
       ${rest.summary}, 
       ${rest.category}, 
-      ${rest.status}, 
+      ${finalStatus}, 
       ${rest.duration}, 
       ${createdAt ? new Date(createdAt).toISOString() : now}::timestamp,
       ${now}::timestamp,
@@ -247,7 +339,9 @@ export async function addEpisode(record: Episode, userId: string) {
       ${tracks ? JSON.stringify(tracks) : null}::jsonb,
       ${sharingConfig ? JSON.stringify(sharingConfig) : null}::jsonb,
       ${assets ? JSON.stringify(assets) : null}::jsonb,
-      ${userId}
+      ${safeUserId},
+      ${workspaceId},
+      ${rest.scheduledAt ? new Date(rest.scheduledAt).toISOString() : null}::timestamp
     )
   `;
 
@@ -257,8 +351,12 @@ export async function addEpisode(record: Episode, userId: string) {
       try {
         // Tenta garantir que o Guest existe (Raw)
         await prisma.$executeRaw`
-          INSERT INTO "Guest" ("id", "name", "ownerId", "createdAt")
-          VALUES (${g.id}, ${g.name}, ${userId}, ${now}::timestamp)
+          INSERT INTO "Guest" ("id", "name", "bio", "social", "avatar", "email", "role", "company", "phone", "linkedin", "website", "ownerId", "workspaceId", "createdAt")
+          VALUES (
+            ${g.id}, ${g.name}, ${g.bio || null}, ${g.social || null}, ${g.avatar || null}, ${g.email || null},
+            ${g.role || null}, ${g.company || null}, ${g.phone || null}, ${g.linkedin || null}, ${g.website || null},
+            ${safeUserId}, ${workspaceId}, ${now}::timestamp
+          )
           ON CONFLICT (id) DO NOTHING
         `;
         
@@ -275,16 +373,34 @@ export async function addEpisode(record: Episode, userId: string) {
   }
 }
 
-export async function updateEpisode(id: string, updates: Partial<Episode>, userId: string) {
+export async function updateEpisode(id: string, updates: Partial<Episode>, userId: string, userRole?: string, workspaceId: string = 'global') {
+  await ensureWorkspaceExists(workspaceId);
   const { guests, platforms, segments, tracks, assets, sharingConfig, createdAt, ownerId, ...rest } = updates;
   const now = new Date().toISOString();
   
-  // Security check: Verify ownership
-  const existingRecords = await prisma.$queryRaw<any[]>`SELECT "ownerId" FROM "Episode" WHERE id = ${id}`;
-  if (existingRecords.length > 0) {
-    const recordOwnerId = existingRecords[0].ownerId;
-    if (recordOwnerId && recordOwnerId !== userId) {
-      throw new Error("Não autorizado: Você não é o proprietário deste episódio.");
+  // Security check: Verify ownership (unless ADMIN/PROFESSOR)
+  const isElevated = userRole === 'ADMIN' || userRole === 'PROFESSOR';
+  
+  if (!isElevated) {
+    const existingRecords = await prisma.$queryRaw<any[]>`SELECT "ownerId" FROM "Episode" WHERE id = ${id}`;
+    if (existingRecords.length > 0) {
+      const recordOwnerId = existingRecords[0].ownerId;
+      if (recordOwnerId && recordOwnerId !== userId) {
+        throw new Error("Não autorizado: Você não é o proprietário deste episódio.");
+      }
+    }
+  }
+
+  // Guard against ghost sessions
+  const userExists = await prisma.user.findUnique({ where: { id: userId } });
+  const safeUserId = userExists ? userId : null;
+
+  let finalStatus = rest.status;
+  // Auto-transition status based on scheduledAt if status is Produção or undefined
+  if (rest.scheduledAt !== undefined) {
+    const isFuture = rest.scheduledAt && new Date(rest.scheduledAt) > new Date();
+    if (isFuture && (!rest.status || rest.status === 'Produção')) {
+      finalStatus = 'Agendado';
     }
   }
 
@@ -292,12 +408,13 @@ export async function updateEpisode(id: string, updates: Partial<Episode>, userI
   if (rest.title !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "title" = ${rest.title} WHERE id = ${id}`;
   if (rest.summary !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "summary" = ${rest.summary} WHERE id = ${id}`;
   if (rest.category !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "category" = ${rest.category} WHERE id = ${id}`;
-  if (rest.status !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "status" = ${rest.status} WHERE id = ${id}`;
+  if (finalStatus !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "status" = ${finalStatus} WHERE id = ${id}`;
   if (rest.duration !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "duration" = ${rest.duration} WHERE id = ${id}`;
   if (rest.image !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "image" = ${rest.image} WHERE id = ${id}`;
   if (rest.audioUrl !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "audioUrl" = ${rest.audioUrl} WHERE id = ${id}`;
   if (rest.externalUrl !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "externalUrl" = ${rest.externalUrl} WHERE id = ${id}`;
   if (rest.transcriptionText !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "transcriptionText" = ${rest.transcriptionText} WHERE id = ${id}`;
+  if (rest.scheduledAt !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "scheduledAt" = ${rest.scheduledAt ? new Date(rest.scheduledAt).toISOString() : null}::timestamp WHERE id = ${id}`;
   
   // Update JSON Fields
   if (platforms !== undefined) await prisma.$executeRaw`UPDATE "Episode" SET "platforms" = ${JSON.stringify(platforms)}::jsonb WHERE id = ${id}`;
@@ -315,8 +432,12 @@ export async function updateEpisode(id: string, updates: Partial<Episode>, userI
     if (guests && guests.length > 0) {
       for (const g of guests) {
         await prisma.$executeRaw`
-          INSERT INTO "Guest" ("id", "name", "ownerId", "createdAt")
-          VALUES (${g.id}, ${g.name}, ${userId}, ${now}::timestamp)
+          INSERT INTO "Guest" ("id", "name", "bio", "social", "avatar", "email", "role", "company", "phone", "linkedin", "website", "ownerId", "workspaceId", "createdAt")
+          VALUES (
+            ${g.id}, ${g.name}, ${g.bio || null}, ${g.social || null}, ${g.avatar || null}, ${g.email || null},
+            ${g.role || null}, ${g.company || null}, ${g.phone || null}, ${g.linkedin || null}, ${g.website || null},
+            ${safeUserId}, ${workspaceId}, ${now}::timestamp
+          )
           ON CONFLICT (id) DO NOTHING
         `;
         await prisma.$executeRaw`
@@ -333,7 +454,27 @@ export async function getEpisodeBySlug(slug: string): Promise<Episode | null> {
   const ep = await prisma.episode.findUnique({
     where: { slug },
     include: { 
-      guests: { include: { guest: true } },
+      guests: { 
+        include: { 
+          guest: {
+            select: {
+              id: true,
+              name: true,
+              bio: true,
+              social: true,
+              avatar: true,
+              email: true,
+              company: true,
+              phone: true,
+              linkedin: true,
+              website: true,
+              ownerId: true,
+              workspaceId: true,
+              createdAt: true
+            }
+          } 
+        } 
+      },
       owner: { select: { name: true } }
     }
   });
@@ -344,18 +485,42 @@ export async function getEpisodeById(id: string): Promise<Episode | null> {
   const ep = await prisma.episode.findUnique({
     where: { id },
     include: { 
-      guests: { include: { guest: true } },
+      guests: { 
+        include: { 
+          guest: {
+            select: {
+              id: true,
+              name: true,
+              bio: true,
+              social: true,
+              avatar: true,
+              email: true,
+              company: true,
+              phone: true,
+              linkedin: true,
+              website: true,
+              ownerId: true,
+              workspaceId: true,
+              createdAt: true
+            }
+          } 
+        } 
+      },
       owner: { select: { name: true } }
     }
   });
   return ep ? mapEpisode(ep) : null;
 }
 
-export async function deleteEpisode(id: string, userId: string) {
-  // Security check: Verify ownership
-  const existing = await prisma.$queryRaw<any[]>`SELECT "ownerId" FROM "Episode" WHERE id = ${id}`;
-  if (existing.length > 0 && existing[0].ownerId && existing[0].ownerId !== userId) {
-    throw new Error("Não autorizado: Você não é o proprietário deste episódio.");
+export async function deleteEpisode(id: string, userId: string, userRole?: string) {
+  // Security check: Verify ownership (unless ADMIN/PROFESSOR)
+  const isElevated = userRole === 'ADMIN' || userRole === 'PROFESSOR';
+  
+  if (!isElevated) {
+      const existing = await prisma.$queryRaw<any[]>`SELECT "ownerId" FROM "Episode" WHERE id = ${id}`;
+      if (existing.length > 0 && existing[0].ownerId && existing[0].ownerId !== userId) {
+        throw new Error("Não autorizado: Você não é o proprietário deste episódio.");
+      }
   }
 
   // Delete relations first (though Cascade should handle most, raw SQL is safer here)
@@ -369,11 +534,11 @@ export async function deleteEpisode(id: string, userId: string) {
 
 // ------ STUDIO PROJECT CRUD ------ //
 
-export async function getProjects(userId: string, role: string): Promise<StudioProject[]> {
+export async function getProjects(userId: string, role: string, workspaceId: string = 'global'): Promise<StudioProject[]> {
   const isElevated = role === 'ADMIN' || role === 'PROFESSOR';
   
   const projects = await prisma.studioProject.findMany({
-    where: isElevated ? {} : { ownerId: userId },
+    where: isElevated && workspaceId === 'global' ? {} : { ownerId: userId, workspaceId },
     orderBy: { lastModified: 'desc' }
   });
   
@@ -398,7 +563,7 @@ export async function getProjectById(id: string): Promise<StudioProject | null> 
   } as StudioProject;
 }
 
-export async function addProject(project: StudioProject, userId: string) {
+export async function addProject(project: StudioProject, userId: string, workspaceId: string = 'global') {
   const { tracks, assets, lastModified, createdAt, ownerId, ...rest } = project;
   await prisma.studioProject.create({
     data: {
@@ -407,7 +572,8 @@ export async function addProject(project: StudioProject, userId: string) {
       createdAt: createdAt ? new Date(createdAt) : undefined,
       tracks: (tracks as any) || [],
       assets: (assets as any) || [],
-      ownerId: userId
+      ownerId: userId,
+      workspaceId
     }
   });
 }
@@ -476,52 +642,81 @@ export async function deleteProject(id: string, userId: string, role: string) {
 
 // ------ GUEST CRUD ------ //
 
-export async function getGuests(): Promise<Guest[]> {
-  const list = await prisma.guest.findMany();
+export async function getGuests(workspaceId: string = 'global'): Promise<Guest[]> {
+  const list = await prisma.$queryRaw<any[]>`
+    SELECT "id", "name", "bio", "social", "avatar", "email", "company", "phone", "linkedin", "website", "ownerId", "workspaceId"
+    FROM "Guest" 
+    WHERE "workspaceId" = ${workspaceId}
+  `;
   return list.map((g: any) => ({
     ...g,
     email: g.email || undefined,
     avatar: g.avatar || undefined,
     bio: g.bio || undefined,
     social: g.social || undefined,
+    company: g.company || undefined,
+    phone: g.phone || undefined,
+    linkedin: g.linkedin || undefined,
+    website: g.website || undefined,
   }));
 }
 
-export async function addGuest(record: Guest, userId: string) {
-  await prisma.guest.create({ data: { ...record, ownerId: userId } });
+export async function addGuest(record: Guest, userId: string, workspaceId: string = 'global') {
+  await ensureWorkspaceExists(workspaceId);
+  const now = new Date().toISOString();
+  
+  // Guard against ghost sessions
+  const userExists = await prisma.user.findUnique({ where: { id: userId } });
+  const safeUserId = userExists ? userId : null;
+  
+  await prisma.$executeRaw`
+    INSERT INTO "Guest" ("id", "name", "bio", "social", "avatar", "email", "company", "phone", "linkedin", "website", "ownerId", "workspaceId", "createdAt")
+    VALUES (
+      ${record.id}, ${record.name}, ${record.bio || null}, ${record.social || null}, ${record.avatar || null}, 
+      ${record.email || null}, ${record.company || null}, ${record.phone || null}, 
+      ${record.linkedin || null}, ${record.website || null}, ${safeUserId}, ${workspaceId}, ${now}::timestamp
+    )
+  `;
 }
 
 export async function updateGuest(id: string, updates: Partial<Guest>, userId: string) {
-  const existing = await prisma.guest.findUnique({ where: { id } });
-  if (existing && existing.ownerId && existing.ownerId !== userId) {
-    throw new Error("Não autorizado.");
-  }
-  await prisma.guest.update({ where: { id }, data: updates });
+  const safeUserId = userId; 
+  
+  // Update fields individually via RAW SQL
+  if (updates.name !== undefined) await prisma.$executeRaw`UPDATE "Guest" SET "name" = ${updates.name} WHERE id = ${id}`;
+  if (updates.bio !== undefined) await prisma.$executeRaw`UPDATE "Guest" SET "bio" = ${updates.bio} WHERE id = ${id}`;
+  if (updates.social !== undefined) await prisma.$executeRaw`UPDATE "Guest" SET "social" = ${updates.social} WHERE id = ${id}`;
+  if (updates.avatar !== undefined) await prisma.$executeRaw`UPDATE "Guest" SET "avatar" = ${updates.avatar} WHERE id = ${id}`;
+  if (updates.email !== undefined) await prisma.$executeRaw`UPDATE "Guest" SET "email" = ${updates.email} WHERE id = ${id}`;
+  if (updates.company !== undefined) await prisma.$executeRaw`UPDATE "Guest" SET "company" = ${updates.company} WHERE id = ${id}`;
+  if (updates.phone !== undefined) await prisma.$executeRaw`UPDATE "Guest" SET "phone" = ${updates.phone} WHERE id = ${id}`;
+  if (updates.linkedin !== undefined) await prisma.$executeRaw`UPDATE "Guest" SET "linkedin" = ${updates.linkedin} WHERE id = ${id}`;
+  if (updates.website !== undefined) await prisma.$executeRaw`UPDATE "Guest" SET "website" = ${updates.website} WHERE id = ${id}`;
 }
 
 export async function deleteGuest(id: string, userId: string) {
-  const existing = await prisma.guest.findUnique({ where: { id } });
-  if (existing && existing.ownerId && existing.ownerId !== userId) {
-    throw new Error("Não autorizado.");
-  }
-  await prisma.guest.delete({ where: { id } });
+  await prisma.$executeRaw`DELETE FROM "Guest" WHERE "id" = ${id}`;
 }
 
 // ------ ASSET CRUD ------ //
 
-export async function getVisualAssets(): Promise<VisualAsset[]> {
-  const assets = await prisma.visualAsset.findMany({ orderBy: { createdAt: 'desc' } });
+export async function getVisualAssets(workspaceId: string = 'global'): Promise<VisualAsset[]> {
+  const assets = await prisma.visualAsset.findMany({ 
+    where: { workspaceId },
+    orderBy: { createdAt: 'desc' } 
+  });
   return assets.map((a: any) => ({ ...a, createdAt: a.createdAt.toISOString() }) as VisualAsset);
 }
 
-export async function addVisualAsset(record: VisualAsset, userId: string) {
+export async function addVisualAsset(record: VisualAsset, userId: string, workspaceId: string = 'global') {
   const { episodeId, createdAt, ownerId, ...rest } = record;
   await prisma.visualAsset.create({
     data: {
       ...rest,
       episodeId: episodeId || null,
       createdAt: createdAt ? new Date(createdAt) : undefined,
-      ownerId: userId
+      ownerId: userId,
+      workspaceId
     }
   });
 }
@@ -538,17 +733,30 @@ export async function deleteVisualAsset(id: string, userId: string, role: string
 }
 
 export async function recordPlayEvent(event: Omit<PlayEvent, 'id' | 'createdAt'>) {
-  const id = `evt_${Math.random().toString(36).substring(2, 11)}`;
-  const now = new Date().toISOString();
-  
-  await prisma.$executeRaw`
-    INSERT INTO "PlayEvent" ("id", "episodeId", "device", "createdAt")
-    VALUES (${id}, ${event.episodeId}, ${event.device}, ${now}::timestamp)
-  `;
+  try {
+    const episode = await prisma.episode.findUnique({
+      where: { id: event.episodeId },
+      select: { workspaceId: true }
+    });
+
+    await prisma.playEvent.create({
+      data: {
+        episodeId: event.episodeId,
+        device: event.device,
+        workspaceId: episode?.workspaceId || 'global'
+      }
+    });
+  } catch (error) {
+    console.error('Error recording play event:', error);
+    throw error;
+  }
 }
 
-export async function getPlayEvents(): Promise<PlayEvent[]> {
-  const events = await prisma.playEvent.findMany({ orderBy: { createdAt: 'desc' } });
+export async function getPlayEvents(workspaceId: string = 'global'): Promise<PlayEvent[]> {
+  const events = await prisma.playEvent.findMany({ 
+    where: { workspaceId },
+    orderBy: { createdAt: 'desc' } 
+  });
   return events.map((e: any) => ({
     ...e,
     device: e.device as 'desktop' | 'mobile',

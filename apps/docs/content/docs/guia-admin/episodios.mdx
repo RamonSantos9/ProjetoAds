@@ -58,7 +58,7 @@ Para operadores de mídia e desenvolvedores, o sistema impõe as seguintes regra
   que apenas áudios compatíveis sejam publicados. - **Slugs Amigáveis**: URLs
   são normalizadas para SEO (Search Engine Optimization) no momento da criação.
   - **Persistência Federada**: Alterações no `/admin` são propagadas
-  instantaneamente para o cache do `db.json`, refletindo em tempo real no
+  instantaneamente para o banco de dados (PostgreSQL), refletindo em tempo real no
   Dashboard do Ouvinte.
 </Callout>
 
@@ -68,4 +68,4 @@ Caso um episódio apresente erro de carregamento:
 
 1. Verifique a validade da URL da mídia no campo `audioUrl`.
 2. Certifique-se de que o convidado (`participant`) ainda existe na base de dados.
-3. Limpe o cache do Next.js se a alteração for estrutural no `db.json`.
+3. Limpe o cache do Next.js se a alteração for estrutural no banco de dados.
